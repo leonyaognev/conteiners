@@ -139,9 +139,14 @@ class BaseArray {
 
   void Print() {
     std::stringstream out;
+    out << "[";
     for (size_t i = 0; i < _size; i++) {
       out << _data[i];
+      if (i != _size - 1) {
+        out << ", ";
+      }
     }
+    out << "]";
     std::string str = out.str();
     log_info("Array: %s", str.c_str());
   }
