@@ -3,16 +3,15 @@ MAKEFLAGS += --no-print-directory
 # Compiler and flags
 DEBUG_LEVEL ?= 2
 
-CC = gcc -DDEBUG_LEVEL=$(DEBUG_LEVEL)
+CC = g++ -DDEBUG_LEVEL=$(DEBUG_LEVEL)
 
-SRC_HELP   := $(wildcard ./src/helpers/*.cpp)
 HEADER_FILES = -I./ -I./src/include/ -I./src/vendor/logger/
-CFLAGS     = -Wall -Wextra -Werror $(HEADER_FILES) -x c++ -std=c++20 -lstdc++
+CFLAGS     = -Wall -Wextra -Werror $(HEADER_FILES)
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage -lgcov -O0 -g
 
 # Sources and objects
-SRC_CORE   := $(wildcard ./src/core_files/*.cpp)
-SRC        := $(SRC_CORE) $(SRC_HELP)
+SRC_CORE   := 
+SRC        := $(wildcard ./src/*.cpp)
 
 OBJ        := $(patsubst ./src/%.cpp, build/obj/%.o, $(SRC))
 OBJ_GCOV   := $(patsubst ./src/%.cpp, build/gcov/%.o, $(SRC))
@@ -23,10 +22,9 @@ DONE       := 0
 
 TOTAL_GCOV := $(words $(OBJ_GCOV))
 DONE_GCOV  := 0
-
 # Main targets
-TARGET     = s21_matrix_oop.a
-TEST_SRC   = $(wildcard ./test/*.cpp ./test/tests/manual/*.cpp ./test/tests/generate/*.cpp)
+TARGET     = s21_contaners.a
+TEST_SRC   = $(wildcard ./test/*.cpp)
 OS         := $(shell uname -s)
 
 # ---------------------------------------------------------------------------
@@ -99,14 +97,14 @@ test: compile_logger mkbuild lib_gcov $(OBJ_GCOV)
 run_test: test
 	@echo
 	@echo "Run tests..."
-	@./build/gcov/test > /tmp/s21_matrix_test.log 2>&1 || true
-	@if grep -q "\[  FAILED  \]" /tmp/s21_matrix_test.log; then \
+	@./build/gcov/test > /tmp/s21_containers_test.log 2>&1 || true
+	@if grep -q "\[  FAILED  \]" /tmp/s21_containers_test.log; then \
 		echo "FAIL! 💥"; \
-		cat /tmp/s21_matrix_test.log; \
+		cat /tmp/s21_containers_test.log; \
 	else \
 		echo "SUCCESFUL! ✅"; \
 	fi
-	@rm -f /tmp/s21_matrix_test.log
+	@rm -f /tmp/s21_containers_test.log
 	@echo
 
 # ---------------------------------------------------------------------------
