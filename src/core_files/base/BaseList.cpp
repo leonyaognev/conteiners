@@ -29,23 +29,23 @@ ListBase<T>::ListBase(ListBase&& other) noexcept : dummy(), _size(other._size) {
 }
 
 template <typename T>
-void ListBase<T>::pushFront(T&& data) {
-  insert(begin(), std::move(data));
+void ListBase<T>::pushFront(T&& value) {
+  insert(begin(), std::move(value));
 }
 
 template <typename T>
-void ListBase<T>::pushFront(const T& data) {
-  insert(begin(), data);
+void ListBase<T>::pushFront(const T& value) {
+  insert(begin(), value);
 }
 
 template <typename T>
-void ListBase<T>::pushBack(T&& data) {
-  insert(end(), std::move(data));
+void ListBase<T>::pushBack(T&& value) {
+  insert(end(), std::move(value));
 }
 
 template <typename T>
-void ListBase<T>::pushBack(const T& data) {
-  insert(end(), data);
+void ListBase<T>::pushBack(const T& value) {
+  insert(end(), value);
 }
 
 template <typename T>
@@ -60,13 +60,13 @@ void ListBase<T>::popBack() {
 
 template <typename T>
 typename ListBase<T>::iterator ListBase<T>::insert(iterator pos,
-                                                   const T& data) {
-  return insert(pos, T(data));
+                                                   const T& value) {
+  return insert(pos, T(value));
 }
 
 template <typename T>
-typename ListBase<T>::iterator ListBase<T>::insert(iterator pos, T&& data) {
-  node* newNode = new node(std::move(data));
+typename ListBase<T>::iterator ListBase<T>::insert(iterator pos, T&& value) {
+  node* newNode = new node(std::move(value));
   node* posNode = pos.current;
 
   newNode->prev = posNode->prev;
@@ -82,14 +82,14 @@ typename ListBase<T>::iterator ListBase<T>::insert(iterator pos, T&& data) {
 template <typename T>
 typename ListBase<T>::iterator ListBase<T>::insert(iterator pos,
                                                    std::size_t count,
-                                                   const T& data) {
+                                                   const T& value) {
   if (count == 0) return pos;
 
-  iterator res = insert(pos, data);
+  iterator res = insert(pos, value);
   iterator current = res;
 
   for (std::size_t i = 1; i < count; ++i) {
-    current = insert(pos, data);
+    current = insert(pos, value);
   }
   return res;
 }

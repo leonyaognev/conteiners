@@ -1,4 +1,6 @@
+
 #pragma once
+#include <cstddef>
 #include <utility>
 
 /**
@@ -25,14 +27,14 @@ class ListBase {
     node() : next(this), prev(this) {}
 
     /**
-     * @brief Copy constructor for value initialization.
-     * @param value value to initialize data.
+     * @brief Constructor with copy initialization.
+     * @param value value to initialize node's data.
      */
     node(const T& value) : data(value) {}
 
     /**
-     * @brief Move constructor for value initialization.
-     * @param value value to initialize data.
+     * @brief Constructor with move initialization.
+     * @param value value to initialize node's data.
      */
     node(T&& value) : data(std::move(value)) {}
   };
@@ -52,7 +54,7 @@ class ListBase {
 
     /** @brief Default constructor (nullptr). */
     iterator() : current(nullptr) {}
-    /** @brief Iterator from a node pointer. */
+    /** @brief Constructor from a node pointer. */
     iterator(node* ptr) : current(ptr) {}
     /** @brief Copy constructor. */
     iterator(const iterator& it) : current(it.current) {}
@@ -72,7 +74,7 @@ class ListBase {
       iterator tmp = *this;
       current = current->next;
       return tmp;
-    };
+    }
 
     /** @brief Prefix decrement. */
     iterator& operator--() {
@@ -96,100 +98,167 @@ class ListBase {
     }
   };
 
-  node dummy;             ///< Dummy node (closes the list in a ring).
-  std::size_t _size = 0;  ///< Number of elements in the list.
+  node dummy;             ///< Dummy node (closes the list in a ring)
+  std::size_t _size = 0;  ///< Number of elements in the list
 
  public:
   /** @brief Default constructor. */
   ListBase();
+
+  /**
+   * @brief Constructs a list with a number of identical elements.
+   * @param count Number of elements
+   * @param value Value to initialize elements
+   */
+  ListBase(std::size_t count, const T& value);
+
+  /**
+   * @brief Constructs a list from a range of elements.
+   * @tparam InputIt Input iterator type
+   * @param first Start of the range
+   * @param last End of the range
+   */
+  template <typename InputIt>
+  ListBase(InputIt first, InputIt last);
+
   /** @brief Copy constructor. */
   ListBase(const ListBase& other);
+
   /** @brief Move constructor. */
   ListBase(ListBase&& other) noexcept;
+
   /** @brief Destructor, clears the list. */
-  ~ListBase() noexcept { clear(); };
+  ~ListBase() noexcept { clear(); }
 
-  /**
-   * @brief Inserts an element before the iterator position.
-   * @param pos insertion position.
-   * @param data element value.
-   * @return iterator to the inserted element.
-   */
-  iterator insert(iterator pos, const T& data);
+  /** @brief Assigns `count` copies of `value` to the list. */
+  void assign(std::size_t count, const T& value);
 
-  /**
-   * @brief Inserts an element (by move) before the iterator position.
-   * @param pos insertion position.
-   * @param data element value.
-   * @return iterator to the inserted element.
-   */
-  iterator insert(iterator pos, T&& data);
+  /** @brief Assigns elements from a range to the list. */
+  template <typename InputIt>
+  void assign(InputIt first, InputIt last);
 
-  /**
-   * @brief Inserts several identical elements.
-   * @param pos insertion position.
-   * @param count number of copies.
-   * @param data element value.
-   * @return iterator to the first inserted element.
-   */
-  iterator insert(iterator pos, std::size_t count, const T& data);
+  /** @brief Access first element. */
+  T& front() noexcept { return dummy.next->data; }
+  /** @brief Access first element (const). */
+  const T& front() const noexcept { return dummy.next->data; }
 
-  /**
-   * @brief Inserts a range of elements.
-   * @tparam InputIt input iterator type.
-   * @param pos insertion position.
-   * @param first range start.
-   * @param last range end.
-   * @return iterator to the first inserted element.
-   */
+  /** @brief Access last element. */
+  T& back() noexcept { return dummy.prev->data; }
+  /** @brief Access last element (const). */
+  const T& back() const noexcept { return dummy.prev->data; }
+
+  /** @brief Inserts a copy of `value` before `pos`. */
+  iterator insert(iterator pos, const T& value);
+
+  /** @brief Inserts a moved `value` before `pos`. */
+  iterator insert(iterator pos, T&& value);
+
+  /** @brief Inserts `count` copies of `value` before `pos`. */
+  iterator insert(iterator pos, std::size_t count, const T& value);
+
+  /** @brief Inserts a range of elements before `pos`. */
   template <typename InputIt>
   iterator insert(iterator pos, InputIt first, InputIt last);
 
-  /**
-   * @brief Erases an element.
-   * @param pos iterator to the element.
-   * @return iterator to the next element.
-   */
+  /** @brief Constructs element(s) in place before `pos`. */
+  template <typename... Args>
+  iterator emplace(iterator pos, Args&&... args);
+
+  /** @brief Erases element at `pos`. */
   iterator erase(iterator pos);
 
-  /**
-   * @brief Erases a range of elements.
-   * @param first range start.
-   * @param last range end.
-   * @return iterator to the element following the last erased.
-   */
+  /** @brief Erases elements in range [first, last). */
   iterator erase(iterator first, iterator last);
 
-  /** @brief Adds an element to the front (by move). */
-  void pushFront(T&& data);
-  /** @brief Adds an element to the front (by copy). */
-  void pushFront(const T& data);
+  /** @brief Pushes a copy of `value` to the front. */
+  void pushFront(const T& value);
+  /** @brief Pushes a moved `value` to the front. */
+  void pushFront(T&& value);
 
-  /** @brief Adds an element to the back (by move). */
-  void pushBack(T&& data);
-  /** @brief Adds an element to the back (by copy). */
-  void pushBack(const T& data);
+  /** @brief Pushes a copy of `value` to the back. */
+  void pushBack(const T& value);
+  /** @brief Pushes a moved `value` to the back. */
+  void pushBack(T&& value);
+
+  /** @brief Constructs element(s) in place at the front. */
+  template <typename... Args>
+  void emplaceFront(Args&&... args) {
+    emplace(begin(), std::forward<Args>(args)...);
+  }
+
+  /** @brief Constructs element(s) in place at the back. */
+  template <typename... Args>
+  void emplaceBack(Args&&... args) {
+    emplace(end(), std::forward<Args>(args)...);
+  }
 
   /** @brief Removes the first element. */
   void popFront();
   /** @brief Removes the last element. */
   void popBack();
 
-  /** @brief Iterator to the beginning of the container. */
-  iterator begin() noexcept { return iterator(dummy.next); }
-  /** @brief Iterator to the end of the container (dummy node). */
-  iterator end() noexcept { return iterator(dummy); }
-  /** @brief Iterator to the last element. */
-  iterator rbegin() noexcept { return iterator(dummy.prev); }
-  /** @brief Iterator to the dummy node (used as r-end). */
-  iterator rend() noexcept { return iterator(dummy); }
+  /** @brief Resizes the list to contain `count` default elements. */
+  void resize(std::size_t count);
 
-  /** @brief Number of elements in the list. */
-  std::size_t size() const noexcept { return _size; };
-  /** @brief Clears all elements. */
+  /** @brief Resizes the list to contain `count` copies of `value`. */
+  void resize(std::size_t count, const T& value);
+
+  /** @brief Swaps contents with `other`. */
+  void swap(ListBase& other) noexcept;
+
+  /** @brief Merges sorted list `other` into this list. */
+  void merge(ListBase& other);
+
+  /** @brief Merges sorted list `other` using custom comparator. */
+  template <typename Compare>
+  void merge(ListBase& other, Compare comp);
+
+  /** @brief Moves all elements from `other` before `pos`. */
+  void splice(iterator pos, ListBase& other);
+
+  /** @brief Moves single element from `other` before `pos`. */
+  void splice(iterator pos, ListBase& other, iterator it);
+
+  /** @brief Moves range [first, last) from `other` before `pos`. */
+  template <typename InputIt>
+  void splice(iterator pos, ListBase& other, InputIt first, InputIt last);
+
+  /** @brief Removes elements equal to `value`. */
+  void remove(const T& value);
+
+  /** @brief Removes elements matching predicate `p`. */
+  template <typename BinaryPredicate>
+  void remove(BinaryPredicate p);
+
+  /** @brief Removes consecutive duplicates. */
+  void unique();
+
+  /** @brief Removes consecutive duplicates matching predicate `p`. */
+  template <typename BinaryPredicate>
+  void unique(BinaryPredicate p);
+
+  /** @brief Sorts the list. */
+  void sort();
+
+  /** @brief Sorts the list using comparator `comp`. */
+  template <typename Compare>
+  void sort(Compare comp);
+
+  /** @brief Iterator to the beginning. */
+  iterator begin() const noexcept { return iterator(dummy.next); }
+  /** @brief Iterator to the end (dummy node). */
+  iterator end() const noexcept { return iterator(&dummy); }
+  /** @brief Reverse iterator to the last element. */
+  iterator rbegin() const noexcept { return iterator(dummy.prev); }
+  /** @brief Reverse iterator to dummy node (rend). */
+  iterator rend() const noexcept { return iterator(&dummy); }
+
+  /** @brief Returns number of elements. */
+  std::size_t size() const noexcept { return _size; }
+  /** @brief Clears the list. */
   void clear() noexcept;
-  /** @brief Checks if the list is empty. */
-  bool empty() const noexcept { return _size == 0; };
+  /** @brief Checks if list is empty. */
+  bool empty() const noexcept { return _size == 0; }
 
   /** @brief Copy assignment operator. */
   ListBase& operator=(const ListBase& other);
