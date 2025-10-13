@@ -81,12 +81,12 @@ class BaseArray {
 
  public:
   /** @brief Default constructor, creates empty array. */
-  BaseArray() : _data(nullptr), _size(0), _capacity(0) {}
+  BaseArray() : _data(nullptr), _capacity(0), _size(0) {}
   /** @brief Constructor with initial size. */
-  BaseArray(std::size_t n) : _data(new T[n]), _size(n), _capacity(n) {}
+  BaseArray(std::size_t n) : _data(new T[n]), _capacity(sizeof(T) * n), _size(n)  {}
   /** @brief Constructor with initial size and value. */
   BaseArray(std::size_t n, const T& value)
-      : _data(new T[n]), _size(n), _capacity(n) {
+      : _data(new T[n]), _capacity(sizeof(T) * n), _size(n)  {
     for (std::size_t i = 0; i < _size; i++) {
       _data[i] = value;
     }
@@ -181,7 +181,7 @@ class BaseArray {
   const T& operator[](std::size_t index) const { return _data[index]; }
 
   /** @brief Three-way comparison operator. */
-  auto operator<=>(BaseArray other);
+  auto operator<=>(const BaseArray& other);
 
   /**
    * @brief Print array contents via logger.
