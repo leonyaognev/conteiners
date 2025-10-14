@@ -1,6 +1,7 @@
 
 #pragma once
 #include <cstddef>
+#include <new>
 #include <utility>
 
 /**
@@ -29,12 +30,14 @@ class ListBase {
     /**
      * @brief Constructor with copy initialization.
      * @param value value to initialize node's data.
+     * @throws std::bad_alloc if memory allocation fails
      */
     node(const T& value) : data(value) {}
 
     /**
      * @brief Constructor with move initialization.
      * @param value value to initialize node's data.
+     * @throws std::bad_alloc if memory allocation fails
      */
     node(T&& value) : data(std::move(value)) {}
   };
@@ -148,19 +151,33 @@ class ListBase {
   const T& back() const noexcept { return dummy.prev->data; }
 
   /** @brief Inserts a copy of `value` before `pos`. */
-  iterator insert(iterator pos, const T& value);
+  iterator insert(iterator pos, const T& value) {
+    return insert(pos, T(value));
+  }
 
-  /** @brief Inserts a moved `value` before `pos`. */
+  /**
+   * @brief Inserts a moved `value` before `pos`.
+   * @throws std::bad_alloc if memory allocation fails iterator
+   */
   iterator insert(iterator pos, T&& value);
 
-  /** @brief Inserts `count` copies of `value` before `pos`. */
+  /**
+   * @brief Inserts `count` copies of `value` before `pos`.
+   * @throws std::bad_alloc if memory allocation fails iterator
+   */
   iterator insert(iterator pos, std::size_t count, const T& value);
 
-  /** @brief Inserts a range of elements before `pos`. */
+  /**
+   * @brief Inserts a range of elements before `pos`.
+   * @throws std::bad_alloc if memory allocation fails iterator
+   */
   template <typename InputIt>
   iterator insert(iterator pos, InputIt first, InputIt last);
 
-  /** @brief Constructs element(s) in place before `pos`. */
+  /**
+   * @brief Constructs element(s) in place before `pos`.
+   * @throws std::bad_alloc if memory allocation fails iterator
+   */
   template <typename... Args>
   iterator emplace(iterator pos, Args&&... args);
 
@@ -171,43 +188,60 @@ class ListBase {
   iterator erase(iterator first, iterator last);
 
   /** @brief Pushes a copy of `value` to the front. */
-  void pushFront(const T& value);
+  void pushFront(const T& value) { insert(begin(), value); }
   /** @brief Pushes a moved `value` to the front. */
-  void pushFront(T&& value);
+  void pushFront(T&& value) { insert(begin(), std::move(value)); }
 
-  /** @brief Pushes a copy of `value` to the back. */
-  void pushBack(const T& value);
-  /** @brief Pushes a moved `value` to the back. */
-  void pushBack(T&& value);
+  /**
+   * @brief Pushes a copy of `value` to the back.
+   * @throws std::bad_alloc if memory allocation fails iterator
+   */
+  void pushBack(const T& value) { insert(end(), value); }
+  /**
+   * @brief Pushes a moved `value` to the back.
+   * @throws std::bad_alloc if memory allocation fails iterator
+   */
+  void pushBack(T&& value) { insert(end(), std::move(value)); }
 
-  /** @brief Constructs element(s) in place at the front. */
+  /**
+   * @brief Constructs element(s) in place at the front. */
   template <typename... Args>
   void emplaceFront(Args&&... args) {
     emplace(begin(), std::forward<Args>(args)...);
   }
 
-  /** @brief Constructs element(s) in place at the back. */
+  /**
+   * @brief Constructs element(s) in place at the back.
+   * @throws std::bad_alloc if memory allocation fails iterator
+   */
   template <typename... Args>
   void emplaceBack(Args&&... args) {
     emplace(end(), std::forward<Args>(args)...);
   }
 
   /** @brief Removes the first element. */
-  void popFront();
+  void popFront() {
+    if (!empty()) erase(begin());
+  }
   /** @brief Removes the last element. */
-  void popBack();
+  void popBack() {
+    if (!empty()) erase(--end());
+  }
 
   /** @brief Resizes the list to contain `count` default elements. */
-  void resize(std::size_t count);
+  void resize(std::size_t count) { resize(count, T()); }
 
-  /** @brief Resizes the list to contain `count` copies of `value`. */
+  /**
+   * @brief Resizes the list to contain `count` copies of `value`.
+   * @throws std::bad_alloc if memory allocation fails iterator
+   */
   void resize(std::size_t count, const T& value);
 
   /** @brief Swaps contents with `other`. */
   void swap(ListBase& other) noexcept;
 
   /** @brief Merges sorted list `other` into this list. */
-  void merge(ListBase& other);
+  void merge(ListBase& other) { merge(other, std::less<T>()); }
 
   /** @brief Merges sorted list `other` using custom comparator. */
   template <typename Compare>
@@ -231,14 +265,14 @@ class ListBase {
   void remove(BinaryPredicate p);
 
   /** @brief Removes consecutive duplicates. */
-  void unique();
+  void unique() { unique(std::equal_to<T>()); }
 
   /** @brief Removes consecutive duplicates matching predicate `p`. */
   template <typename BinaryPredicate>
   void unique(BinaryPredicate p);
 
   /** @brief Sorts the list. */
-  void sort();
+  void sort() { sort(std::less<T>()); }
 
   /** @brief Sorts the list using comparator `comp`. */
   template <typename Compare>
@@ -260,7 +294,10 @@ class ListBase {
   /** @brief Checks if list is empty. */
   bool empty() const noexcept { return _size == 0; }
 
-  /** @brief Copy assignment operator. */
+  /**
+   * @brief Copy assignment operator.
+   * @throws std::bad_alloc if memory allocation fails iterator
+   */
   ListBase& operator=(const ListBase& other);
   /** @brief Move assignment operator. */
   ListBase& operator=(ListBase&& other) noexcept;
