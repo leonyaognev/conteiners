@@ -105,6 +105,8 @@ class ListBase {
   std::size_t _size = 0;  ///< Number of elements in the list
 
  public:
+  using iterator_type = iterator;
+
   /** @brief Default constructor. */
   ListBase();
 
@@ -241,7 +243,9 @@ class ListBase {
   void swap(ListBase& other) noexcept;
 
   /** @brief Merges sorted list `other` into this list. */
-  void merge(ListBase& other) { merge(other, std::less<T>()); }
+  void merge(ListBase& other) {
+    merge(other, [](const T& a, const T& b) { return a < b; });
+  }
 
   /** @brief Merges sorted list `other` using custom comparator. */
   template <typename Compare>
@@ -265,27 +269,31 @@ class ListBase {
   void remove(BinaryPredicate p);
 
   /** @brief Removes consecutive duplicates. */
-  void unique() { unique(std::equal_to<T>()); }
+  void unique() {
+    unique([](const T& a, const T& b) { return a == b; });
+  }
 
   /** @brief Removes consecutive duplicates matching predicate `p`. */
   template <typename BinaryPredicate>
   void unique(BinaryPredicate p);
 
   /** @brief Sorts the list. */
-  void sort() { sort(std::less<T>()); }
+  void sort() {
+    sort([](const T& a, const T& b) { return a < b; });
+  }
 
   /** @brief Sorts the list using comparator `comp`. */
   template <typename Compare>
   void sort(Compare comp);
 
   /** @brief Iterator to the beginning. */
-  iterator begin() const noexcept { return iterator(dummy.next); }
+  iterator begin() noexcept { return iterator(dummy.next); }
   /** @brief Iterator to the end (dummy node). */
-  iterator end() const noexcept { return iterator(&dummy); }
+  iterator end() noexcept { return iterator(&dummy); }
   /** @brief Reverse iterator to the last element. */
-  iterator rbegin() const noexcept { return iterator(dummy.prev); }
+  iterator rbegin() noexcept { return iterator(dummy.prev); }
   /** @brief Reverse iterator to dummy node (rend). */
-  iterator rend() const noexcept { return iterator(&dummy); }
+  iterator rend() noexcept { return iterator(&dummy); }
 
   /** @brief Returns number of elements. */
   std::size_t size() const noexcept { return _size; }
@@ -302,3 +310,5 @@ class ListBase {
   /** @brief Move assignment operator. */
   ListBase& operator=(ListBase&& other) noexcept;
 };
+
+#include "../../core_files/base/BaseList.tpp"
