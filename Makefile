@@ -110,6 +110,7 @@ mkbuild:
 
 gcov_report: run_test
 	@echo "Generating coverage report..."
+	@mkdir -p ./build/coverage_html
 	@lcov --capture --directory ./build/gcov/ \
 		--ignore-errors inconsistent\
 		--rc geninfo_unexecuted_blocks=1 \
@@ -117,6 +118,7 @@ gcov_report: run_test
 	@genhtml ./build/coverage_html/base.info --output-directory ./build/coverage_html/ > /dev/null 2>&1
 	@echo "Coverage report: build/coverage_html/index.html ✅"
 	@echo
+
 
 valgrind_test: test
 	@if [ "$(OS)" = "Linux" ]; then \

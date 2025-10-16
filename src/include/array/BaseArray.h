@@ -83,17 +83,28 @@ class BaseArray {
   /** @brief Default constructor, creates empty array. */
   BaseArray() : _data(nullptr), _capacity(0), _size(0) {}
   /** @brief Constructor with initial size. */
-  BaseArray(std::size_t n) : _data(new T[n]), _capacity(sizeof(T) * n), _size(n)  {}
+  BaseArray(std::size_t n)
+      : _data(new T[n]), _capacity(sizeof(T) * n), _size(n) {}
   /** @brief Constructor with initial size and value. */
   BaseArray(std::size_t n, const T& value)
-      : _data(new T[n]), _capacity(sizeof(T) * n), _size(n)  {
+      : _data(new T[n]), _capacity(sizeof(T) * n), _size(n) {
     for (std::size_t i = 0; i < _size; i++) {
       _data[i] = value;
     }
   }
 
-  BaseArray(const BaseArray& other);            ///< Copy constructor
-  BaseArray(BaseArray&& other);                 ///< Move constructor
+  ///< Copy constructor
+  BaseArray(const BaseArray& other)
+      : _data(new T[other._size]),
+        _capacity(sizeof(T) * other._size),
+        _size(other._size) {
+    for (std::size_t i = 0; i < _size; i++) {
+      _data[i] = other._data[i];
+    }
+  }
+
+  ///< Move constructor
+  BaseArray(BaseArray&& other) {}
   BaseArray operator=(const BaseArray& other);  ///< Copy assignment
   BaseArray operator=(BaseArray&& other);       ///< Move assignment
 
