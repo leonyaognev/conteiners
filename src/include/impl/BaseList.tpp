@@ -1,4 +1,8 @@
-#include "../../include/list/ListBase.h"
+#pragma once
+
+#include <new>
+
+#include "list/ListBase.h"
 
 template <typename T>
 ListBase<T>::ListBase() : dummy(), _size(0) {}

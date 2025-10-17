@@ -1,109 +1,73 @@
-#pragma once
+#include <utility>
+
 #include "ListBase.h"
 
 /**
  * @brief FIFO (First-In First-Out) queue container.
  *
- * @tparam T type of elements stored in the queue.
+ * Adapter over ListBase implemented via protected inheritance.
+ * Exposes a minimal queue interface: push/emplace at the back, pop from the
+ * front, front/back access, size/empty and swap. Internals (nodes, iterators,
+ * etc.) remain hidden in the base class.
+ *
+ * @tparam T Type of elements stored in the queue.
  */
 template <typename T>
-class queue {
+class Queue : protected ListBase<T> {
  private:
-  ListBase<T> container;
+  using Base = ListBase<T>;  ///< Base implementation of the list
 
  public:
-  using value_type = T;
-  using size_type = std::size_t;
-  using reference = T&;
-  using const_reference = const T&;
-
-  /** @brief Default constructor. */
-  queue() = default;
+  using value_type = T;              ///< Element type
+  using size_type = std::size_t;     ///< Size type
+  using reference = T&;              ///< Reference to element
+  using const_reference = const T&;  ///< Constant reference to element
 
   /**
-   * @brief Constructs a queue from a range of elements.
-   * @tparam InputIt Input iterator type
-   * @param first Start of the range
-   * @param last End of the range
+   * @name Constructors and assignment
+   * @brief Inherit all constructors and assignment operators from ListBase.
    */
-  template <typename InputIt>
-  queue(InputIt first, InputIt last) : container(first, last) {}
+  ///@{
+  Queue() = default;
+  Queue(const Queue& other) : Base(other) {}
+  Queue(Queue&& other) noexcept : Base(std::move(other)) {}
 
-  /** @brief Copy constructor. */
-  queue(const queue& other) : container(other.container) {}
-
-  /** @brief Move constructor. */
-  queue(queue&& other) noexcept : container(std::move(other.container)) {}
-
-  /** @brief Destructor. */
-  ~queue() = default;
-
-  /** @brief Copy assignment operator. */
-  queue& operator=(const queue& other) {
-    container = other.container;
-    return *this;
-  }
-
-  /** @brief Move assignment operator. */
-  queue& operator=(queue&& other) noexcept {
-    container = std::move(other.container);
-    return *this;
-  }
+  using Base::operator=;  ///< Inherit assignment operators
+  ///@}
 
   /**
-   * @brief Accesses the first element.
-   * @return Reference to the first element.
+   * @name Element access
+   * @brief Provides access to elements.
    */
-
-  reference front() { return container.front(); }
-  const_reference front() const { return container.front(); }
+  ///@{
+  using Base::back;   ///< Access last element
+  using Base::front;  ///< Access first element
+  ///@}
 
   /**
-   * @brief Accesses the last element.
-   * @return Reference to the last element.
+   * @name Capacity
+   * @brief Size-related operations.
    */
-  reference back() { return container.back(); }
-  const_reference back() const { return container.back(); }
+  ///@{
+  using Base::empty;
+  using Base::size;
+  ///@}
 
   /**
-   * @brief Checks if the queue is empty.
-   * @return true if queue is empty, false otherwise.
+   * @name Modifiers
+   * @brief Operations that modify the contents of the container
    */
+  ///@{
+  using Base::swap;
 
-  bool empty() const { return container.empty(); }
+  void push(const T& value) { Base::pushBack(value); }
+  void push(T&& value) { Base::pushBack(std::move(value)); }
 
-  /**
-   * @brief Returns the number of elements.
-   * @return Number of elements in the queue.
-   */
-
-  size_type size() const { return container.size(); }
-
-  /**
-   * @brief Inserts element at the end.
-   * @param value Value to insert.
-   */
-  void push(const T& value) { container.pushBack(value); }
-  void push(T&& value) { container.pushBack(std::move(value)); }
-
-  /**
-   * @brief Constructs element in place at the end.
-   * @tparam Args Argument types
-   * @param args Arguments to forward to constructor
-   */
   template <typename... Args>
   void emplace(Args&&... args) {
-    container.emplaceBack(std::forward<Args>(args)...);
+    Base::emplaceBack(std::forward<Args>(args)...);
   }
 
-  /**
-   * @brief Removes the first element.
-   */
-  void pop() { container.popFront(); }
-
-  /**
-   * @brief Swaps contents with another queue.
-   * @param other Queue to swap with
-   */
-  void swap(queue& other) noexcept { container.swap(other.container); }
+  void pop() { Base::popFront(); }
+  ///@}
 };

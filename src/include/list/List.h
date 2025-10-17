@@ -4,57 +4,86 @@
 /**
  * @brief Doubly linked list container.
  *
- * @tparam T type of elements stored in the list.
+ * STL-like bidirectional list implemented as a doubly linked structure with a
+ * dummy node. Provides constant-time insertion and removal anywhere in the
+ * list.
+ *
+ * @tparam T Type of elements stored in the list.
+ *
+ * @note All core functionality (constructors, modifiers, iterators, etc.)
+ *       is inherited from the internal base class ListBase<T>.
  */
 template <typename T>
-class list : public ListBase<T> {
+class list : protected ListBase<T> {
  public:
-  using Base = ListBase<T>;
-  using value_type = T;
-  using size_type = std::size_t;
-  using reference = T&;
-  using const_reference = const T&;
-  using iterator = typename Base::iterator_type;
+  using Base = ListBase<T>;          ///< Base implementation of the list
+  using value_type = T;              ///< Element type
+  using size_type = std::size_t;     ///< Size type
+  using reference = T&;              ///< Reference to element
+  using const_reference = const T&;  ///< Constant reference to element
+  using iterator = typename Base::iterator_type;  ///< Iterator type
 
-  /** @brief Default constructor. */
-  list() : Base() {}
-
-  /**
-   * @brief Constructs a list with a number of identical elements.
-   * @param count Number of elements
-   * @param value Value to initialize elements
+  /** @name Constructors and assignment
+   *  @brief Inherit all constructors and assignment operators from ListBase.
    */
+  ///@{
+  using Base::Base;       ///< Inherit all constructors
+  using Base::operator=;  ///< Inherit assignment operators
+  ///@}
 
-  list(size_type count, const T& value) : Base(count, value) {}
-
-  /**
-   * @brief Constructs a list from a range of elements.
-   * @tparam InputIt Input iterator type
-   * @param first Start of the range
-   * @param last End of the range
+  /** @name Element access
+   *  @brief Provides access to list elements.
    */
+  ///@{
+  using Base::back;   ///< Access last element
+  using Base::front;  ///< Access first element
+  ///@}
 
-  template <typename InputIt>
-  list(InputIt first, InputIt last) : Base(first, last) {}
+  /** @name Iterators
+   *  @brief Standard bidirectional iterators.
+   */
+  ///@{
+  using Base::begin;
+  using Base::end;
+  using Base::rbegin;
+  using Base::rend;
+  ///@}
 
-  /** @brief Copy constructor. */
-  list(const list& other) : Base(other) {}
+  /** @name Capacity
+   *  @brief Size-related operations.
+   */
+  ///@{
+  using Base::empty;
+  using Base::size;
+  ///@}
 
-  /** @brief Move constructor. */
-  list(list&& other) noexcept : Base(std::move(other)) {}
+  /** @name Modifiers
+   *  @brief Operations that modify the contents of the list.
+   */
+  ///@{
+  using Base::assign;
+  using Base::clear;
+  using Base::emplace;
+  using Base::emplaceBack;
+  using Base::emplaceFront;
+  using Base::erase;
+  using Base::insert;
+  using Base::popBack;
+  using Base::popFront;
+  using Base::pushBack;
+  using Base::pushFront;
+  using Base::resize;
+  using Base::swap;
+  ///@}
 
-  /** @brief Destructor. */
-  ~list() = default;
-
-  /** @brief Copy assignment operator. */
-  list& operator=(const list& other) {
-    Base::operator=(other);
-    return *this;
-  }
-
-  /** @brief Move assignment operator. */
-  list& operator=(list&& other) noexcept {
-    Base::operator=(std::move(other));
-    return *this;
-  }
+  /** @name Operations
+   *  @brief List-specific algorithms.
+   */
+  ///@{
+  using Base::merge;
+  using Base::remove;
+  using Base::sort;
+  using Base::splice;
+  using Base::unique;
+  ///@}
 };

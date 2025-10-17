@@ -10,11 +10,11 @@ CFLAGS     = -Wall -Wextra -Werror $(HEADER_FILES)
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage -lgcov -O0 -g
 
 # Sources and objects
-SRC_CORE   := 
-SRC        := $(wildcard ./src/*.cpp)
+SRC_CORE   :=
+SRC        := $(shell find src/helpers/ -name "*.cpp")
 
-OBJ        := $(patsubst ./src/%.cpp, build/obj/%.o, $(SRC))
-OBJ_GCOV   := $(patsubst ./src/%.cpp, build/gcov/%.o, $(SRC))
+OBJ        := $(patsubst src/%.cpp, build/obj/%.o, $(SRC))
+OBJ_GCOV   := $(patsubst src/%.cpp, build/gcov/%.o, $(SRC))
 
 # Progress counters
 TOTAL      := $(words $(OBJ))
@@ -58,7 +58,7 @@ example: compile_logger mkbuild $(TARGET)
 
 # ---------------------------------------------------------------------------
 # Library without coverage
-build/obj/%.o: ./src/%.cpp
+build/obj/%.o: src/%.cpp
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -c $< -o $@
 	$(eval DONE := $(shell expr $(DONE) + 1))
@@ -67,12 +67,11 @@ build/obj/%.o: ./src/%.cpp
 $(TARGET): compile_logger mkbuild $(OBJ)
 	@$(call print_bar,1,2,target archive:     )
 	@ar rcs $(TARGET) $(OBJ)
-	@sleep 0.2
 	@$(call print_bar,1,1,target archive:     )
 
 # ---------------------------------------------------------------------------
 # Library with gcov
-build/gcov/%.o:  ./src/%.cpp
+build/gcov/%.o:  src/%.cpp
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(GCOV_FLAGS) -c $< -o $@
 	$(eval DONE_GCOV := $(shell expr $(DONE_GCOV) + 1))
@@ -81,7 +80,6 @@ build/gcov/%.o:  ./src/%.cpp
 lib_gcov: compile_logger mkbuild $(OBJ_GCOV)
 	@$(call print_bar,1,2,gcov archive:       )
 	@ar rcs ./build/gcov/lib_gcov.a $(OBJ_GCOV)
-	@sleep 0.2
 	@$(call print_bar,1,1,gcov archive:       )
 
 # ---------------------------------------------------------------------------
@@ -91,7 +89,6 @@ test: compile_logger mkbuild lib_gcov $(OBJ_GCOV)
 		-L./build/gcov -l:lib_gcov.a \
 		-L./src/vendor/logger/ -l:liblogger.a \
 		-lgtest -lm -lpthread
-	@sleep 0.2
 	@$(call print_bar,1,1,test build:         )
 
 run_test: test
@@ -114,11 +111,8 @@ mkbuild:
 gcov_report: run_test
 	@echo "Generating coverage report..."
 	@lcov --capture --directory ./build/gcov/ \
-		--ignore-errors inconsistent \
+		--ignore-errors inconsistent\
 		--rc geninfo_unexecuted_blocks=1 \
-		--output-file ./build/coverage_html/base.info > /dev/null 2>&1
-	@lcov --remove ./build/coverage_html/base.info \
-		"/usr/include/*" \
 		--output-file ./build/coverage_html/base.info > /dev/null 2>&1
 	@genhtml ./build/coverage_html/base.info --output-directory ./build/coverage_html/ > /dev/null 2>&1
 	@echo "Coverage report: build/coverage_html/index.html ✅"

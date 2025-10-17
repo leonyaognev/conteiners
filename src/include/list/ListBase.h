@@ -1,7 +1,6 @@
-
 #pragma once
+
 #include <cstddef>
-#include <new>
 #include <utility>
 
 /**
@@ -30,14 +29,12 @@ class ListBase {
     /**
      * @brief Constructor with copy initialization.
      * @param value value to initialize node's data.
-     * @throws std::bad_alloc if memory allocation fails
      */
     node(const T& value) : data(value) {}
 
     /**
      * @brief Constructor with move initialization.
      * @param value value to initialize node's data.
-     * @throws std::bad_alloc if memory allocation fails
      */
     node(T&& value) : data(std::move(value)) {}
   };
@@ -104,7 +101,7 @@ class ListBase {
   node dummy;             ///< Dummy node (closes the list in a ring)
   std::size_t _size = 0;  ///< Number of elements in the list
 
- public:
+ protected:
   using iterator_type = iterator;
 
   /** @brief Default constructor. */
@@ -311,4 +308,4 @@ class ListBase {
   ListBase& operator=(ListBase&& other) noexcept;
 };
 
-#include "../../core_files/base/BaseList.tpp"
+#include "impl/BaseList.tpp"
