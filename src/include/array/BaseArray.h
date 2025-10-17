@@ -1,10 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <sstream>
-#include <string>
-
-#include "logger.h"
 
 /**
  * @brief Dynamic array similar to std::vector.
@@ -32,113 +28,82 @@ class BaseArray {
     pointer current;  ///< Pointer to the current element
 
     /** @brief Default constructor (nullptr). */
-    iterator() : current(nullptr) {}
+    iterator();
     /** @brief Iterator from a pointer. */
-    iterator(pointer ptr) : current(ptr) {}
+    iterator(pointer ptr);
     /** @brief Copy constructor. */
-    iterator(const iterator& it) : current(it.current) {}
+    iterator(const iterator& it);
 
     /** @brief Dereference operator. */
-    reference operator*() const { return *current; }
+    reference operator*() const;
     /** @brief Member access operator. */
-    pointer operator->() const { return current; }
+    pointer operator->() const;
 
     /** @brief Prefix increment. */
-    iterator& operator++() {
-      ++current;
-      return *this;
-    }
+    iterator& operator++();
     /** @brief Postfix increment. */
-    iterator operator++(int) {
-      iterator tmp = *this;
-      ++current;
-      return tmp;
-    }
+    iterator operator++(int);
 
     /** @brief Prefix decrement. */
-    iterator& operator--() {
-      --current;
-      return *this;
-    }
+    iterator& operator--();
     /** @brief Postfix decrement. */
-    iterator operator--(int) {
-      iterator tmp = *this;
-      --current;
-      return tmp;
-    }
+    iterator operator--(int);
 
     /** @brief Equality comparison. */
-    bool operator==(const iterator& other) const {
-      return current == other.current;
-    }
+    bool operator==(const iterator& other) const;
     /** @brief Inequality comparison. */
-    bool operator!=(const iterator& other) const {
-      return current != other.current;
-    }
+    bool operator!=(const iterator& other) const;
   };
 
   using Iterator = iterator;  ///< Alias for iterator
 
  public:
   /** @brief Default constructor, creates empty array. */
-  BaseArray() : _data(nullptr), _capacity(0), _size(0) {}
+  BaseArray();
   /** @brief Constructor with initial size. */
-  BaseArray(std::size_t n)
-      : _data(new T[n]), _capacity(sizeof(T) * n), _size(n) {}
+  BaseArray(std::size_t n);
   /** @brief Constructor with initial size and value. */
-  BaseArray(std::size_t n, const T& value)
-      : _data(new T[n]), _capacity(sizeof(T) * n), _size(n) {
-    for (std::size_t i = 0; i < _size; i++) {
-      _data[i] = value;
-    }
-  }
+  BaseArray(std::size_t n, const T& value);
 
   ///< Copy constructor
-  BaseArray(const BaseArray& other)
-      : _data(new T[other._size]),
-        _capacity(sizeof(T) * other._size),
-        _size(other._size) {
-    for (std::size_t i = 0; i < _size; i++) {
-      _data[i] = other._data[i];
-    }
-  }
+  BaseArray(const BaseArray& other);
 
   ///< Move constructor
-  BaseArray(BaseArray&& other) {}
-  BaseArray operator=(const BaseArray& other);  ///< Copy assignment
-  BaseArray operator=(BaseArray&& other);       ///< Move assignment
+  BaseArray(BaseArray&& other);
+  BaseArray& operator=(const BaseArray& other);  ///< Copy assignment
+  BaseArray& operator=(BaseArray&& other);       ///< Move assignment
 
   /** @brief Destructor, frees array memory. */
-  ~BaseArray() { delete[] _data; }
+  ~BaseArray();
 
   /** @brief Iterator to first element. */
-  iterator begin() const { return iterator(_data); }
+  iterator begin() const;
   /** @brief Iterator past the last element. */
-  iterator end() const { return iterator(_data + _size); }
+  iterator end() const;
 
   /** @brief Access element at index (with bounds checking optional). */
-  T& at(std::size_t n) { return _data[n]; }
-  const T& at(std::size_t n) const { return _data[n]; }
+  T& at(std::size_t n);
+  const T& at(std::size_t n) const;
 
   /** @brief Access first element. */
-  T& front() { return _data[0]; }
-  const T& front() const { return _data[0]; }
+  T& front();
+  const T& front() const;
 
   /** @brief Access last element. */
-  T& back() { return _data[_size - 1]; }
-  const T& back() const { return _data[_size - 1]; }
+  T& back();
+  const T& back() const;
 
   /** @brief Pointer to underlying array. */
-  T* data() { return _data; }
-  const T* data() const { return _data; }
+  T* data();
+  const T* data() const;
 
   /** @brief Checks if array is empty. */
-  bool empty() const noexcept { return _size == 0; }
+  bool empty() const noexcept;
 
   /** @brief Returns number of elements. */
-  std::size_t size() const noexcept { return _size; }
+  std::size_t size() const noexcept;
   /** @brief Returns allocated capacity. */
-  std::size_t capacity() const noexcept { return _capacity; }
+  std::size_t capacity() const noexcept;
 
   /** @brief Reserve memory for at least new_cap elements. */
   void reserve(std::size_t new_cap);
@@ -188,28 +153,18 @@ class BaseArray {
   void swap(BaseArray& other);
 
   /** @brief Index access operator. */
-  T& operator[](std::size_t index) { return _data[index]; }
-  const T& operator[](std::size_t index) const { return _data[index]; }
+  T& operator[](std::size_t index);
+  const T& operator[](std::size_t index) const;
 
   /** @brief Three-way comparison operator. */
-  auto operator<=>(const BaseArray& other);
+  auto operator<=>(const BaseArray& other) const = default;
 
   /**
    * @brief Print array contents via logger.
    *
    * Format: [elem1, elem2, ...]
    */
-  void Print() {
-    std::stringstream out;
-    out << "[";
-    for (size_t i = 0; i < _size; i++) {
-      out << _data[i];
-      if (i != _size - 1) {
-        out << ", ";
-      }
-    }
-    out << "]";
-    std::string str = out.str();
-    log_info("Array: %s", str.c_str());
-  }
+  void Print();
 };
+
+#include "impl/BaseArray.tpp"
