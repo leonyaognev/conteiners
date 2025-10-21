@@ -1,0 +1,285 @@
+#pragma once
+
+#include <sstream>
+
+#include "array/Vector.h"
+#include "logger.h"
+
+template <typename T>
+Vector<T>::iterator::iterator() : current(nullptr) {}
+
+template <typename T>
+Vector<T>::iterator::iterator(pointer ptr) : current(ptr) {}
+
+template <typename T>
+Vector<T>::iterator::iterator(const iterator& it) : current(it.current) {}
+
+template <typename T>
+typename Vector<T>::iterator::reference Vector<T>::iterator::operator*()
+    const {
+  return *current;
+}
+
+template <typename T>
+typename Vector<T>::iterator::pointer Vector<T>::iterator::operator->()
+    const {
+  return current;
+}
+
+template <typename T>
+typename Vector<T>::iterator& Vector<T>::iterator::operator++() {
+  ++current;
+  return *this;
+}
+
+template <typename T>
+typename Vector<T>::iterator Vector<T>::iterator::operator++(int) {
+  iterator tmp = *this;
+  ++current;
+  return tmp;
+}
+
+template <typename T>
+typename Vector<T>::iterator& Vector<T>::iterator::operator--() {
+  --current;
+  return *this;
+}
+
+template <typename T>
+typename Vector<T>::iterator Vector<T>::iterator::operator--(int) {
+  iterator tmp = *this;
+  --current;
+  return tmp;
+}
+
+template <typename T>
+bool Vector<T>::iterator::operator==(const iterator& other) const {
+  return current == other.current;
+}
+
+template <typename T>
+bool Vector<T>::iterator::operator!=(const iterator& other) const {
+  return current != other.current;
+}
+
+template <typename T>
+typename Vector<T>::iterator Vector<T>::iterator::operator=(const iterator& other) {
+  current = other.current;
+  return current;
+}
+
+template <typename T>
+typename std::size_t Vector<T>::iterator::iterSteps(const iterator& other){
+  std::size_t res = 0;
+  for(auto i = current; i != other.current; i++){
+    res++;
+  }
+  return res;
+}
+// ---------------- Vector methods ----------------
+
+template <typename T>
+Vector<T>::Vector() : _data(nullptr), _capacity(0), _size(0) {}
+
+template <typename T>
+Vector<T>::Vector(std::size_t n)
+    : _data(new T[n]), _capacity(sizeof(T) * n), _size(n) {}
+
+template <typename T>
+Vector<T>::Vector(std::size_t n, const T& value)
+    : _data(new T[n]), _capacity(sizeof(T) * n), _size(n) {
+  for (std::size_t i = 0; i < _size; i++) _data[i] = value;
+}
+
+template <typename T>
+Vector<T>::Vector(const Vector& other)
+    : _data(new T[other._size]),
+      _capacity(sizeof(T) * other._size),
+      _size(other._size) {
+  for (std::size_t i = 0; i < _size; i++) _data[i] = other._data[i];
+}
+
+template <typename T>
+Vector<T>::Vector(Vector&& other)
+    : _data(other._data), _capacity(other._capacity), _size(other._size) {
+  other._data = nullptr;
+  other._size = 0;
+  other._capacity = 0;
+}
+
+template <typename T>
+Vector<T>& Vector<T>::operator=(const Vector& other) {
+  if (this != &other) {
+    delete[] _data;
+    _data = new T[other._size];
+    _capacity = sizeof(T) * other._size;
+    _size = other._size;
+    for (std::size_t i = 0; i < _size; i++) _data[i] = other._data[i];
+  }
+  return *this;
+}
+
+template <typename T>
+Vector<T>& Vector<T>::operator=(Vector&& other) {
+  if (this != &other) {
+    delete[] _data;
+    _data = other._data;
+    _size = other._size;
+    _capacity = other._capacity;
+    other._data = nullptr;
+    other._size = 0;
+    other._capacity = 0;
+  }
+  return *this;
+}
+
+template <typename T>
+Vector<T>::~Vector() {
+  delete[] _data;
+}
+
+template <typename T>
+typename Vector<T>::iterator Vector<T>::begin() const {
+  return iterator(_data);
+}
+
+template <typename T>
+typename Vector<T>::iterator Vector<T>::end() const {
+  return iterator(_data + _size);
+}
+
+template <typename T>
+typename Vector<T>::iterator Vector<T>::iterator::operator+(size_t n){
+  return iterator(current + n);
+}
+
+template <typename T>
+typename Vector<T>::iterator Vector<T>::iterator::operator-(size_t n){
+  return iterator(current - n);
+}
+
+template <typename T>
+T& Vector<T>::at(std::size_t n) {
+  return _data[n];
+}
+
+template <typename T>
+const T& Vector<T>::at(std::size_t n) const {
+  return _data[n];
+}
+
+template <typename T>
+T& Vector<T>::front() {
+  return _data[0];
+}
+
+template <typename T>
+const T& Vector<T>::front() const {
+  return _data[0];
+}
+
+template <typename T>
+T& Vector<T>::back() {
+  return _data[_size - 1];
+}
+
+template <typename T>
+const T& Vector<T>::back() const {
+  return _data[_size - 1];
+}
+
+template <typename T>
+T* Vector<T>::data() {
+  return _data;
+}
+
+template <typename T>
+const T* Vector<T>::data() const {
+  return _data;
+}
+
+template <typename T>
+bool Vector<T>::empty() const noexcept {
+  return _size == 0;
+}
+
+template <typename T>
+std::size_t Vector<T>::size() const noexcept {
+  return _size;
+}
+
+template <typename T>
+std::size_t Vector<T>::capacity() const noexcept {
+  return _capacity;
+}
+
+template <typename T>
+void Vector<T>::Print() {
+  std::stringstream out;
+  out << "[";
+  for (size_t i = 0; i < _size; i++) {
+    out << _data[i];
+    if (i != _size - 1) out << ", ";
+  }
+  out << "]";
+  std::string str = out.str();
+  log_info("Array: %s", str.c_str());
+}
+
+template <typename T>
+T& Vector<T>::operator[](std::size_t index) {
+  return _data[index];
+}
+
+template <typename T>
+const T& Vector<T>::operator[](std::size_t index) const {
+  return _data[index];
+}
+
+template <typename T>
+Vector<T>::iterator Vector<T>::erase(iterator pos){
+  for (auto a = pos; a != (end() - 1); a++){
+    *a = *(a + 1);
+  }
+  _size--;
+  return begin();
+}
+
+template <typename T>
+typename Vector<T>::iterator Vector<T>::erase(iterator first, iterator last){
+  size_t iter = 0;
+  auto b = last;
+  for (auto a = first; b != end(); a++){
+    *a = *b;
+    b++;
+    iter++;
+  }
+  _size = _size - first.iterSteps(last);
+  return begin();
+}
+
+// template <typename T>
+// void Vector<T>::resize(std::size_t newSize){
+//   size_t minSize = newSize < _size ? newSize : _size; 
+//     T* temp = new T[newSize];
+//     for (size_t i = 0; i < minSize; i++){
+//       temp[i] = _data[i];
+//     }
+//     _size = newSize;
+//     delete[] _data;
+//     _data = temp;   
+// }
+
+// template <typename T>
+// void Vector<T>::resize(std::size_t newSize, const T& value){
+//   //size_t minSize = newSize < _capacity ? newSize : _capacity;
+//   if (newSize < _capacity){ 
+//     T* temp = new T[newSize];
+//     for (size_t i = 0; i < minSize; i++){
+//       temp[i] = _data[i];
+//     }
+//     _size = newSize;
+//     delete[] _data;
+//     _data = temp;
+//   }
+// }
