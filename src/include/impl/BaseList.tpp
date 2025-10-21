@@ -1,8 +1,70 @@
-#pragma once
+#include "../../include/list/ListBase.h"
 
-#include <new>
+template <typename T>
+ListBase<T>::node::node() : next(this), prev(this) {}
 
-#include "list/ListBase.h"
+template <typename T>
+ListBase<T>::node::node(const T& value) : data(value) {}
+
+template <typename T>
+ListBase<T>::node::node(T&& value) : data(std::move(value)) {}
+
+template <typename T>
+ListBase<T>::iterator::iterator() : current(nullprt) {}
+
+template <typename T>
+ListBase<T>::iterator::iterator(node* ptr) : current(ptr) {}
+
+template <typename T>
+ListBase<T>::iterator::iterator(const iterator& it) : current(it.current) {}
+
+template <typename T>
+typename ListBase<T>::iterator::reference ListBase<T>::iterator::operator*()
+    const {
+  return current->data;
+}
+
+template <typename T>
+typename ListBase<T>::iterator::pointer ListBase<T>::iterator::operator->()
+    const {
+  return &current->data;
+}
+
+template <typename T>
+typename ListBase<T>::iterator& ListBase<T>::iterator::operator++() {
+  current = current->next;
+  return *this;
+}
+
+template <typename T>
+typename ListBase<T>::iterator ListBase<T>::iterator::operator++(int) {
+  iterator tmp = *this;
+  current = current->next;
+  return tmp;
+}
+
+template <typename T>
+typename ListBase<T>::iterator& ListBase<T>::iterator::operator--() {
+  current = current->prev;
+  return *this;
+}
+
+template <typename T>
+typename ListBase<T>::iterator ListBase<T>::iterator::operator--(int) {
+  iterator tmp = *this;
+  current = current->prev;
+  return tmp;
+}
+
+template <typename T>
+bool ListBase<T>::iterator::operator==(const iterator& other) const {
+  return current == other.current;
+}
+
+template <typename T>
+bool ListBase<T>::iterator::operator!=(const iterator& other) const {
+  return current != other.current;
+}
 
 template <typename T>
 ListBase<T>::ListBase() : dummy(), _size(0) {}
@@ -48,6 +110,11 @@ ListBase<T>::ListBase(ListBase&& other) noexcept : dummy(), _size(other._size) {
 }
 
 template <typename T>
+ListBase<T>::~ListBase() noexcept {
+  clear();
+}
+
+template <typename T>
 void ListBase<T>::assign(std::size_t count, const T& value) {
   clear();
   for (std::size_t i = 0; i < count; ++i) {
@@ -62,6 +129,32 @@ void ListBase<T>::assign(InputIt first, InputIt last) {
   for (auto it = first; it != last; ++it) {
     pushBack(*it);
   }
+}
+
+template <typename T>
+T& ListBase<T>::front() noexcept {
+  return dummy.next->data;
+}
+
+template <typename T>
+const T& ListBase<T>::front() const noexcept {
+  return dummy.next->data;
+}
+
+template <typename T>
+T& ListBase<T>::back() noexcept {
+  return dummy.prev->data;
+}
+
+template <typename T>
+const T& ListBase<T>::back() const noexcept {
+  return dummy.prev->data;
+}
+
+template <typename T>
+typename ListBase<T>::iterator ListBase<T>::insert(iterator pos,
+                                                   const T& value) {
+  return insert(pos, T(value));
 }
 
 template <typename T>
@@ -179,6 +272,53 @@ typename ListBase<T>::iterator ListBase<T>::erase(iterator first,
 }
 
 template <typename T>
+void ListBase<T>::pushFront(const T& value) {
+  insert(begin(), value);
+}
+
+template <typename T>
+void ListBase<T>::pushFront(T&& value) {
+  insert(begin(), std::move(value));
+}
+
+template <typename T>
+void ListBase<T>::pushBack(const T& value) {
+  insert(end(), value);
+}
+
+template <typename T>
+void ListBase<T>::pushBack(T&& value) {
+  insert(end(), std::move(value));
+}
+
+template <typename T>
+template <typename... Args>
+void ListBase<T>::emplaceFront(Args&&... args) {
+  emplace(begin(), std::forward<Args>(args)...);
+}
+
+template <typename T>
+template <typename... Args>
+void ListBase<T>::emplaceBack(Args&&... args) {
+  emplace(end(), std::forward<Args>(args)...);
+}
+
+template <typename T>
+void ListBase<T>::popFront() {
+  if (!empty()) erase(begin());
+}
+
+template <typename T>
+void ListBase<T>::popBack() {
+  if (!empty()) erase(--end());
+}
+
+template <typename T>
+void ListBase<T>::resize(std::size_t count) {
+  resize(count, T());
+}
+
+template <typename T>
 void ListBase<T>::resize(std::size_t count, const T& value) {
   while (_size > count) {
     popBack();
@@ -216,6 +356,11 @@ void ListBase<T>::swap(ListBase& other) noexcept {
     other.dummy.prev->next = &other.dummy;
   }
   other._size = tempSize;
+}
+
+template <typename T>
+void ListBase<T>::merge(ListBase& other) {
+  merge(other, [](const T& a, const T& b) { return a < b; });
 }
 
 template <typename T>
@@ -316,6 +461,11 @@ void ListBase<T>::remove(BinaryPredicate p) {
 }
 
 template <typename T>
+void ListBase<T>::unique() {
+  unique([](const T& a, const T& b) { return a == b; });
+}
+
+template <typename T>
 template <typename BinaryPredicate>
 void ListBase<T>::unique(BinaryPredicate p) {
   if (_size <= 1) return;
@@ -331,6 +481,11 @@ void ListBase<T>::unique(BinaryPredicate p) {
       ++next;
     }
   }
+}
+
+template <typename T>
+void ListBase<T>::sort() {
+  sort([](const T& a, const T& b) { return a < b; });
 }
 
 template <typename T>
@@ -357,10 +512,40 @@ void ListBase<T>::sort(Compare comp) {
 }
 
 template <typename T>
+typename ListBase<T>::iterator ListBase<T>::begin() noexcept {
+  return iterator(dummy.next);
+}
+
+template <typename T>
+typename ListBase<T>::iterator ListBase<T>::end() noexcept {
+  return iterator(&dummy);
+}
+
+template <typename T>
+typename ListBase<T>::iterator ListBase<T>::rbegin() noexcept {
+  return iterator(dummy.prev);
+}
+
+template <typename T>
+typename ListBase<T>::iterator ListBase<T>::rend() noexcept {
+  return iterator(&dummy);
+}
+
+template <typename T>
+std::size_t ListBase<T>::size() const noexcept {
+  return _size;
+}
+
+template <typename T>
 void ListBase<T>::clear() noexcept {
   while (!empty()) {
     popFront();
   }
+}
+
+template <typename T>
+bool ListBase<T>::empty() const noexcept {
+  return _size == 0;
 }
 
 template <typename T>

@@ -24,19 +24,19 @@ class ListBase {
     node* prev;  ///< Pointer to the previous node
 
     /** @brief Constructor of the dummy node (points to itself). */
-    node() : next(this), prev(this) {}
+    node();
 
     /**
      * @brief Constructor with copy initialization.
      * @param value value to initialize node's data.
      */
-    node(const T& value) : data(value) {}
+    node(const T& value);
 
     /**
      * @brief Constructor with move initialization.
      * @param value value to initialize node's data.
      */
-    node(T&& value) : data(std::move(value)) {}
+    node(T&& value);
   };
 
   /**
@@ -53,49 +53,31 @@ class ListBase {
     node* current;  ///< Pointer to the current node
 
     /** @brief Default constructor (nullptr). */
-    iterator() : current(nullptr) {}
+    iterator();
     /** @brief Constructor from a node pointer. */
-    iterator(node* ptr) : current(ptr) {}
+    iterator(node* ptr);
     /** @brief Copy constructor. */
-    iterator(const iterator& it) : current(it.current) {}
+    iterator(const iterator& it);
 
     /** @brief Dereference operator. */
-    reference operator*() const { return current->data; }
+    reference operator*();
     /** @brief Member access operator. */
-    pointer operator->() const { return &current->data; }
+    pointer operator->();
 
     /** @brief Prefix increment. */
-    iterator& operator++() {
-      current = current->next;
-      return *this;
-    }
+    iterator& operator++();
     /** @brief Postfix increment. */
-    iterator operator++(int) {
-      iterator tmp = *this;
-      current = current->next;
-      return tmp;
-    }
+    iterator operator++(int);
 
     /** @brief Prefix decrement. */
-    iterator& operator--() {
-      current = current->prev;
-      return *this;
-    }
+    iterator& operator--();
     /** @brief Postfix decrement. */
-    iterator operator--(int) {
-      iterator tmp = *this;
-      current = current->prev;
-      return tmp;
-    }
+    iterator operator--(int);
 
     /** @brief Equality comparison. */
-    bool operator==(const iterator& other) const {
-      return current == other.current;
-    }
+    bool operator==(const iterator& other) const;
     /** @brief Inequality comparison. */
-    bool operator!=(const iterator& other) const {
-      return current != other.current;
-    }
+    bool operator!=(const iterator& other) const;
   };
 
   node dummy;             ///< Dummy node (closes the list in a ring)
@@ -130,7 +112,7 @@ class ListBase {
   ListBase(ListBase&& other) noexcept;
 
   /** @brief Destructor, clears the list. */
-  ~ListBase() noexcept { clear(); }
+  ~ListBase() noexcept;
 
   /** @brief Assigns `count` copies of `value` to the list. */
   void assign(std::size_t count, const T& value);
@@ -140,19 +122,17 @@ class ListBase {
   void assign(InputIt first, InputIt last);
 
   /** @brief Access first element. */
-  T& front() noexcept { return dummy.next->data; }
+  T& front() noexcept;
   /** @brief Access first element (const). */
-  const T& front() const noexcept { return dummy.next->data; }
+  const T& front() const noexcept;
 
   /** @brief Access last element. */
-  T& back() noexcept { return dummy.prev->data; }
+  T& back() noexcept;
   /** @brief Access last element (const). */
-  const T& back() const noexcept { return dummy.prev->data; }
+  const T& back() const noexcept;
 
   /** @brief Inserts a copy of `value` before `pos`. */
-  iterator insert(iterator pos, const T& value) {
-    return insert(pos, T(value));
-  }
+  iterator insert(iterator pos, const T& value);
 
   /**
    * @brief Inserts a moved `value` before `pos`.
@@ -187,49 +167,39 @@ class ListBase {
   iterator erase(iterator first, iterator last);
 
   /** @brief Pushes a copy of `value` to the front. */
-  void pushFront(const T& value) { insert(begin(), value); }
+  void pushFront(const T& value);
   /** @brief Pushes a moved `value` to the front. */
-  void pushFront(T&& value) { insert(begin(), std::move(value)); }
+  void pushFront(T&& value);
 
   /**
    * @brief Pushes a copy of `value` to the back.
    * @throws std::bad_alloc if memory allocation fails iterator
    */
-  void pushBack(const T& value) { insert(end(), value); }
+  void pushBack(const T& value);
   /**
    * @brief Pushes a moved `value` to the back.
    * @throws std::bad_alloc if memory allocation fails iterator
    */
-  void pushBack(T&& value) { insert(end(), std::move(value)); }
+  void pushBack(T&& value);
 
   /**
    * @brief Constructs element(s) in place at the front. */
   template <typename... Args>
-  void emplaceFront(Args&&... args) {
-    emplace(begin(), std::forward<Args>(args)...);
-  }
+  void emplaceFront(Args&&... args);
 
   /**
    * @brief Constructs element(s) in place at the back.
    * @throws std::bad_alloc if memory allocation fails iterator
    */
   template <typename... Args>
-  void emplaceBack(Args&&... args) {
-    emplace(end(), std::forward<Args>(args)...);
-  }
+  void emplaceBack(Args&&... args);
 
   /** @brief Removes the first element. */
-  void popFront() {
-    if (!empty()) erase(begin());
-  }
+  void popFront();
   /** @brief Removes the last element. */
-  void popBack() {
-    if (!empty()) erase(--end());
-  }
-
+  void popBack();
   /** @brief Resizes the list to contain `count` default elements. */
-  void resize(std::size_t count) { resize(count, T()); }
-
+  void resize(std::size_t count);
   /**
    * @brief Resizes the list to contain `count` copies of `value`.
    * @throws std::bad_alloc if memory allocation fails iterator
@@ -240,9 +210,7 @@ class ListBase {
   void swap(ListBase& other) noexcept;
 
   /** @brief Merges sorted list `other` into this list. */
-  void merge(ListBase& other) {
-    merge(other, [](const T& a, const T& b) { return a < b; });
-  }
+  void merge(ListBase& other);
 
   /** @brief Merges sorted list `other` using custom comparator. */
   template <typename Compare>
@@ -266,38 +234,34 @@ class ListBase {
   void remove(BinaryPredicate p);
 
   /** @brief Removes consecutive duplicates. */
-  void unique() {
-    unique([](const T& a, const T& b) { return a == b; });
-  }
+  void unique();
 
   /** @brief Removes consecutive duplicates matching predicate `p`. */
   template <typename BinaryPredicate>
   void unique(BinaryPredicate p);
 
   /** @brief Sorts the list. */
-  void sort() {
-    sort([](const T& a, const T& b) { return a < b; });
-  }
+  void sort();
 
   /** @brief Sorts the list using comparator `comp`. */
   template <typename Compare>
   void sort(Compare comp);
 
   /** @brief Iterator to the beginning. */
-  iterator begin() noexcept { return iterator(dummy.next); }
+  iterator begin() noexcept;
   /** @brief Iterator to the end (dummy node). */
-  iterator end() noexcept { return iterator(&dummy); }
+  iterator end() noexcept;
   /** @brief Reverse iterator to the last element. */
-  iterator rbegin() noexcept { return iterator(dummy.prev); }
+  iterator rbegin() noexcept;
   /** @brief Reverse iterator to dummy node (rend). */
-  iterator rend() noexcept { return iterator(&dummy); }
+  iterator rend() noexcept;
 
   /** @brief Returns number of elements. */
-  std::size_t size() const noexcept { return _size; }
+  std::size_t size() const noexcept;
   /** @brief Clears the list. */
   void clear() noexcept;
   /** @brief Checks if list is empty. */
-  bool empty() const noexcept { return _size == 0; }
+  bool empty() const noexcept;
 
   /**
    * @brief Copy assignment operator.
