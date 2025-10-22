@@ -111,6 +111,11 @@ class Vector {
   /** @brief Returns allocated capacity. */
   std::size_t capacity() const noexcept;
 
+  /** @brief Support method to extend allocated memory and increase capacity */
+  void extend();
+  /** @brief Support method to edit allocated memory, also can decrease capacity*/
+  void extend(std::size_t newCapacity);
+
   /** @brief Reserve memory for at least new_cap elements. */
   void reserve(std::size_t new_cap);
   /** @brief Shrink capacity to fit current size. */

@@ -83,18 +83,18 @@ Vector<T>::Vector() : _data(nullptr), _capacity(0), _size(0) {}
 
 template <typename T>
 Vector<T>::Vector(std::size_t n)
-    : _data(new T[n]), _capacity(sizeof(T) * n), _size(n) {}
+    : _data(new T[n]), _capacity(n), _size(n) {}
 
 template <typename T>
 Vector<T>::Vector(std::size_t n, const T& value)
-    : _data(new T[n]), _capacity(sizeof(T) * n), _size(n) {
+    : _data(new T[n]), _capacity(n), _size(n) {
   for (std::size_t i = 0; i < _size; i++) _data[i] = value;
 }
 
 template <typename T>
 Vector<T>::Vector(const Vector& other)
     : _data(new T[other._size]),
-      _capacity(sizeof(T) * other._size),
+      _capacity(other._size),
       _size(other._size) {
   for (std::size_t i = 0; i < _size; i++) _data[i] = other._data[i];
 }
@@ -112,7 +112,7 @@ Vector<T>& Vector<T>::operator=(const Vector& other) {
   if (this != &other) {
     delete[] _data;
     _data = new T[other._size];
-    _capacity = sizeof(T) * other._size;
+    _capacity = other._size;
     _size = other._size;
     for (std::size_t i = 0; i < _size; i++) _data[i] = other._data[i];
   }
@@ -258,28 +258,67 @@ typename Vector<T>::iterator Vector<T>::erase(iterator first, iterator last){
   return begin();
 }
 
-// template <typename T>
-// void Vector<T>::resize(std::size_t newSize){
-//   size_t minSize = newSize < _size ? newSize : _size; 
-//     T* temp = new T[newSize];
-//     for (size_t i = 0; i < minSize; i++){
-//       temp[i] = _data[i];
-//     }
-//     _size = newSize;
-//     delete[] _data;
-//     _data = temp;   
-// }
+template <typename T>
+void Vector<T>::pop_back(){
+	if (_size > 0) _size--; 
+}
 
-// template <typename T>
-// void Vector<T>::resize(std::size_t newSize, const T& value){
-//   //size_t minSize = newSize < _capacity ? newSize : _capacity;
-//   if (newSize < _capacity){ 
-//     T* temp = new T[newSize];
-//     for (size_t i = 0; i < minSize; i++){
-//       temp[i] = _data[i];
-//     }
-//     _size = newSize;
-//     delete[] _data;
-//     _data = temp;
-//   }
-// }
+template <typename T>
+void Vector<T>::push_back(const T& value){
+	if (_size == _capacity) extend();
+		auto i = end();
+		*i = value;
+		_size++;
+}
+
+template <typename T>
+void Vector<T>::push_back(T&& value){
+	if (_size == _capacity) extend();
+		auto i = end();
+		*i = value;
+		_size++;
+}
+
+template <typename T>
+void Vector<T>::extend(){
+	std::size_t tempCapacity = _capacity * 2;
+	T* tempData = new T[tempCapacity];
+	for (std::size_t i = 0; i < _capacity; i++){
+		tempData[i] = _data[i];
+	}
+	delete[] _data;
+	_data = tempData;
+	_capacity = tempCapacity;
+}
+
+template <typename T>
+void Vector<T>::extend(std::size_t newCapacity){
+	T* tempData = new T[newCapacity];
+	std::size_t minCapacity = newCapacity < _capacity ? newCapacity : _capacity;
+	for (std::size_t i = 0; i < minCapacity; i++){
+		tempData[i] = _data[i];
+	}
+	delete[] _data;
+	_data = tempData;
+	_capacity = newCapacity;
+}
+
+template <typename T>
+void Vector<T>::shrink_to_fit(){
+	extend(_size);
+}
+
+template <typename T>
+void Vector<T>::resize(std::size_t newSize){
+	if (newSize > _capacity) extend(newSize);
+	_size = newSize;
+}
+
+template <typename T>
+void Vector<T>::resize(std::size_t newSize, const T& value){
+	if (newSize > _capacity) extend(newSize);
+	for(std::size_t i = _size; i < newSize; i++){
+		_data[i] = value;
+	}
+	_size = newSize;
+}

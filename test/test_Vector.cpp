@@ -127,9 +127,9 @@ TEST(VectorEdit, EraseOneArg){
   for (size_t i = 0; i < a.size(); i++){
     a[i] = i + 10;
   }
-  a.Print();
+  //a.Print();
   a.erase(a.begin() + 5);
-  a.Print();
+  //a.Print();
 }
 
 TEST(VectorEdit, EraseTwoArgs){
@@ -137,7 +137,69 @@ TEST(VectorEdit, EraseTwoArgs){
   for (size_t i = 0; i < a.size(); i++){
     a[i] = i + 2;
   }
-  a.Print();
+  //a.Print();
   a.erase((a.begin() + 1), (a.begin() + 3));
-  a.Print();
+  //a.Print();
+}
+
+TEST(VectorEdit, ExtendNoArgs){
+	Vector<int> a(4);
+	for (size_t i = 0; i < a.size(); i++){
+		a[i] = i;
+	}
+	//a.Print();
+	a.extend();
+	//a.Print();
+	EXPECT_EQ(a.capacity(), 8);
+}
+
+TEST(VectorEdit, PushBackNoExtend){
+	Vector<int> a(5);
+	for (size_t i = 0; i < a.size(); i++){
+		a[i] = i;
+	}
+	a.extend();
+	EXPECT_EQ(a.capacity(), 10);
+	EXPECT_EQ(a.size(), 5);
+	//a.Print();
+	a.push_back(10);
+	EXPECT_EQ(a.capacity(), 10);
+	EXPECT_EQ(a.size(), 6);
+	//a.Print();
+}
+
+TEST(VectorEdit, PushBackWithExtend){
+	Vector<int> a(5);
+	for (size_t i = 0; i < a.size(); i++){
+		a[i] = i + 5;
+	}
+	EXPECT_EQ(a.capacity(), 5);
+	EXPECT_EQ(a.size(), 5);
+	//a.Print();
+	a.push_back(10);
+	EXPECT_EQ(a.capacity(), 10);
+	EXPECT_EQ(a.size(), 6);
+	//a.Print();
+}
+
+TEST(VectorEdit, ShrinkToFit){
+	Vector<int> a(5);
+	EXPECT_EQ(a.capacity(), 5);
+	a.extend(20);
+	EXPECT_EQ(a.capacity(), 20);
+	a.push_back(1);
+	a.push_back(10);
+	a.shrink_to_fit();
+	EXPECT_EQ(a.capacity(), 7);
+}
+
+TEST(VectorEdit, ResizeTwoArgs){
+	Vector<int> a(6);
+	for (size_t i = 0; i < a.size(); i++){
+		a[i] = i;
+	}
+	a.Print();
+	a.resize(9,999);
+	a.Print();
+	EXPECT_EQ(a.capacity(), 9);
 }
