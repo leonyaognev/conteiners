@@ -1,4 +1,5 @@
 #pragma once
+
 #include "ListBase.h"
 
 /**
@@ -14,7 +15,7 @@
  *       is inherited from the internal base class ListBase<T>.
  */
 template <typename T>
-class list : protected ListBase<T> {
+class List : protected ListBase<T> {
  public:
   using Base = ListBase<T>;          ///< Base implementation of the list
   using value_type = T;              ///< Element type

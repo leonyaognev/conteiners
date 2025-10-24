@@ -60,9 +60,9 @@ class ListBase {
     iterator(const iterator& it);
 
     /** @brief Dereference operator. */
-    reference operator*();
+    reference operator*() const;
     /** @brief Member access operator. */
-    pointer operator->();
+    pointer operator->() const;
 
     /** @brief Prefix increment. */
     iterator& operator++();
@@ -83,7 +83,7 @@ class ListBase {
   node dummy;             ///< Dummy node (closes the list in a ring)
   std::size_t _size = 0;  ///< Number of elements in the list
 
- protected:
+ public:
   using iterator_type = iterator;
 
   /** @brief Default constructor. */
@@ -94,7 +94,7 @@ class ListBase {
    * @param count Number of elements
    * @param value Value to initialize elements
    */
-  ListBase(std::size_t count, const T& value);
+  ListBase<T>(std::size_t count, const T& value);
 
   /**
    * @brief Constructs a list from a range of elements.
@@ -103,7 +103,7 @@ class ListBase {
    * @param last End of the range
    */
   template <typename InputIt>
-  ListBase(InputIt first, InputIt last);
+  ListBase<T>(InputIt first, InputIt last);
 
   /** @brief Copy constructor. */
   ListBase(const ListBase& other);
