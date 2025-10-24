@@ -10,7 +10,7 @@ template <typename T>
 ListBase<T>::node::node(T&& value) : data(std::move(value)) {}
 
 template <typename T>
-ListBase<T>::iterator::iterator() : current(nullprt) {}
+ListBase<T>::iterator::iterator() : current(nullptr) {}
 
 template <typename T>
 ListBase<T>::iterator::iterator(node* ptr) : current(ptr) {}
@@ -86,8 +86,10 @@ ListBase<T>::ListBase(InputIt first, InputIt last) : ListBase() {
 
 template <typename T>
 ListBase<T>::ListBase(const ListBase& other) : ListBase() {
-  for (auto it = other.begin(); it != other.end(); ++it) {
-    pushBack(*it);
+  const node* current = other.dummy.next;
+  while (current != &other.dummy) {
+    pushBack(current->data);
+    current = current->next;
   }
 }
 
