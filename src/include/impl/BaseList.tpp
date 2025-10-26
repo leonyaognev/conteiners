@@ -4,10 +4,12 @@ template <typename T>
 ListBase<T>::node::node() : next(this), prev(this) {}
 
 template <typename T>
-ListBase<T>::node::node(const T& value) : data(value) {}
+ListBase<T>::node::node(const T& value)
+    : data(value), next(nullptr), prev(nullptr) {}
 
 template <typename T>
-ListBase<T>::node::node(T&& value) : data(std::move(value)) {}
+ListBase<T>::node::node(T&& value)
+    : data(std::move(value)), next(nullptr), prev(nullptr) {}
 
 template <typename T>
 ListBase<T>::iterator::iterator() : current(nullptr) {}
@@ -77,7 +79,7 @@ ListBase<T>::ListBase(std::size_t count, const T& value) : ListBase() {
 }
 
 template <typename T>
-template <typename InputIt>
+template <typename InputIt, typename>
 ListBase<T>::ListBase(InputIt first, InputIt last) : ListBase() {
   for (auto it = first; it != last; ++it) {
     pushBack(*it);
@@ -554,8 +556,10 @@ template <typename T>
 ListBase<T>& ListBase<T>::operator=(const ListBase& other) {
   if (this != &other) {
     clear();
-    for (auto it = other.begin(); it != other.end(); ++it) {
-      pushBack(*it);
+    const node* current = other.dummy.next;
+    while (current != &other.dummy) {
+      pushBack(current->data);
+      current = current->next;
     }
   }
   return *this;
