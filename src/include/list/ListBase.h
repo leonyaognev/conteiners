@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <type_traits>
 #include <utility>
 
 /**
@@ -94,7 +95,7 @@ class ListBase {
    * @param count Number of elements
    * @param value Value to initialize elements
    */
-  ListBase<T>(std::size_t count, const T& value);
+  ListBase(std::size_t count, const T& value);
 
   /**
    * @brief Constructs a list from a range of elements.
@@ -102,8 +103,9 @@ class ListBase {
    * @param first Start of the range
    * @param last End of the range
    */
-  template <typename InputIt>
-  ListBase<T>(InputIt first, InputIt last);
+  template <typename InputIt,
+            typename = std::enable_if_t<!std::is_integral_v<InputIt>>>
+  ListBase(InputIt first, InputIt last);
 
   /** @brief Copy constructor. */
   ListBase(const ListBase& other);
