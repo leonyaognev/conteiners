@@ -69,7 +69,7 @@ typename Vector<T>::iterator Vector<T>::iterator::operator=(const iterator& othe
 }
 
 template <typename T>
-typename std::size_t Vector<T>::iterator::iterSteps(const iterator& other){
+std::size_t Vector<T>::iterator::iterSteps(const iterator& other){
   std::size_t res = 0;
   for(auto i = current; i != other.current; i++){
     res++;
@@ -83,7 +83,7 @@ Vector<T>::Vector() : _data(nullptr), _capacity(0), _size(0) {}
 
 template <typename T>
 Vector<T>::Vector(std::size_t n)
-    : _data(new T[n]), _capacity(n), _size(n) {}
+    : _data(new T[n]()), _capacity(n), _size(n) {}
 
 template <typename T>
 Vector<T>::Vector(std::size_t n, const T& value)
@@ -282,7 +282,7 @@ void Vector<T>::push_back(T&& value){
 template <typename T>
 void Vector<T>::extend(){
 	std::size_t tempCapacity = _capacity * 2;
-	T* tempData = new T[tempCapacity];
+	T* tempData = new T[tempCapacity]();
 	for (std::size_t i = 0; i < _capacity; i++){
 		tempData[i] = _data[i];
 	}
@@ -293,9 +293,9 @@ void Vector<T>::extend(){
 
 template <typename T>
 void Vector<T>::extend(std::size_t newCapacity){
-	T* tempData = new T[newCapacity];
-	std::size_t minCapacity = newCapacity < _capacity ? newCapacity : _capacity;
-	for (std::size_t i = 0; i < minCapacity; i++){
+	T* tempData = new T[newCapacity]();
+	std::size_t minSize = newCapacity < _size ? newCapacity : _size;
+	for (std::size_t i = 0; i < minSize; i++){
 		tempData[i] = _data[i];
 	}
 	delete[] _data;
@@ -322,3 +322,44 @@ void Vector<T>::resize(std::size_t newSize, const T& value){
 	}
 	_size = newSize;
 }
+
+template <typename T>
+void Vector<T>::reserve(std::size_t new_cap){
+  if (new_cap > _capacity) extend(new_cap);
+}
+
+template <typename T>
+void Vector<T>::swap(Vector& other){
+  std::swap(_data, other._data);
+  std::swap(_capacity, other._capacity);
+  std::swap(_size, other._size);
+}
+
+template <typename T>
+typename Vector<T>::iterator Vector<T>::insert(iterator pos, const T& value){
+  std::size_t shift = pos.current - _data;
+  if (_size == _capacity) extend();
+
+  pos = iterator(_data + shift);
+  for (std::size_t i = _size; i != shift; i--){
+   _data[i] = _data[i - 1];
+  }
+  *pos = value;
+  _size++;
+  return pos;
+}
+
+template <typename T>
+typename Vector<T>::iterator Vector<T>::insert(iterator pos, T&& value){
+  std::size_t shift = pos.current - _data;
+  if (_size == _capacity) extend();
+
+  pos = iterator(_data + shift);
+  for (std::size_t i = _size; i != shift; i--){
+   _data[i] = _data[i - 1];
+  }
+  *pos = value;
+  _size++;
+  return pos;
+}  
+//iterator insert(iterator pos, const T& value)

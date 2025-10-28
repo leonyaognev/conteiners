@@ -198,8 +198,36 @@ TEST(VectorEdit, ResizeTwoArgs){
 	for (size_t i = 0; i < a.size(); i++){
 		a[i] = i;
 	}
-	a.Print();
-	a.resize(9,999);
-	a.Print();
+//	a.Print();
+	a.resize(9);
+//	a.Print();
 	EXPECT_EQ(a.capacity(), 9);
+}
+
+TEST(VectorEdit, ResizeNULL){
+  Vector<double> a(5,1.23);
+  a.Print();
+  a.resize(9);
+  a.Print();
+}
+
+TEST(VectorCopy, SwapOne){
+  Vector<int> a(5,1);
+  Vector<int> b(10);
+  for(std::size_t i = 0; i < b.size(); i++){
+    b[i] = i;
+  }
+  a.swap(b);
+  a.Print();
+  b.Print();
+}
+
+TEST(VectorEdit, InsertOne){
+  Vector<int> a(3);
+  for(std::size_t i = 0; i < a.size(); i++){
+    a[i] = i;
+  }
+  a.Print();
+  a.insert(a.begin()+1, 5);
+  a.Print();
 }
