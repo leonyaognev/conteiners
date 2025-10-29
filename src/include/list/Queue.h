@@ -32,7 +32,8 @@ class Queue : protected ListBase<T> {
   Queue(const Queue& other) : Base(other) {}
   Queue(Queue&& other) noexcept : Base(std::move(other)) {}
 
-  using Base::operator=;  ///< Inherit assignment operators
+  Queue& operator=(const Queue&) = default;  ///< Inherit assignment operators
+  Queue& operator=(Queue&&) = default;
   ///@}
 
   /**
@@ -58,7 +59,7 @@ class Queue : protected ListBase<T> {
    * @brief Operations that modify the contents of the container
    */
   ///@{
-  using Base::swap;
+  void swap(Queue& other) noexcept { Base::swap(other); }
 
   void push(const T& value) { Base::pushBack(value); }
   void push(T&& value) { Base::pushBack(std::move(value)); }

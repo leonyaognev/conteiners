@@ -30,7 +30,9 @@ class Stack : protected ListBase<T> {
   Stack() = default;
   Stack(const Stack& other) : Base(other) {}
   Stack(Stack&& other) noexcept : Base(std::move(other)) {}
-  using Base::operator=;  ///< Inherit assignment operators
+
+  Stack& operator=(const Stack&) = default;  ///< Inherit assignment operators
+  Stack& operator=(Stack&&) = default;
   ///@}
 
   /** @name Element access
@@ -55,7 +57,7 @@ class Stack : protected ListBase<T> {
    *  @brief Operations that modify the contents of the stack.
    */
   ///@{
-  using Base::swap;
+  void swap(Stack& other) noexcept { Base::swap(other); }
 
   void push(const T& value) { Base::pushBack(value); }
   void push(T&& value) { Base::pushBack(std::move(value)); }

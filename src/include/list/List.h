@@ -15,7 +15,7 @@
  *       is inherited from the internal base class ListBase<T>.
  */
 template <typename T>
-class List : public ListBase<T> {
+class List : protected ListBase<T> {
  public:
   using Base = ListBase<T>;          ///< Base implementation of the list
   using value_type = T;              ///< Element type
@@ -74,17 +74,35 @@ class List : public ListBase<T> {
   using Base::pushBack;
   using Base::pushFront;
   using Base::resize;
-  using Base::swap;
+  void swap(List& other) noexcept { Base::swap(other); }
+
   ///@}
 
   /** @name Operations
    *  @brief List-specific algorithms.
    */
   ///@{
-  using Base::merge;
+
+  void merge(List& other) { Base::merge(other); }
+
+  template <typename Compare>
+  void merge(List& other, Compare comp) {
+    Base::merge(other, comp);
+  }
   using Base::remove;
   using Base::sort;
-  using Base::splice;
+
+  void splice(iterator pos, List& other) { Base::splice(pos, other); }
+
+  void splice(iterator pos, List& other, iterator it) {
+    Base::splice(pos, other, it);
+  }
+
+  template <typename InputIt>
+  void splice(iterator pos, List& other, InputIt first, InputIt last) {
+    Base::splice(pos, other, first, last);
+  }
+
   using Base::unique;
   ///@}
 };
