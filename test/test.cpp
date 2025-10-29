@@ -298,6 +298,39 @@ void test_queue_emplace() {
   std::cout << "queue emplace: PASSED" << std::endl;
 }
 
+void test_queue_copy_move() {
+  std::cout << "Testing queue copy and move..." << std::endl;
+
+  Queue<int> q1;
+  q1.push(1);
+  q1.push(2);
+  q1.push(3);
+
+  // Copy constructor
+  Queue<int> q2(q1);
+  assert(q2.size() == 3);
+  assert(q2.front() == 1);
+
+  // Move constructor
+  Queue<int> q3(std::move(q2));
+  assert(q3.size() == 3);
+  assert(q2.empty());
+
+  // Copy assignment
+  Queue<int> q4;
+  q4 = q3;
+  assert(q4.size() == 3);
+  assert(q4.front() == 1);
+
+  // Move assignment
+  Queue<int> q5;
+  q5 = std::move(q4);
+  assert(q5.size() == 3);
+  assert(q4.empty());
+
+  std::cout << "queue copy and move: PASSED" << std::endl;
+}
+
 void test_queue_edge_cases() {
   std::cout << "Testing queue edge cases..." << std::endl;
 
@@ -378,6 +411,39 @@ void test_stack_emplace() {
   std::cout << "stack emplace: PASSED" << std::endl;
 }
 
+void test_stack_copy_move() {
+  std::cout << "Testing stack copy and move..." << std::endl;
+
+  Stack<int> st1;
+  st1.push(1);
+  st1.push(2);
+  st1.push(3);
+
+  // Copy constructor
+  Stack<int> st2(st1);
+  assert(st2.size() == 3);
+  assert(st2.top() == 3);
+
+  // Move constructor
+  Stack<int> st3(std::move(st2));
+  assert(st3.size() == 3);
+  assert(st2.empty());
+
+  // Copy assignment
+  Stack<int> st4;
+  st4 = st3;
+  assert(st4.size() == 3);
+  assert(st4.top() == 3);
+
+  // Move assignment
+  Stack<int> st5;
+  st5 = std::move(st4);
+  assert(st5.size() == 3);
+  assert(st4.empty());
+
+  std::cout << "stack copy and move: PASSED" << std::endl;
+}
+
 void test_stack_edge_cases() {
   std::cout << "Testing stack edge cases..." << std::endl;
 
@@ -409,9 +475,9 @@ void test_stack_edge_cases() {
 // ==================== STRESS TESTS ====================
 
 void test_stress_listbase() {
-  std::cout << "Testing ListBase stress..." << std::endl;
+  std::cout << "Testing List stress..." << std::endl;
 
-  ListBase<int> list;
+  List<int> list;
   const int N = 1000;
 
   // Add many elements
@@ -428,7 +494,7 @@ void test_stress_listbase() {
   }
   assert(list.empty());
 
-  std::cout << "ListBase stress: PASSED" << std::endl;
+  std::cout << "List stress: PASSED" << std::endl;
 }
 
 void test_stress_queue() {
@@ -545,6 +611,183 @@ void test_comparison_operations() {
   std::cout << "comparison operations: PASSED" << std::endl;
 }
 
+void test_list_emplace() {
+  std::cout << "Testing list emplace..." << std::endl;
+
+  // Emplace at front
+  List<std::string> lst;
+
+  lst.emplaceFront("world");
+  lst.emplaceFront("hello");
+  assert(lst.size() == 2);
+  assert(lst.front() == "hello");
+  assert(lst.back() == "world");
+
+  // Emplace at back
+  lst.emplaceBack("test");
+  assert(lst.size() == 3);
+  assert(lst.back() == "test");
+
+  // Emplace in middle
+  auto it = lst.begin();
+  ++it;
+  lst.emplace(it, "middle");
+  assert(lst.size() == 4);
+
+  it = lst.begin();
+  assert(*it == "hello");
+  ++it;
+  assert(*it == "middle");
+  ++it;
+  assert(*it == "world");
+  ++it;
+  assert(*it == "test");
+
+  std::cout << "list emplace: PASSED" << std::endl;
+}
+
+void test_list_resize() {
+  std::cout << "Testing list resize..." << std::endl;
+  // Resize up with default values
+  List<int> lst;
+
+  lst.resize(3);
+  assert(lst.size() == 3);
+  assert(lst.front() == 0);
+  assert(lst.back() == 0);
+
+  // Resize up with custom value
+  lst.resize(5, 42);
+  assert(lst.size() == 5);
+  assert(lst.back() == 42);
+
+  // Resize down
+  lst.resize(2);
+  assert(lst.size() == 2);
+  assert(lst.front() == 0);
+  assert(lst.back() == 0);
+
+  // Resize empty list
+  List<int> empty_lst;
+  empty_lst.resize(3, 10);
+  assert(empty_lst.size() == 3);
+  assert(empty_lst.front() == 10);
+  assert(empty_lst.back() == 10);
+
+  std::cout << "list resize: PASSED" << std::endl;
+}
+
+void test_list_splice() {
+  std::cout << "Testing list splice..." << std::endl;
+
+  List<int> lst1;
+  lst1.pushBack(1);
+  lst1.pushBack(2);
+  lst1.pushBack(3);
+
+  List<int> lst2;
+  lst2.pushBack(4);
+  lst2.pushBack(5);
+  lst2.pushBack(6);
+
+  // Splice entire list
+  lst1.splice(lst1.end(), lst2);
+  assert(lst1.size() == 6);
+  assert(lst2.empty());
+  assert(lst1.back() == 6);
+
+  // Reset
+  lst2.pushBack(7);
+  lst2.pushBack(8);
+  lst2.pushBack(9);
+
+  // Splice single element
+  auto it = lst2.begin();
+  lst1.splice(lst1.begin(), lst2, it);
+  assert(lst1.size() == 7);
+  assert(lst2.size() == 2);
+  assert(lst1.front() == 7);
+
+  // Splice range
+  auto first = lst2.begin();
+  auto last = lst2.end();
+  lst1.splice(lst1.end(), lst2, first, last);
+  assert(lst1.size() == 9);
+  assert(lst2.empty());
+  assert(lst1.back() == 9);
+
+  std::cout << "list splice: PASSED" << std::endl;
+}
+
+void test_list_merge() {
+  std::cout << "Testing list merge..." << std::endl;
+
+  List<int> lst1;
+  lst1.pushBack(1);
+  lst1.pushBack(3);
+  lst1.pushBack(5);
+
+  List<int> lst2;
+  lst2.pushBack(2);
+  lst2.pushBack(4);
+  lst2.pushBack(6);
+
+  // Merge sorted lists
+  lst1.merge(lst2);
+  assert(lst1.size() == 6);
+  assert(lst2.empty());
+
+  auto it = lst1.begin();
+  assert(*it == 1);
+  ++it;
+  assert(*it == 2);
+  ++it;
+  assert(*it == 3);
+  ++it;
+  assert(*it == 4);
+  ++it;
+  assert(*it == 5);
+  ++it;
+  assert(*it == 6);
+
+  std::cout << "list merge: PASSED" << std::endl;
+}
+
+void test_list_reverse_iterators() {
+  std::cout << "Testing list reverse iterators..." << std::endl;
+
+  List<int> lst;
+  lst.pushBack(1);
+  lst.pushBack(2);
+  lst.pushBack(3);
+  lst.pushBack(4);
+  lst.pushBack(5);
+
+  // Reverse iteration
+  int sum = 0;
+  int count = 0;
+  for (auto it = lst.rbegin(); it != lst.rend(); --it) {
+    sum += *it;
+    count++;
+  }
+  assert(sum == 15);
+  assert(count == 5);
+
+  // Check reverse order
+  auto rit = lst.rbegin();
+  assert(*rit == 5);
+  --rit;
+  assert(*rit == 4);
+  --rit;
+  assert(*rit == 3);
+  --rit;
+  assert(*rit == 2);
+  --rit;
+  assert(*rit == 1);
+
+  std::cout << "list reverse iterators: PASSED" << std::endl;
+}
+
 // ==================== MAIN ====================
 
 int main() {
@@ -557,15 +800,22 @@ int main() {
   test_list_modifiers();
   test_list_operations();
   test_list_edge_cases();
+  test_list_emplace();
+  test_list_resize();
+  test_list_splice();
+  test_list_merge();
+  test_list_reverse_iterators();
 
   // queue tests
   test_queue_basic();
   test_queue_emplace();
+  test_queue_copy_move();
   test_queue_edge_cases();
 
   // stack tests
   test_stack_basic();
   test_stack_emplace();
+  test_stack_copy_move();
   test_stack_edge_cases();
 
   // Stress tests
