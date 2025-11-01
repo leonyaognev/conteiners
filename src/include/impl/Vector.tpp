@@ -362,4 +362,22 @@ typename Vector<T>::iterator Vector<T>::insert(iterator pos, T&& value){
   _size++;
   return pos;
 }  
-//iterator insert(iterator pos, const T& value)
+
+template <typename T>
+typename Vector<T>::iterator Vector<T>::insert(iterator pos, std::size_t count, const T& value){
+  std::size_t shift = pos.current - _data; //получаем индекс с которого вставляем
+  if ((count + _size) > (2 * _capacity)){
+    extend(count + _size);
+  }  else if (count + _size > _capacity){
+    extend();
+  }
+  pos = iterator(_data + shift); //указатель на элемент, с которого начинаем вставку
+  for (std::size_t i = _size - 1; i >= shift; i--){
+    _data[i + count] = _data[i];
+  }
+  for (std::size_t i = 0; i != count; i++){
+    _data[shift + i] = value;
+  }
+  _size = _size + count;
+  return pos;
+}

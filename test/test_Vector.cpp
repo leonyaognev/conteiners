@@ -206,9 +206,9 @@ TEST(VectorEdit, ResizeTwoArgs){
 
 TEST(VectorEdit, ResizeNULL){
   Vector<double> a(5,1.23);
-  a.Print();
+  //a.Print();
   a.resize(9);
-  a.Print();
+  //a.Print();
 }
 
 TEST(VectorCopy, SwapOne){
@@ -218,8 +218,8 @@ TEST(VectorCopy, SwapOne){
     b[i] = i;
   }
   a.swap(b);
-  a.Print();
-  b.Print();
+  //a.Print();
+  //b.Print();
 }
 
 TEST(VectorEdit, InsertOne){
@@ -227,7 +227,17 @@ TEST(VectorEdit, InsertOne){
   for(std::size_t i = 0; i < a.size(); i++){
     a[i] = i;
   }
-  a.Print();
+ // a.Print();
   a.insert(a.begin()+1, 5);
+ // a.Print();
+}
+
+TEST(VectorEdit, InsertMany){
+  Vector<double> a(4);
+  for(std::size_t i = 0; i < a.size(); i++){
+    a[i] = i + 1;
+  }
+  a.Print();
+  a.insert(a.begin()+2, 3, 5.5);
   a.Print();
 }
