@@ -381,3 +381,54 @@ typename Vector<T>::iterator Vector<T>::insert(iterator pos, std::size_t count, 
   _size = _size + count;
   return pos;
 }
+
+template <typename T>
+void Vector<T>::clear(){
+  for (std::size_t i = 0; i < _size; i++){
+    _data[i].~T();
+  }
+  _size = 0;
+}
+
+template <typename T>
+template <typename... Args>
+T& Vector<T>::emplace_back(Args&&... args){
+  if (_size == _capacity) extend();
+  new(end().current) T(std::forward<Args>(args)...);
+  _size++;
+  return _data[_size - 1];
+}
+
+template <typename T>
+template <typename... Args>
+typename Vector<T>::iterator Vector<T>::emplace(iterator pos, Args&&... args){
+  std::size_t shift = pos.current - _data;
+  if (_size == _capacity) extend();
+  for (std::size_t i = _size; i != shift; i--){
+    _data[i] = _data[i - 1];
+  }
+  new(begin().current + shift) T(std::forward<Args>(args)...);
+  _size++;
+  return begin() + shift;
+}
+
+template <typename T>
+void Vector<T>::assign(std::size_t count, const T& value){
+  if(count > _capacity) extend(count);
+  for (std::size_t i = 0; i < count; i++){
+    _data[i] = value;
+  }
+  _size = count;
+}
+
+template <typename T>
+void Vector<T>::assign(iterator first, iterator last){
+  std::size_t shift = last.current - first.current;
+  if (shift > _capacity) extend(shift);
+  auto pos = first;
+  for (std::size_t i = 0; i < shift; i++){
+    _data[i] = *pos;
+    pos++;
+  }
+  _size = shift;
+}

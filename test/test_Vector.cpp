@@ -237,7 +237,48 @@ TEST(VectorEdit, InsertMany){
   for(std::size_t i = 0; i < a.size(); i++){
     a[i] = i + 1;
   }
-  a.Print();
+  //a.Print();
   a.insert(a.begin()+2, 3, 5.5);
+  //a.Print();
+}
+
+TEST(VectorEdit, ClearInt){
+  Vector<int> a(5);
+ // a.Print();
+  a.clear();
+ // a.Print();
+}
+
+TEST(VectorEdit, EmplaceBackString){
+  Vector<std::string> a(5, "hello");
+  a.Print();
+  a.emplace_back("hi!");
+  a.Print();
+}
+
+TEST(VectorEdit, EmplaceString){
+  Vector<std::string> a(3, "cool!");
+  a.Print();
+  a.emplace(a.begin() + 1, "privet");
+  a.Print();
+}
+
+TEST(VectorCopy, AssignValue){
+  Vector<int> a(5);
+  for (std::size_t i = 0; i < a.size(); i++){
+    a[i] = 1 + i;
+  }
+  a.Print();
+  a.assign(7,5);
+  a.Print();
+}
+
+TEST(VectorEdit, AssignIter){
+  Vector<double> a(3);
+  Vector<double> b(7);
+  for (std::size_t i = 0; i < b.size(); i++){
+    b[i] = 1.5 + i;
+  }
+  a.assign(b.begin(), b.end());
   a.Print();
 }

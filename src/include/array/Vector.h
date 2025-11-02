@@ -123,7 +123,7 @@ class Vector {
 
   /** @brief Clears all elements. */
   void clear();
-
+  
   /** @brief Insert element at position (copy). */
   iterator insert(iterator pos, const T& value);
   /** @brief Insert element at position (move). */
@@ -162,6 +162,12 @@ class Vector {
 
   /** @brief Swap contents with another array. */
   void swap(Vector& other);
+
+  /** @brief Erases a vector and copies the specified elements to the empty vector. */
+  void assign(std::size_t count, const T& value);
+ // void assign(initializer_list<T> init_list);
+
+  void assign(iterator first, iterator last);
 
   /** @brief Index access operator. */
   T& operator[](std::size_t index);
