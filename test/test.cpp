@@ -788,6 +788,199 @@ void test_list_reverse_iterators() {
   std::cout << "list reverse iterators: PASSED" << std::endl;
 }
 
+void test_list_insert_many() {
+  std::cout << "Testing list insert_many..." << std::endl;
+
+  List<int> lst;
+  lst.pushBack(1);
+  lst.pushBack(5);
+
+  // Вставка нескольких элементов в середину
+  auto it = lst.begin();
+  ++it;
+  auto result = lst.insert_many(it, 2, 3, 4);
+
+  assert(lst.size() == 5);
+  assert(*result == 2);  // Возвращает итератор на первый вставленный элемент
+
+  // Проверяем порядок элементов
+  auto check_it = lst.begin();
+  assert(*check_it == 1);
+  ++check_it;
+  assert(*check_it == 2);
+  ++check_it;
+  assert(*check_it == 3);
+  ++check_it;
+  assert(*check_it == 4);
+  ++check_it;
+  assert(*check_it == 5);
+
+  // Вставка в начало
+  lst.insert_many(lst.begin(), -1, 0);
+  assert(lst.size() == 7);
+  assert(lst.front() == -1);
+
+  // Вставка в конец
+  lst.insert_many(lst.end(), 6, 7);
+  assert(lst.size() == 9);
+  assert(lst.back() == 7);
+
+  // Вставка без аргументов (ничего не должно произойти)
+  auto empty_result = lst.insert_many(lst.begin());
+  assert(lst.size() == 9);
+  assert(empty_result == lst.begin());
+
+  std::cout << "list insert_many: PASSED" << std::endl;
+}
+
+void test_list_insert_many_back() {
+  std::cout << "Testing list insert_many_back..." << std::endl;
+
+  List<int> lst;
+
+  // Вставка нескольких элементов в пустой список
+  lst.insert_many_back(1, 2, 3);
+  assert(lst.size() == 3);
+  assert(lst.front() == 1);
+  assert(lst.back() == 3);
+
+  // Вставка дополнительных элементов
+  lst.insert_many_back(4, 5);
+  assert(lst.size() == 5);
+  assert(lst.back() == 5);
+
+  // Проверяем полный порядок
+  auto it = lst.begin();
+  assert(*it == 1);
+  ++it;
+  assert(*it == 2);
+  ++it;
+  assert(*it == 3);
+  ++it;
+  assert(*it == 4);
+  ++it;
+  assert(*it == 5);
+
+  // Вставка разных категорий значений
+  int x = 6;
+  const int y = 7;
+  lst.insert_many_back(x, y, 8);  // lvalue, const lvalue, rvalue
+  assert(lst.size() == 8);
+  assert(lst.back() == 8);
+
+  // Вставка без аргументов (ничего не должно произойти)
+  lst.insert_many_back();
+  assert(lst.size() == 8);  // Размер не изменился
+
+  std::cout << "list insert_many_back: PASSED" << std::endl;
+}
+
+void test_queue_insert_many_back() {
+  std::cout << "Testing queue insert_many_back..." << std::endl;
+
+  Queue<int> q;
+
+  // Массовая вставка в очередь
+  q.insert_many_back(1, 2, 3);
+  assert(q.size() == 3);
+  assert(q.front() == 1);
+  assert(q.back() == 3);
+
+  // Дополнительная вставка
+  q.insert_many_back(4, 5);
+  assert(q.size() == 5);
+  assert(q.front() == 1);  // FIFO - первый остается
+  assert(q.back() == 5);   // Последний добавленный
+
+  // Извлечение и проверка порядка (FIFO)
+  assert(q.front() == 1);
+  q.pop();
+  assert(q.front() == 2);
+  q.pop();
+  assert(q.front() == 3);
+  q.pop();
+  assert(q.front() == 4);
+  q.pop();
+  assert(q.front() == 5);
+  q.pop();
+  assert(q.empty());
+
+  std::cout << "queue insert_many_back: PASSED" << std::endl;
+}
+
+void test_stack_insert_many_back() {
+  std::cout << "Testing stack insert_many_back..." << std::endl;
+
+  Stack<int> st;
+
+  // Массовая вставка в стек
+  st.insert_many_back(1, 2, 3);
+  assert(st.size() == 3);
+  assert(st.top() == 3);  // LIFO - последний добавленный наверху
+
+  // Дополнительная вставка
+  st.insert_many_back(4, 5);
+  assert(st.size() == 5);
+  assert(st.top() == 5);  // Последний добавленный наверху
+
+  // Извлечение и проверка порядка (LIFO)
+  assert(st.top() == 5);
+  st.pop();
+  assert(st.top() == 4);
+  st.pop();
+  assert(st.top() == 3);
+  st.pop();
+  assert(st.top() == 2);
+  st.pop();
+  assert(st.top() == 1);
+  st.pop();
+  assert(st.empty());
+
+  std::cout << "stack insert_many_back: PASSED" << std::endl;
+}
+
+void test_list_insert_many_front() {
+  std::cout << "Testing list insert_many_front..." << std::endl;
+
+  List<int> lst;
+
+  // Вставка нескольких элементов в пустой список
+  lst.insert_many_front(3, 2, 1);
+  assert(lst.size() == 3);
+  assert(lst.front() == 1);  // Последний вставленный становится первым
+  assert(lst.back() == 3);   // Первый вставленный становится последним
+
+  // Вставка дополнительных элементов
+  lst.insert_many_front(5, 4);
+  assert(lst.size() == 5);
+  assert(lst.front() == 4);  // Новые элементы добавляются в начало
+
+  // Проверяем полный порядок (обратный порядок вставки)
+  auto it = lst.begin();
+  assert(*it == 4);
+  ++it;
+  assert(*it == 5);
+  ++it;
+  assert(*it == 1);
+  ++it;
+  assert(*it == 2);
+  ++it;
+  assert(*it == 3);
+
+  // Вставка разных категорий значений
+  int x = 6;
+  const int y = 7;
+  lst.insert_many_front(y, x, 8);  // const lvalue, lvalue, rvalue
+  assert(lst.size() == 8);
+  assert(lst.front() == 8);
+
+  // Вставка без аргументов (ничего не должно произойти)
+  lst.insert_many_front();
+  assert(lst.size() == 8);  // Размер не изменился
+
+  std::cout << "list insert_many_front: PASSED" << std::endl;
+}
+
 // ==================== MAIN ====================
 
 int main() {
@@ -805,18 +998,23 @@ int main() {
   test_list_splice();
   test_list_merge();
   test_list_reverse_iterators();
+  test_list_insert_many();
+  test_list_insert_many_back();
+  test_list_insert_many_front();
 
   // queue tests
   test_queue_basic();
   test_queue_emplace();
   test_queue_copy_move();
   test_queue_edge_cases();
+  test_queue_insert_many_back();
 
   // stack tests
   test_stack_basic();
   test_stack_emplace();
   test_stack_copy_move();
   test_stack_edge_cases();
+  test_stack_insert_many_back();
 
   // Stress tests
   test_stress_listbase();
