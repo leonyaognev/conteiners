@@ -155,6 +155,15 @@ class ListBase {
   template <typename InputIt>
   iterator insert(iterator pos, InputIt first, InputIt last);
 
+  template <typename... Args>
+  iterator insert_many(iterator pos, Args&&... args);
+
+  template <typename... Args>
+  void insert_many_back(Args&&... args);
+
+  template <typename... Args>
+  void insert_many_front(Args&&... args);
+
   /**
    * @brief Constructs element(s) in place before `pos`.
    * @throws std::bad_alloc if memory allocation fails iterator

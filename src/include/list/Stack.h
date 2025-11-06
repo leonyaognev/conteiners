@@ -63,6 +63,11 @@ class Stack : protected ListBase<T> {
   void push(T&& value) { Base::pushBack(std::move(value)); }
 
   template <typename... Args>
+  void insert_many_back(Args&&... args) {
+    Base::insert_many_back(std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
   void emplace(Args&&... args) {
     Base::emplaceBack(std::forward<Args>(args)...);
   }

@@ -69,6 +69,20 @@ class List : protected ListBase<T> {
   using Base::emplaceFront;
   using Base::erase;
   using Base::insert;
+  template <typename... Args>
+  iterator insert_many(iterator pos, Args&&... args) {
+    return Base::insert_many(pos, std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
+  void insert_many_back(Args&&... args) {
+    Base::insert_many_back(std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
+  void insert_many_front(Args&&... args) {
+    Base::insert_many_front(std::forward<Args>(args)...);
+  }
   using Base::popBack;
   using Base::popFront;
   using Base::pushBack;

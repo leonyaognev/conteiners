@@ -225,6 +225,103 @@ typename ListBase<T>::iterator ListBase<T>::insert(iterator pos, InputIt first,
 
 template <typename T>
 template <typename... Args>
+typename ListBase<T>::iterator ListBase<T>::insert_many(iterator pos,
+                                                        Args&&... args) {
+  if constexpr (sizeof...(args) == 0) {
+    return iterator(pos.current);
+  }
+
+  node* pos_node = pos.current;
+  iterator first_insert = iterator(nullptr);
+  iterator last_insert = iterator(nullptr);
+
+  auto insert_one = [&](auto&& arg) {
+    node* new_node;
+    try {
+      new_node = new node(std::forward<decltype(arg)>(arg));
+    } catch (const std::bad_alloc&) {
+      throw;
+    }
+
+    new_node->prev = pos_node->prev;
+    new_node->next = pos_node;
+    pos_node->prev->next = new_node;
+    pos_node->prev = new_node;
+
+    ++_size;
+
+    return iterator(new_node);
+  };
+
+  bool is_first = true;
+  auto insert_all = [&](auto&& arg) {
+    auto inserted = insert_one(std::forward<decltype(arg)>(arg));
+
+    if (is_first) {
+      first_insert = inserted;
+      is_first = false;
+    }
+    last_insert = inserted;
+  };
+
+  (insert_all(std::forward<Args>(args)), ...);
+  return first_insert;
+}
+
+template <typename T>
+template <typename... Args>
+void ListBase<T>::insert_many_back(Args&&... args) {
+  if constexpr (sizeof...(args) == 0) {
+    return;
+  }
+
+  auto insert_back = [&](auto&& arg) {
+    node* new_node;
+    try {
+      new_node = new node(std::forward<decltype(arg)>(arg));
+    } catch (const std::bad_alloc&) {
+      throw;
+    }
+
+    new_node->prev = dummy.prev;
+    new_node->next = &dummy;
+    dummy.prev->next = new_node;
+    dummy.prev = new_node;
+
+    ++_size;
+  };
+
+  (insert_back(std::forward<Args>(args)), ...);
+}
+
+template <typename T>
+template <typename... Args>
+void ListBase<T>::insert_many_front(Args&&... args) {
+  if constexpr (sizeof...(args) == 0) {
+    return;
+  }
+
+  auto insert_front = [&](auto&& arg) {
+    node* new_node;
+    try {
+      new_node = new node(std::forward<decltype(arg)>(arg));
+    } catch (const std::bad_alloc&) {
+      throw;
+    }
+
+    new_node->prev = &dummy;
+    new_node->next = dummy.next;
+    dummy.next->prev = new_node;
+    dummy.next = new_node;
+
+    ++_size;
+  };
+
+  (insert_front(std::forward<Args>(args)), ...);
+}
+
+template <typename T>
+template <typename... Args>
 typename ListBase<T>::iterator ListBase<T>::emplace(iterator pos,
                                                     Args&&... args) {
   node* newNode;
