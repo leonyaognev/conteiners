@@ -78,7 +78,7 @@ class Vector {
   Vector(Vector&& other);
   Vector& operator=(const Vector& other);  ///< Copy assignment
   Vector& operator=(Vector&& other);       ///< Move assignment
- // ! assign - Удаляет вектор и копирует указанные элементы в пустой вектор. (rvalue) 
+
   /** @brief Destructor, frees array memory. */
   ~Vector();
 
@@ -133,6 +133,12 @@ class Vector {
   /** @brief Insert range of elements at position. */
   template <typename InputIt>
   iterator insert(iterator pos, InputIt first, InputIt last);
+  /** @brief Inserts new elements into the container directly before pos. */
+  template <typename... Args>
+  iterator insert_many(iterator pos, Args&&... args); //! switch iterator to const_iterator 
+  /** @brief Appends new elements to the end of the container. */
+  template <typename... Args>
+  void insert_many_back(Args&&... args);
 
   /** @brief Emplace element at position. */
   template <typename... Args>

@@ -383,6 +383,27 @@ typename Vector<T>::iterator Vector<T>::insert(iterator pos, std::size_t count, 
 }
 
 template <typename T>
+template <typename InputIt>
+typename Vector<T>::iterator Vector<T>::insert(iterator pos, InputIt first, InputIt last){
+	std::size_t posIndex = pos.current - _data;
+	std::size_t count = std::distance(first, last);
+	if ((count + _size) > (2 * _capacity)){
+    extend(count + _size);
+  }  else if (count + _size > _capacity){
+    extend();
+  }
+  pos = iterator(_data + posIndex);
+  for (std::size_t i = _size - 1; i >= posIndex; i--){
+	_data[i + count] = _data[i];
+  }
+  for (std::size_t i = 0; i < count; i++){
+	_data[i + posIndex] = *(first + i);
+  }
+  _size = _size + count;
+  return pos;
+}
+
+template <typename T>
 void Vector<T>::clear(){
   for (std::size_t i = 0; i < _size; i++){
     _data[i].~T();
@@ -431,4 +452,17 @@ void Vector<T>::assign(iterator first, iterator last){
     pos++;
   }
   _size = shift;
+}
+
+template <typename T>
+template <typename... Args>
+void Vector<T>::insert_many_back(Args&&... args){
+	(push_back(std::forward<Args>(args)), ...);
+}
+
+template <typename T>
+template <typename... Args>
+typename Vector<T>::iterator Vector<T>::insert_many(iterator pos, Args&&... args) {
+    ((pos = emplace(pos, std::forward<Args>(args)), ++pos), ...);
+    return pos;
 }

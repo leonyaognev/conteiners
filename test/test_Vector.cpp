@@ -252,7 +252,7 @@ TEST(VectorEdit, ClearInt){
 TEST(VectorEdit, EmplaceBackString){
   Vector<std::string> a(5, "hello");
   a.Print();
-  a.emplace_back("hi!");
+  a.emplace_back("hi!", "hi:(");
   a.Print();
 }
 
@@ -281,4 +281,32 @@ TEST(VectorEdit, AssignIter){
   }
   a.assign(b.begin(), b.end());
   a.Print();
+}
+
+TEST(VectorEdit, InsertOnIterators){
+	Vector<double> a(4);
+  	int b[5];
+	for (int i = 0; i < 5; i++){
+		b[i] = i + 1;
+	}
+	for(std::size_t i = 0; i < a.size(); i++){
+    	a[i] = i + 1.5;
+  	}
+	a.Print();
+	a.insert((a.begin() + 2), b + 1, b + 3);
+	a.Print();
+}
+
+TEST(VectorEdit, InsertManyBackStrings){
+	Vector<std::string> a(5, "hi!");
+	a.Print();
+	a.insert_many_back("hello", "zdarov", "priv");
+	a.Print();
+}
+
+TEST(VectorEdit, InsertManyStringsIterati){
+	Vector<std::string> a(5, "hi!");
+	a.Print();
+	a.insert_many(a.end() - 3, "hello", "zdarov", "priv");
+	a.Print();
 }
