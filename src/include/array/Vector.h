@@ -57,8 +57,6 @@ class Vector {
     bool operator==(const iterator& other) const;
     /** @brief Inequality comparison. */
     bool operator!=(const iterator& other) const;
-    /** @brief support function to count steps between iterators*/
-    size_t iterSteps(const iterator& other);
   };
 
   using Iterator = iterator;  ///< Alias for iterator

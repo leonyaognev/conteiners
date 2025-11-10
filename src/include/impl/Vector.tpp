@@ -68,14 +68,6 @@ typename Vector<T>::iterator Vector<T>::iterator::operator=(const iterator& othe
   return current;
 }
 
-template <typename T>
-std::size_t Vector<T>::iterator::iterSteps(const iterator& other){
-  std::size_t res = 0;
-  for(auto i = current; i != other.current; i++){
-    res++;
-  }
-  return res;
-}
 // ---------------- Vector methods ----------------
 
 template <typename T>
@@ -254,7 +246,7 @@ typename Vector<T>::iterator Vector<T>::erase(iterator first, iterator last){
     b++;
     iter++;
   }
-  _size = _size - first.iterSteps(last);
+  _size = _size - (last.current - first.current);
   return begin();
 }
 
