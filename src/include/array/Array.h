@@ -3,12 +3,12 @@
 #include <cstddef>
 
 template <typename T, std::size_t N>
-class array{
-	private:
-	T _data[N];
-	
-	class iterator {
-   	public:
+class array {
+ private:
+  T _data[N];
+
+  class iterator {
+   public:
     using valueType = T;   ///< Value type
     using pointer = T*;    ///< Pointer type
     using reference = T&;  ///< Reference type
@@ -47,32 +47,36 @@ class array{
     bool operator!=(const iterator& other) const;
   };
 
+ public:
+  typedef T value_type;
+  typedef T& reference;
+  typedef const T& const_reference;
+  typedef size_t size_type;
+
   using Iterator = iterator;  ///< Alias for iterator
 
-  public:
-	typedef T value_type;
-  	typedef T& reference;
-	typedef const T& const_reference;
-	typedef size_t size_type;
+  reference at(size_type off);
 
-	reference at(size_type off);
-	reference back();
-	iterator begin() noexcept;
-	T *data();
-	const T *data() const;
-  	constexpr bool empty() const;
-	reference end();
-	const_reference end() const;
-	void fill(const Type& val);
-	reference front();
-	constexpr const_reference front() const;
-	constexpr size_type max_size() const;
-	reference operator[](size_type off);
-	constexpr const_reference operator[](size_type off) const;
-  	array<Value> operator=(array<Value> right); // ?
-	constexpr size_type size() const;
-	typedef std::size_t size_type; // ?
-  	void swap(array& right);
+  reference back() noexcept;
+  iterator begin() noexcept;
+
+  T* data();
+  const T* data() const;
+
+  constexpr bool empty() const;
+  constexpr size_type size() const;
+  constexpr size_type max_size() const;
+
+  void fill(const T& val);
+  void swap(array& right);
+
+  iterator end();
+  iterator front();
+
+  reference operator[](size_type off);
+  const_reference operator[](size_type off) const;
+
+  array& operator=(array& right);
 };
 
 #include "impl/Array.tpp"

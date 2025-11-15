@@ -111,7 +111,8 @@ class Vector {
 
   /** @brief Support method to extend allocated memory and increase capacity */
   void extend();
-  /** @brief Support method to edit allocated memory, also can decrease capacity*/
+  /** @brief Support method to edit allocated memory, also can decrease
+   * capacity*/
   void extend(std::size_t newCapacity);
 
   /** @brief Reserve memory for at least new_cap elements. */
@@ -121,7 +122,7 @@ class Vector {
 
   /** @brief Clears all elements. */
   void clear();
-  
+
   /** @brief Insert element at position (copy). */
   iterator insert(iterator pos, const T& value);
   /** @brief Insert element at position (move). */
@@ -133,7 +134,8 @@ class Vector {
   iterator insert(iterator pos, InputIt first, InputIt last);
   /** @brief Inserts new elements into the container directly before pos. */
   template <typename... Args>
-  iterator insert_many(iterator pos, Args&&... args); //! switch iterator to const_iterator 
+  iterator insert_many(iterator pos,
+                       Args&&... args);  //! switch iterator to const_iterator
   /** @brief Appends new elements to the end of the container. */
   template <typename... Args>
   void insert_many_back(Args&&... args);
@@ -167,9 +169,10 @@ class Vector {
   /** @brief Swap contents with another array. */
   void swap(Vector& other);
 
-  /** @brief Erases a vector and copies the specified elements to the empty vector. */
+  /** @brief Erases a vector and copies the specified elements to the empty
+   * vector. */
   void assign(std::size_t count, const T& value);
- // void assign(initializer_list<T> init_list);
+  // void assign(initializer_list<T> init_list);
 
   void assign(iterator first, iterator last);
 
