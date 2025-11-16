@@ -1,64 +1,51 @@
-#include <algorithm>
-#include <cassert>
-#include <iostream>
-#include <string>
-
 #include "../src/include/list/Stack.h"
+#include <gtest/gtest.h>
 
-// ==================== STACK TESTS ====================
+// Для тестирования emplace со строками, но без включения <string>
+// можно использовать string literals и std::string напрямую:
+// gtest и стандартная библиотека обычно позволяют это без явного include.
+// Если компилятор ругается — раскомментируйте:
+// #include <string>   // только если строго необходимо
 
-void test_stack_basic() {
-  std::cout << "Testing stack basic operations..." << std::endl;
-
+TEST(StackTest, BasicOperations) {
   Stack<int> st;
 
-  // Test empty stack
-  assert(st.empty());
-  assert(st.size() == 0);
+  EXPECT_TRUE(st.empty());
+  EXPECT_EQ(st.size(), 0);
 
-  // Push elements
   st.push(1);
   st.push(2);
   st.push(3);
 
-  assert(st.size() == 3);
-  assert(st.top() == 3);
-
-  // Pop elements (LIFO)
-  st.pop();
-  assert(st.top() == 2);
-  assert(st.size() == 2);
+  EXPECT_EQ(st.size(), 3);
+  EXPECT_EQ(st.top(), 3);
 
   st.pop();
-  assert(st.top() == 1);
-  assert(st.size() == 1);
+  EXPECT_EQ(st.top(), 2);
+  EXPECT_EQ(st.size(), 2);
 
   st.pop();
-  assert(st.empty());
+  EXPECT_EQ(st.top(), 1);
+  EXPECT_EQ(st.size(), 1);
 
-  std::cout << "stack basic operations: PASSED" << std::endl;
+  st.pop();
+  EXPECT_TRUE(st.empty());
 }
 
-void test_stack_emplace() {
-  std::cout << "Testing stack emplace..." << std::endl;
-
+TEST(StackTest, Emplace) {
   Stack<std::string> st;
 
   st.emplace("hello");
-  st.emplace(3, 'a');
+  st.emplace(3, 'a');  // std::string(3, 'a') → "aaa"
 
-  assert(st.size() == 2);
-  assert(st.top() == "aaa");
+  EXPECT_EQ(st.size(), 2);
+  EXPECT_EQ(st.top(), "aaa");
 
   st.pop();
-  assert(st.top() == "hello");
-
-  std::cout << "stack emplace: PASSED" << std::endl;
+  EXPECT_EQ(st.top(), "hello");
 }
 
-void test_stack_copy_move() {
-  std::cout << "Testing stack copy and move..." << std::endl;
-
+TEST(StackTest, CopyAndMoveSemantics) {
   Stack<int> st1;
   st1.push(1);
   st1.push(2);
@@ -66,130 +53,81 @@ void test_stack_copy_move() {
 
   // Copy constructor
   Stack<int> st2(st1);
-  assert(st2.size() == 3);
-  assert(st2.top() == 3);
+  EXPECT_EQ(st2.size(), 3);
+  EXPECT_EQ(st2.top(), 3);
 
   // Move constructor
   Stack<int> st3(std::move(st2));
-  assert(st3.size() == 3);
-  assert(st2.empty());
+  EXPECT_EQ(st3.size(), 3);
+  EXPECT_TRUE(st2.empty());
 
   // Copy assignment
   Stack<int> st4;
   st4 = st3;
-  assert(st4.size() == 3);
-  assert(st4.top() == 3);
+  EXPECT_EQ(st4.size(), 3);
+  EXPECT_EQ(st4.top(), 3);
 
   // Move assignment
   Stack<int> st5;
   st5 = std::move(st4);
-  assert(st5.size() == 3);
-  assert(st4.empty());
-
-  std::cout << "stack copy and move: PASSED" << std::endl;
+  EXPECT_EQ(st5.size(), 3);
+  EXPECT_TRUE(st4.empty());
 }
 
-void test_stack_edge_cases() {
-  std::cout << "Testing stack edge cases..." << std::endl;
-
+TEST(StackTest, EdgeCases) {
   Stack<int> st;
 
-  // Empty stack
-  assert(st.empty());
-  assert(st.size() == 0);
+  EXPECT_TRUE(st.empty());
+  EXPECT_EQ(st.size(), 0);
 
-  // Single element
   st.push(42);
-  assert(st.size() == 1);
-  assert(st.top() == 42);
+  EXPECT_EQ(st.size(), 1);
+  EXPECT_EQ(st.top(), 42);
 
   st.pop();
-  assert(st.empty());
+  EXPECT_TRUE(st.empty());
 
-  // Push after pop
   st.push(1);
   st.push(2);
   st.pop();
   st.push(3);
-  assert(st.top() == 3);
-  assert(st.size() == 2);
-
-  std::cout << "stack edge cases: PASSED" << std::endl;
+  EXPECT_EQ(st.top(), 3);
+  EXPECT_EQ(st.size(), 2);
 }
 
-// ==================== STRESS TEST ====================
+TEST(StackTest, InsertManyBack) {
+  Stack<int> st;
 
-void test_stress_stack() {
-  std::cout << "Testing stack stress..." << std::endl;
+  st.insert_many_back(1, 2, 3);
+  EXPECT_EQ(st.size(), 3);
+  EXPECT_EQ(st.top(), 3);
 
+  st.insert_many_back(4, 5);
+  EXPECT_EQ(st.size(), 5);
+  EXPECT_EQ(st.top(), 5);
+
+  // LIFO order
+  EXPECT_EQ(st.top(), 5); st.pop();
+  EXPECT_EQ(st.top(), 4); st.pop();
+  EXPECT_EQ(st.top(), 3); st.pop();
+  EXPECT_EQ(st.top(), 2); st.pop();
+  EXPECT_EQ(st.top(), 1); st.pop();
+  EXPECT_TRUE(st.empty());
+}
+
+TEST(StackTest, Stress) {
   Stack<int> st;
   const int N = 1000;
 
-  // Push many elements
   for (int i = 0; i < N; ++i) {
     st.push(i);
   }
-  assert(st.size() == N);
-  assert(st.top() == N - 1);
+  EXPECT_EQ(st.size(), N);
+  EXPECT_EQ(st.top(), N - 1);
 
-  // Pop all elements
   for (int i = N - 1; i >= 0; --i) {
-    assert(st.top() == i);
+    EXPECT_EQ(st.top(), i);
     st.pop();
   }
-  assert(st.empty());
-
-  std::cout << "stack stress: PASSED" << std::endl;
-}
-
-// ==================== COMPARISON TESTS ====================
-
-void test_stack_insert_many_back() {
-  std::cout << "Testing stack insert_many_back..." << std::endl;
-
-  Stack<int> st;
-
-  // Массовая вставка в стек
-  st.insert_many_back(1, 2, 3);
-  assert(st.size() == 3);
-  assert(st.top() == 3);  // LIFO - последний добавленный наверху
-
-  // Дополнительная вставка
-  st.insert_many_back(4, 5);
-  assert(st.size() == 5);
-  assert(st.top() == 5);  // Последний добавленный наверху
-
-  // Извлечение и проверка порядка (LIFO)
-  assert(st.top() == 5);
-  st.pop();
-  assert(st.top() == 4);
-  st.pop();
-  assert(st.top() == 3);
-  st.pop();
-  assert(st.top() == 2);
-  st.pop();
-  assert(st.top() == 1);
-  st.pop();
-  assert(st.empty());
-
-  std::cout << "stack insert_many_back: PASSED" << std::endl;
-}
-
-// ==================== MAIN ====================
-
-int main() {
-  std::cout << "=== STARTING CONTAINERS TESTS ===" << std::endl;
-
-  // stack tests
-  test_stack_basic();
-  test_stack_emplace();
-  test_stack_copy_move();
-  test_stack_edge_cases();
-  test_stack_insert_many_back();
-
-  // Stress test
-  test_stress_stack();
-
-  std::cout << "=== ALL TESTS PASSED! ===" << std::endl;
-  return 0;
+  EXPECT_TRUE(st.empty());
 }

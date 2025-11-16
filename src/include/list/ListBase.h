@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <type_traits>
 #include <utility>
+#include <new> 
 
 /**
  * @brief Basic doubly linked list with a circular "dummy" node.

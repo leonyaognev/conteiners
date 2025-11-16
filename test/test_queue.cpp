@@ -1,63 +1,50 @@
-#include <algorithm>
-#include <cassert>
-#include <iostream>
-#include <string>
-
 #include "../src/include/list/Queue.h"
 
-// ==================== QUEUE TESTS ====================
+#include <gtest/gtest.h>
 
-void test_queue_basic() {
-  std::cout << "Testing queue basic operations..." << std::endl;
+// ==================== TEST SUITES ====================
 
+TEST(QueueTest, BasicOperations) {
   Queue<int> q;
 
   // Test empty queue
-  assert(q.empty());
-  assert(q.size() == 0);
+  EXPECT_TRUE(q.empty());
+  EXPECT_EQ(q.size(), 0);
 
   // Push elements
   q.push(1);
   q.push(2);
   q.push(3);
 
-  assert(q.size() == 3);
-  assert(q.front() == 1);
-  assert(q.back() == 3);
+  EXPECT_EQ(q.size(), 3);
+  EXPECT_EQ(q.front(), 1);
+  EXPECT_EQ(q.back(), 3);
 
   // Pop elements (FIFO)
   q.pop();
-  assert(q.front() == 2);
-  assert(q.size() == 2);
+  EXPECT_EQ(q.front(), 2);
+  EXPECT_EQ(q.size(), 2);
 
   q.pop();
-  assert(q.front() == 3);
-  assert(q.size() == 1);
+  EXPECT_EQ(q.front(), 3);
+  EXPECT_EQ(q.size(), 1);
 
   q.pop();
-  assert(q.empty());
-
-  std::cout << "queue basic operations: PASSED" << std::endl;
+  EXPECT_TRUE(q.empty());
 }
 
-void test_queue_emplace() {
-  std::cout << "Testing queue emplace..." << std::endl;
-
+TEST(QueueTest, Emplace) {
   Queue<std::string> q;
 
   q.emplace("hello");
-  q.emplace(3, 'a');
+  q.emplace(3, 'a');  // std::string(3, 'a') → "aaa"
 
-  assert(q.size() == 2);
-  assert(q.front() == "hello");
-  assert(q.back() == "aaa");
-
-  std::cout << "queue emplace: PASSED" << std::endl;
+  EXPECT_EQ(q.size(), 2);
+  EXPECT_EQ(q.front(), "hello");
+  EXPECT_EQ(q.back(), "aaa");
 }
 
-void test_queue_copy_move() {
-  std::cout << "Testing queue copy and move..." << std::endl;
-
+TEST(QueueTest, CopyAndMoveSemantics) {
   Queue<int> q1;
   q1.push(1);
   q1.push(2);
@@ -65,63 +52,77 @@ void test_queue_copy_move() {
 
   // Copy constructor
   Queue<int> q2(q1);
-  assert(q2.size() == 3);
-  assert(q2.front() == 1);
+  EXPECT_EQ(q2.size(), 3);
+  EXPECT_EQ(q2.front(), 1);
 
   // Move constructor
   Queue<int> q3(std::move(q2));
-  assert(q3.size() == 3);
-  assert(q2.empty());
+  EXPECT_EQ(q3.size(), 3);
+  EXPECT_TRUE(q2.empty());
 
   // Copy assignment
   Queue<int> q4;
   q4 = q3;
-  assert(q4.size() == 3);
-  assert(q4.front() == 1);
+  EXPECT_EQ(q4.size(), 3);
+  EXPECT_EQ(q4.front(), 1);
 
   // Move assignment
   Queue<int> q5;
   q5 = std::move(q4);
-  assert(q5.size() == 3);
-  assert(q4.empty());
-
-  std::cout << "queue copy and move: PASSED" << std::endl;
+  EXPECT_EQ(q5.size(), 3);
+  EXPECT_TRUE(q4.empty());
 }
 
-void test_queue_edge_cases() {
-  std::cout << "Testing queue edge cases..." << std::endl;
-
+TEST(QueueTest, EdgeCases) {
   Queue<int> q;
 
   // Empty queue
-  assert(q.empty());
-  assert(q.size() == 0);
+  EXPECT_TRUE(q.empty());
+  EXPECT_EQ(q.size(), 0);
 
   // Single element
   q.push(42);
-  assert(q.size() == 1);
-  assert(q.front() == 42);
-  assert(q.back() == 42);
+  EXPECT_EQ(q.size(), 1);
+  EXPECT_EQ(q.front(), 42);
+  EXPECT_EQ(q.back(), 42);
 
   q.pop();
-  assert(q.empty());
+  EXPECT_TRUE(q.empty());
 
   // Push after pop
   q.push(1);
   q.push(2);
   q.pop();
   q.push(3);
-  assert(q.front() == 2);
-  assert(q.back() == 3);
-
-  std::cout << "queue edge cases: PASSED" << std::endl;
+  EXPECT_EQ(q.front(), 2);
+  EXPECT_EQ(q.back(), 3);
 }
 
-// ==================== STRESS TEST ====================
+TEST(QueueTest, InsertManyBack) {
+  Queue<int> q;
 
-void test_stress_queue() {
-  std::cout << "Testing queue stress..." << std::endl;
+  // Mass insertion
+  q.insert_many_back(1, 2, 3);
+  EXPECT_EQ(q.size(), 3);
+  EXPECT_EQ(q.front(), 1);
+  EXPECT_EQ(q.back(), 3);
 
+  // Additional insertion
+  q.insert_many_back(4, 5);
+  EXPECT_EQ(q.size(), 5);
+  EXPECT_EQ(q.front(), 1);
+  EXPECT_EQ(q.back(), 5);
+
+  // Check FIFO order via pop
+  EXPECT_EQ(q.front(), 1); q.pop();
+  EXPECT_EQ(q.front(), 2); q.pop();
+  EXPECT_EQ(q.front(), 3); q.pop();
+  EXPECT_EQ(q.front(), 4); q.pop();
+  EXPECT_EQ(q.front(), 5); q.pop();
+  EXPECT_TRUE(q.empty());
+}
+
+TEST(QueueTest, Stress) {
   Queue<int> q;
   const int N = 1000;
 
@@ -129,67 +130,13 @@ void test_stress_queue() {
   for (int i = 0; i < N; ++i) {
     q.push(i);
   }
-  assert(q.size() == N);
-  assert(q.front() == 0);
+  EXPECT_EQ(q.size(), N);
+  EXPECT_EQ(q.front(), 0);
 
   // Dequeue all elements
   for (int i = 0; i < N; ++i) {
-    assert(q.front() == i);
+    EXPECT_EQ(q.front(), i);
     q.pop();
   }
-  assert(q.empty());
-
-  std::cout << "queue stress: PASSED" << std::endl;
-}
-
-// ==================== COMPARISON TEST ====================
-
-void test_queue_insert_many_back() {
-  std::cout << "Testing queue insert_many_back..." << std::endl;
-
-  Queue<int> q;
-
-  // Массовая вставка в очередь
-  q.insert_many_back(1, 2, 3);
-  assert(q.size() == 3);
-  assert(q.front() == 1);
-  assert(q.back() == 3);
-
-  // Дополнительная вставка
-  q.insert_many_back(4, 5);
-  assert(q.size() == 5);
-  assert(q.front() == 1);  // FIFO - первый остается
-  assert(q.back() == 5);   // Последний добавленный
-
-  // Извлечение и проверка порядка (FIFO)
-  assert(q.front() == 1);
-  q.pop();
-  assert(q.front() == 2);
-  q.pop();
-  assert(q.front() == 3);
-  q.pop();
-  assert(q.front() == 4);
-  q.pop();
-  assert(q.front() == 5);
-  q.pop();
-  assert(q.empty());
-
-  std::cout << "queue insert_many_back: PASSED" << std::endl;
-}
-
-int main() {
-  std::cout << "=== STARTING CONTAINERS TESTS ===" << std::endl;
-
-  // queue tests
-  test_queue_basic();
-  test_queue_emplace();
-  test_queue_copy_move();
-  test_queue_edge_cases();
-  test_queue_insert_many_back();
-
-  // Stress test
-  test_stress_queue();
-
-  std::cout << "=== ALL TESTS PASSED! ===" << std::endl;
-  return 0;
+  EXPECT_TRUE(q.empty());
 }
