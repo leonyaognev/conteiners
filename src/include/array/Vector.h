@@ -74,6 +74,10 @@ class Vector {
 
   ///< Move constructor
   Vector(Vector&& other);
+
+  /** @brief Constructor for list */
+  Vector(std::initializer_list<T> init_list);
+
   Vector& operator=(const Vector& other);  ///< Copy assignment
   Vector& operator=(Vector&& other);       ///< Move assignment
 
@@ -169,8 +173,7 @@ class Vector {
 
   /** @brief Erases a vector and copies the specified elements to the empty vector. */
   void assign(std::size_t count, const T& value);
- // void assign(initializer_list<T> init_list);
-
+  void assign(std::initializer_list<T> init_list);
   void assign(iterator first, iterator last);
 
   /** @brief Index access operator. */

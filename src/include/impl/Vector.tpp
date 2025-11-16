@@ -100,6 +100,14 @@ Vector<T>::Vector(Vector&& other)
 }
 
 template <typename T>
+Vector<T>::Vector(std::initializer_list<T> init_list) : _data(new T[init_list.size()]), _capacity(init_list.size()), _size(init_list.size()){
+	std::size_t i = 0;
+	for (const T& value : init_list) {
+        _data[i++] = value;
+    }
+}
+
+template <typename T>
 Vector<T>& Vector<T>::operator=(const Vector& other) {
   if (this != &other) {
     delete[] _data;
@@ -444,6 +452,21 @@ void Vector<T>::assign(iterator first, iterator last){
     pos++;
   }
   _size = shift;
+}
+
+template <typename T>
+void Vector<T>::assign(std::initializer_list<T> init_list){
+    std::size_t count = init_list.size();
+
+    if (count > _capacity)
+        extend(count);
+
+    std::size_t i = 0;
+    for (const T& value : init_list) {
+        _data[i++] = value;
+    }
+
+    _size = count;
 }
 
 template <typename T>
