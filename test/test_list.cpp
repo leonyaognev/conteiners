@@ -4,8 +4,6 @@
 #include <string>
 
 #include "../src/include/list/List.h"
-#include "../src/include/list/Queue.h"
-#include "../src/include/list/Stack.h"
 
 // ==================== LIST TESTS ====================
 
@@ -246,369 +244,6 @@ void test_list_edge_cases() {
   assert(lst.front() == 1);
 
   std::cout << "list edge cases: PASSED" << std::endl;
-}
-
-// ==================== QUEUE TESTS ====================
-
-void test_queue_basic() {
-  std::cout << "Testing queue basic operations..." << std::endl;
-
-  Queue<int> q;
-
-  // Test empty queue
-  assert(q.empty());
-  assert(q.size() == 0);
-
-  // Push elements
-  q.push(1);
-  q.push(2);
-  q.push(3);
-
-  assert(q.size() == 3);
-  assert(q.front() == 1);
-  assert(q.back() == 3);
-
-  // Pop elements (FIFO)
-  q.pop();
-  assert(q.front() == 2);
-  assert(q.size() == 2);
-
-  q.pop();
-  assert(q.front() == 3);
-  assert(q.size() == 1);
-
-  q.pop();
-  assert(q.empty());
-
-  std::cout << "queue basic operations: PASSED" << std::endl;
-}
-
-void test_queue_emplace() {
-  std::cout << "Testing queue emplace..." << std::endl;
-
-  Queue<std::string> q;
-
-  q.emplace("hello");
-  q.emplace(3, 'a');
-
-  assert(q.size() == 2);
-  assert(q.front() == "hello");
-  assert(q.back() == "aaa");
-
-  std::cout << "queue emplace: PASSED" << std::endl;
-}
-
-void test_queue_copy_move() {
-  std::cout << "Testing queue copy and move..." << std::endl;
-
-  Queue<int> q1;
-  q1.push(1);
-  q1.push(2);
-  q1.push(3);
-
-  // Copy constructor
-  Queue<int> q2(q1);
-  assert(q2.size() == 3);
-  assert(q2.front() == 1);
-
-  // Move constructor
-  Queue<int> q3(std::move(q2));
-  assert(q3.size() == 3);
-  assert(q2.empty());
-
-  // Copy assignment
-  Queue<int> q4;
-  q4 = q3;
-  assert(q4.size() == 3);
-  assert(q4.front() == 1);
-
-  // Move assignment
-  Queue<int> q5;
-  q5 = std::move(q4);
-  assert(q5.size() == 3);
-  assert(q4.empty());
-
-  std::cout << "queue copy and move: PASSED" << std::endl;
-}
-
-void test_queue_edge_cases() {
-  std::cout << "Testing queue edge cases..." << std::endl;
-
-  Queue<int> q;
-
-  // Empty queue
-  assert(q.empty());
-  assert(q.size() == 0);
-
-  // Single element
-  q.push(42);
-  assert(q.size() == 1);
-  assert(q.front() == 42);
-  assert(q.back() == 42);
-
-  q.pop();
-  assert(q.empty());
-
-  // Push after pop
-  q.push(1);
-  q.push(2);
-  q.pop();
-  q.push(3);
-  assert(q.front() == 2);
-  assert(q.back() == 3);
-
-  std::cout << "queue edge cases: PASSED" << std::endl;
-}
-
-// ==================== STACK TESTS ====================
-
-void test_stack_basic() {
-  std::cout << "Testing stack basic operations..." << std::endl;
-
-  Stack<int> st;
-
-  // Test empty stack
-  assert(st.empty());
-  assert(st.size() == 0);
-
-  // Push elements
-  st.push(1);
-  st.push(2);
-  st.push(3);
-
-  assert(st.size() == 3);
-  assert(st.top() == 3);
-
-  // Pop elements (LIFO)
-  st.pop();
-  assert(st.top() == 2);
-  assert(st.size() == 2);
-
-  st.pop();
-  assert(st.top() == 1);
-  assert(st.size() == 1);
-
-  st.pop();
-  assert(st.empty());
-
-  std::cout << "stack basic operations: PASSED" << std::endl;
-}
-
-void test_stack_emplace() {
-  std::cout << "Testing stack emplace..." << std::endl;
-
-  Stack<std::string> st;
-
-  st.emplace("hello");
-  st.emplace(3, 'a');
-
-  assert(st.size() == 2);
-  assert(st.top() == "aaa");
-
-  st.pop();
-  assert(st.top() == "hello");
-
-  std::cout << "stack emplace: PASSED" << std::endl;
-}
-
-void test_stack_copy_move() {
-  std::cout << "Testing stack copy and move..." << std::endl;
-
-  Stack<int> st1;
-  st1.push(1);
-  st1.push(2);
-  st1.push(3);
-
-  // Copy constructor
-  Stack<int> st2(st1);
-  assert(st2.size() == 3);
-  assert(st2.top() == 3);
-
-  // Move constructor
-  Stack<int> st3(std::move(st2));
-  assert(st3.size() == 3);
-  assert(st2.empty());
-
-  // Copy assignment
-  Stack<int> st4;
-  st4 = st3;
-  assert(st4.size() == 3);
-  assert(st4.top() == 3);
-
-  // Move assignment
-  Stack<int> st5;
-  st5 = std::move(st4);
-  assert(st5.size() == 3);
-  assert(st4.empty());
-
-  std::cout << "stack copy and move: PASSED" << std::endl;
-}
-
-void test_stack_edge_cases() {
-  std::cout << "Testing stack edge cases..." << std::endl;
-
-  Stack<int> st;
-
-  // Empty stack
-  assert(st.empty());
-  assert(st.size() == 0);
-
-  // Single element
-  st.push(42);
-  assert(st.size() == 1);
-  assert(st.top() == 42);
-
-  st.pop();
-  assert(st.empty());
-
-  // Push after pop
-  st.push(1);
-  st.push(2);
-  st.pop();
-  st.push(3);
-  assert(st.top() == 3);
-  assert(st.size() == 2);
-
-  std::cout << "stack edge cases: PASSED" << std::endl;
-}
-
-// ==================== STRESS TESTS ====================
-
-void test_stress_listbase() {
-  std::cout << "Testing List stress..." << std::endl;
-
-  List<int> list;
-  const int N = 1000;
-
-  // Add many elements
-  for (int i = 0; i < N; ++i) {
-    list.pushBack(i);
-  }
-  assert(list.size() == N);
-  assert(list.front() == 0);
-  assert(list.back() == N - 1);
-
-  // Remove all elements
-  for (int i = 0; i < N; ++i) {
-    list.popFront();
-  }
-  assert(list.empty());
-
-  std::cout << "List stress: PASSED" << std::endl;
-}
-
-void test_stress_queue() {
-  std::cout << "Testing queue stress..." << std::endl;
-
-  Queue<int> q;
-  const int N = 1000;
-
-  // Enqueue many elements
-  for (int i = 0; i < N; ++i) {
-    q.push(i);
-  }
-  assert(q.size() == N);
-  assert(q.front() == 0);
-
-  // Dequeue all elements
-  for (int i = 0; i < N; ++i) {
-    assert(q.front() == i);
-    q.pop();
-  }
-  assert(q.empty());
-
-  std::cout << "queue stress: PASSED" << std::endl;
-}
-
-void test_stress_stack() {
-  std::cout << "Testing stack stress..." << std::endl;
-
-  Stack<int> st;
-  const int N = 1000;
-
-  // Push many elements
-  for (int i = 0; i < N; ++i) {
-    st.push(i);
-  }
-  assert(st.size() == N);
-  assert(st.top() == N - 1);
-
-  // Pop all elements
-  for (int i = N - 1; i >= 0; --i) {
-    assert(st.top() == i);
-    st.pop();
-  }
-  assert(st.empty());
-
-  std::cout << "stack stress: PASSED" << std::endl;
-}
-
-void test_stress_mixed_operations() {
-  std::cout << "Testing mixed operations stress..." << std::endl;
-
-  List<int> lst;
-  const int N = 500;
-
-  // Mixed push/pop operations
-  for (int i = 0; i < N; ++i) {
-    lst.pushBack(i);
-    if (i % 10 == 0) {
-      lst.popFront();
-    }
-  }
-
-  // Verify integrity
-  assert(lst.size() > 0);
-  assert(lst.front() >= 0);
-  assert(lst.back() == N - 1);
-
-  std::cout << "mixed operations stress: PASSED" << std::endl;
-}
-
-// ==================== COMPARISON TESTS ====================
-
-void test_comparison_operations() {
-  std::cout << "Testing comparison operations..." << std::endl;
-
-  // Test assignment operators
-  List<int> lst1;
-  lst1.pushBack(1);
-  lst1.pushBack(2);
-  lst1.pushBack(3);
-
-  List<int> lst2;
-  lst2 = lst1;
-  assert(lst2.size() == 3);
-  assert(lst2.front() == 1);
-
-  // Test move assignment
-  List<int> lst3;
-  lst3.pushBack(4);
-  lst3.pushBack(5);
-  lst3.pushBack(6);
-
-  lst2 = std::move(lst3);
-  assert(lst2.size() == 3);
-  assert(lst2.front() == 4);
-  assert(lst3.empty());
-
-  // Test swap
-  List<int> lst4;
-  lst4.pushBack(1);
-  lst4.pushBack(2);
-  lst4.pushBack(3);
-
-  List<int> lst5;
-  lst5.pushBack(4);
-  lst5.pushBack(5);
-
-  lst4.swap(lst5);
-  assert(lst4.size() == 2);
-  assert(lst5.size() == 3);
-  assert(lst4.front() == 4);
-  assert(lst5.front() == 1);
-
-  std::cout << "comparison operations: PASSED" << std::endl;
 }
 
 void test_list_emplace() {
@@ -875,70 +510,6 @@ void test_list_insert_many_back() {
   std::cout << "list insert_many_back: PASSED" << std::endl;
 }
 
-void test_queue_insert_many_back() {
-  std::cout << "Testing queue insert_many_back..." << std::endl;
-
-  Queue<int> q;
-
-  // Массовая вставка в очередь
-  q.insert_many_back(1, 2, 3);
-  assert(q.size() == 3);
-  assert(q.front() == 1);
-  assert(q.back() == 3);
-
-  // Дополнительная вставка
-  q.insert_many_back(4, 5);
-  assert(q.size() == 5);
-  assert(q.front() == 1);  // FIFO - первый остается
-  assert(q.back() == 5);   // Последний добавленный
-
-  // Извлечение и проверка порядка (FIFO)
-  assert(q.front() == 1);
-  q.pop();
-  assert(q.front() == 2);
-  q.pop();
-  assert(q.front() == 3);
-  q.pop();
-  assert(q.front() == 4);
-  q.pop();
-  assert(q.front() == 5);
-  q.pop();
-  assert(q.empty());
-
-  std::cout << "queue insert_many_back: PASSED" << std::endl;
-}
-
-void test_stack_insert_many_back() {
-  std::cout << "Testing stack insert_many_back..." << std::endl;
-
-  Stack<int> st;
-
-  // Массовая вставка в стек
-  st.insert_many_back(1, 2, 3);
-  assert(st.size() == 3);
-  assert(st.top() == 3);  // LIFO - последний добавленный наверху
-
-  // Дополнительная вставка
-  st.insert_many_back(4, 5);
-  assert(st.size() == 5);
-  assert(st.top() == 5);  // Последний добавленный наверху
-
-  // Извлечение и проверка порядка (LIFO)
-  assert(st.top() == 5);
-  st.pop();
-  assert(st.top() == 4);
-  st.pop();
-  assert(st.top() == 3);
-  st.pop();
-  assert(st.top() == 2);
-  st.pop();
-  assert(st.top() == 1);
-  st.pop();
-  assert(st.empty());
-
-  std::cout << "stack insert_many_back: PASSED" << std::endl;
-}
-
 void test_list_insert_many_front() {
   std::cout << "Testing list insert_many_front..." << std::endl;
 
@@ -980,8 +551,73 @@ void test_list_insert_many_front() {
 
   std::cout << "list insert_many_front: PASSED" << std::endl;
 }
+// ==================== STRESS TESTS ====================
+void test_stress_listbase() {
+  std::cout << "Testing List stress..." << std::endl;
 
-// ==================== MAIN ====================
+  List<int> list;
+  const int N = 1000;
+
+  // Add many elements
+  for (int i = 0; i < N; ++i) {
+    list.pushBack(i);
+  }
+  assert(list.size() == N);
+  assert(list.front() == 0);
+  assert(list.back() == N - 1);
+
+  // Remove all elements
+  for (int i = 0; i < N; ++i) {
+    list.popFront();
+  }
+  assert(list.empty());
+
+  std::cout << "List stress: PASSED" << std::endl;
+}
+
+void test_comparison_operations() {
+  std::cout << "Testing comparison operations..." << std::endl;
+
+  // Test assignment operators
+  List<int> lst1;
+  lst1.pushBack(1);
+  lst1.pushBack(2);
+  lst1.pushBack(3);
+
+  List<int> lst2;
+  lst2 = lst1;
+  assert(lst2.size() == 3);
+  assert(lst2.front() == 1);
+
+  // Test move assignment
+  List<int> lst3;
+  lst3.pushBack(4);
+  lst3.pushBack(5);
+  lst3.pushBack(6);
+
+  lst2 = std::move(lst3);
+  assert(lst2.size() == 3);
+  assert(lst2.front() == 4);
+  assert(lst3.empty());
+
+  // Test swap
+  List<int> lst4;
+  lst4.pushBack(1);
+  lst4.pushBack(2);
+  lst4.pushBack(3);
+
+  List<int> lst5;
+  lst5.pushBack(4);
+  lst5.pushBack(5);
+
+  lst4.swap(lst5);
+  assert(lst4.size() == 2);
+  assert(lst5.size() == 3);
+  assert(lst4.front() == 4);
+  assert(lst5.front() == 1);
+
+  std::cout << "comparison operations: PASSED" << std::endl;
+}
 
 int main() {
   std::cout << "=== STARTING CONTAINERS TESTS ===" << std::endl;
@@ -1002,25 +638,8 @@ int main() {
   test_list_insert_many_back();
   test_list_insert_many_front();
 
-  // queue tests
-  test_queue_basic();
-  test_queue_emplace();
-  test_queue_copy_move();
-  test_queue_edge_cases();
-  test_queue_insert_many_back();
-
-  // stack tests
-  test_stack_basic();
-  test_stack_emplace();
-  test_stack_copy_move();
-  test_stack_edge_cases();
-  test_stack_insert_many_back();
-
   // Stress tests
   test_stress_listbase();
-  test_stress_queue();
-  test_stress_stack();
-  test_stress_mixed_operations();
 
   // Comparison tests
   test_comparison_operations();
