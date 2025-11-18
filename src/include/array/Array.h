@@ -3,9 +3,8 @@
 #include <cstddef>
 
 template <typename T, std::size_t N>
-class array {
+class Array {
  private:
-  T _data[N];
 
   class iterator {
    public:
@@ -48,10 +47,11 @@ class array {
   };
 
  public:
+  T _data[N];
   typedef T value_type;
   typedef T& reference;
   typedef const T& const_reference;
-  typedef size_t size_type;
+  typedef std::size_t size_type;
 
   using Iterator = iterator;  ///< Alias for iterator
 
@@ -68,7 +68,7 @@ class array {
   constexpr size_type max_size() const;
 
   void fill(const T& val);
-  void swap(array& right);
+  void swap(Array& right);
 
   iterator end();
   iterator front();
@@ -76,7 +76,9 @@ class array {
   reference operator[](size_type off);
   const_reference operator[](size_type off) const;
 
-  array& operator=(array& right);
+  Array& operator=(Array& right);
+
+  void Print();
 };
 
 #include "impl/Array.tpp"
