@@ -1,6 +1,6 @@
-#include "../src/include/list/List.h"
-
 #include <gtest/gtest.h>
+
+#include "../src/include/list/List.h"
 
 // ==================== TEST SUITES ====================
 
@@ -327,11 +327,16 @@ TEST(ListTest, Merge) {
 
   auto it = lst1.begin();
   EXPECT_EQ(*it, 1);
-  ++it; EXPECT_EQ(*it, 2);
-  ++it; EXPECT_EQ(*it, 3);
-  ++it; EXPECT_EQ(*it, 4);
-  ++it; EXPECT_EQ(*it, 5);
-  ++it; EXPECT_EQ(*it, 6);
+  ++it;
+  EXPECT_EQ(*it, 2);
+  ++it;
+  EXPECT_EQ(*it, 3);
+  ++it;
+  EXPECT_EQ(*it, 4);
+  ++it;
+  EXPECT_EQ(*it, 5);
+  ++it;
+  EXPECT_EQ(*it, 6);
 }
 
 TEST(ListTest, ReverseIterators) {
@@ -355,10 +360,14 @@ TEST(ListTest, ReverseIterators) {
   // Check reverse order
   auto rit = lst.rbegin();
   EXPECT_EQ(*rit, 5);
-  --rit; EXPECT_EQ(*rit, 4);
-  --rit; EXPECT_EQ(*rit, 3);
-  --rit; EXPECT_EQ(*rit, 2);
-  --rit; EXPECT_EQ(*rit, 1);
+  --rit;
+  EXPECT_EQ(*rit, 4);
+  --rit;
+  EXPECT_EQ(*rit, 3);
+  --rit;
+  EXPECT_EQ(*rit, 2);
+  --rit;
+  EXPECT_EQ(*rit, 1);
 }
 
 TEST(ListTest, InsertMany) {
@@ -375,10 +384,14 @@ TEST(ListTest, InsertMany) {
 
   auto check_it = lst.begin();
   EXPECT_EQ(*check_it, 1);
-  ++check_it; EXPECT_EQ(*check_it, 2);
-  ++check_it; EXPECT_EQ(*check_it, 3);
-  ++check_it; EXPECT_EQ(*check_it, 4);
-  ++check_it; EXPECT_EQ(*check_it, 5);
+  ++check_it;
+  EXPECT_EQ(*check_it, 2);
+  ++check_it;
+  EXPECT_EQ(*check_it, 3);
+  ++check_it;
+  EXPECT_EQ(*check_it, 4);
+  ++check_it;
+  EXPECT_EQ(*check_it, 5);
 
   lst.insert_many(lst.begin(), -1, 0);
   EXPECT_EQ(lst.size(), 7);
@@ -406,10 +419,14 @@ TEST(ListTest, InsertManyBack) {
 
   auto it = lst.begin();
   EXPECT_EQ(*it, 1);
-  ++it; EXPECT_EQ(*it, 2);
-  ++it; EXPECT_EQ(*it, 3);
-  ++it; EXPECT_EQ(*it, 4);
-  ++it; EXPECT_EQ(*it, 5);
+  ++it;
+  EXPECT_EQ(*it, 2);
+  ++it;
+  EXPECT_EQ(*it, 3);
+  ++it;
+  EXPECT_EQ(*it, 4);
+  ++it;
+  EXPECT_EQ(*it, 5);
 
   int x = 6;
   const int y = 7;
@@ -434,10 +451,14 @@ TEST(ListTest, InsertManyFront) {
 
   auto it = lst.begin();
   EXPECT_EQ(*it, 4);
-  ++it; EXPECT_EQ(*it, 5);
-  ++it; EXPECT_EQ(*it, 1);
-  ++it; EXPECT_EQ(*it, 2);
-  ++it; EXPECT_EQ(*it, 3);
+  ++it;
+  EXPECT_EQ(*it, 5);
+  ++it;
+  EXPECT_EQ(*it, 1);
+  ++it;
+  EXPECT_EQ(*it, 2);
+  ++it;
+  EXPECT_EQ(*it, 3);
 
   int x = 6;
   const int y = 7;

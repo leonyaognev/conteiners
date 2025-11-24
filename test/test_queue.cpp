@@ -1,6 +1,6 @@
-#include "../src/include/list/Queue.h"
-
 #include <gtest/gtest.h>
+
+#include "../src/include/list/Queue.h"
 
 // ==================== TEST SUITES ====================
 
@@ -114,11 +114,16 @@ TEST(QueueTest, InsertManyBack) {
   EXPECT_EQ(q.back(), 5);
 
   // Check FIFO order via pop
-  EXPECT_EQ(q.front(), 1); q.pop();
-  EXPECT_EQ(q.front(), 2); q.pop();
-  EXPECT_EQ(q.front(), 3); q.pop();
-  EXPECT_EQ(q.front(), 4); q.pop();
-  EXPECT_EQ(q.front(), 5); q.pop();
+  EXPECT_EQ(q.front(), 1);
+  q.pop();
+  EXPECT_EQ(q.front(), 2);
+  q.pop();
+  EXPECT_EQ(q.front(), 3);
+  q.pop();
+  EXPECT_EQ(q.front(), 4);
+  q.pop();
+  EXPECT_EQ(q.front(), 5);
+  q.pop();
   EXPECT_TRUE(q.empty());
 }
 

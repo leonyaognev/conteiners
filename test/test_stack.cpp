@@ -1,5 +1,6 @@
-#include "../src/include/list/Stack.h"
 #include <gtest/gtest.h>
+
+#include "../src/include/list/Stack.h"
 
 // Для тестирования emplace со строками, но без включения <string>
 // можно использовать string literals и std::string напрямую:
@@ -107,11 +108,16 @@ TEST(StackTest, InsertManyBack) {
   EXPECT_EQ(st.top(), 5);
 
   // LIFO order
-  EXPECT_EQ(st.top(), 5); st.pop();
-  EXPECT_EQ(st.top(), 4); st.pop();
-  EXPECT_EQ(st.top(), 3); st.pop();
-  EXPECT_EQ(st.top(), 2); st.pop();
-  EXPECT_EQ(st.top(), 1); st.pop();
+  EXPECT_EQ(st.top(), 5);
+  st.pop();
+  EXPECT_EQ(st.top(), 4);
+  st.pop();
+  EXPECT_EQ(st.top(), 3);
+  st.pop();
+  EXPECT_EQ(st.top(), 2);
+  st.pop();
+  EXPECT_EQ(st.top(), 1);
+  st.pop();
   EXPECT_TRUE(st.empty());
 }
 
