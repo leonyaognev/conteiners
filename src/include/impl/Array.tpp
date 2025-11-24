@@ -33,6 +33,16 @@ typename Array<T,N>::iterator& Array<T,N>::iterator::operator++() {
 }
 
 template <typename T, std::size_t N>
+typename Array<T,N>::iterator Array<T,N>::iterator::operator+(size_t n){
+  return iterator(current + n);
+}
+
+template <typename T, std::size_t N>
+typename Array<T,N>::iterator Array<T,N>::iterator::operator-(size_t n){
+  return iterator(current - n);
+}
+
+template <typename T, std::size_t N>
 typename Array<T,N>::iterator Array<T,N>::iterator::operator++(int) {
   iterator tmp = *this;
   ++current;
@@ -65,7 +75,7 @@ bool Array<T,N>::iterator::operator!=(const iterator& other) const {
 template <typename T, std::size_t N>
 typename Array<T,N>::iterator Array<T,N>::iterator::operator=(const iterator& other) {
   current = other.current;
-  return current;
+  return *this;
 }
 
 template <typename T, std::size_t N>
@@ -81,9 +91,9 @@ void Array<T,N>::Print() {
   log_info("Array: %s", str.c_str());
 }
 
-/**_____________________________
+/**-----------------------------
  *         ARRAY METHODS
- * _____________________________
+ *------------------------------
  */
 
 template <typename T, std::size_t N>
@@ -117,6 +127,21 @@ typename Array<T,N>::iterator Array<T,N>::begin() noexcept{
 }
 
 template <typename T, std::size_t N>
+typename Array<T,N>::iterator Array<T,N>::end(){
+  return iterator(_data + N);
+ }
+
+template<typename T, size_t N>
+typename Array<T,N>::const_iterator Array<T,N>::begin() const noexcept {
+    return const_iterator(_data);
+}
+
+template<typename T, size_t N>
+typename Array<T,N>::const_iterator Array<T,N>::end() const noexcept {
+    return const_iterator(_data + N);
+}
+
+template <typename T, std::size_t N>
 typename Array<T,N>::reference Array<T,N>::at(typename Array<T,N>::size_type off){
   return _data[off];
 }
@@ -134,16 +159,26 @@ template <typename T, std::size_t N>
  }
 
 template <typename T, std::size_t N>
-typename Array<T,N>::iterator Array<T,N>::front(){
-  return iterator(_data[0]);
+typename Array<T,N>::reference Array<T,N>::front(){
+  return _data[0];
 }
 
 template <typename T, std::size_t N>
-typename Array<T,N>::iterator Array<T,N>::end(){
-  return iterator(_data[N - 1]);
- }
+typename Array<T,N>::const_reference constexpr Array<T,N>::front() const{
+  return _data[0];
+}
 
 template <typename T, std::size_t N>
 void Array<T,N>::swap(Array& right){
   std::swap(_data, right._data);
+}
+
+template <typename T, std::size_t N>
+typename Array<T,N>::reference Array<T,N>::operator[](typename Array<T,N>::size_type off){
+	return _data[off];
+}
+
+template <typename T, std::size_t N>
+typename Array<T,N>::const_reference Array<T,N>::operator[](typename Array<T,N>::size_type off) const{
+	return _data[off];
 }
