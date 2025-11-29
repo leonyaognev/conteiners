@@ -59,17 +59,21 @@ class RBBase {
      * @brief Node constructor.
      * @param v Value to store in the node.
      */
-    Node(const T& v)
-        : value(v),
-          parent(nullptr),
-          left(nullptr),
-          right(nullptr),
-          color(Red) {}
+    Node(const T& v);
   };
 
   Node* root = nullptr;  ///< Root of the tree
   Node* nil = nullptr;   ///< Sentinel node representing the end of the tree
   Compare comp;          ///< Comparator object
+
+  /**
+   * @brief Copies a red-black subtree.
+   *
+   * Returns a clone of @p n, mapping @p otherNil to this tree's @c nil.
+   *
+   * @return New subtree root or @c nil.
+   */
+  Node* copyTree(Node* n, Node* otherNil);
 
  protected:
   using value_type = T;           ///< Type of the elements
@@ -80,31 +84,29 @@ class RBBase {
    *
    * Initializes an empty tree with a sentinel node.
    */
-  RBBase() : comp(Compare()) {
-    nil = new Node(T{});  // Sentinel node
-    nil->color = Black;
-    root = nil;
-  }
+  RBBase();
+
+  /** @brief Copy constructor. */
+  RBBase(const RBBase& other);
+
+  /** @brief Move constructor. */
+  RBBase(RBBase&& other);
+
+  /** @brief Copy assignment. */
+  RBBase& operator=(const RBBase& other);
 
   /**
    * @brief Destructor.
    *
    * Deletes all nodes in the tree and frees memory.
    */
-  ~RBBase() {
-    clear_tree(root);
-    delete nil;
-  }
-
-  RBBase(const RBBase&);             ///< Copy constructor (not implemented)
-  RBBase(RBBase&&);                  ///< Move constructor (not implemented)
-  RBBase& operator=(const RBBase&);  ///< Copy assignment (not implemented)
+  ~RBBase();
 
   /**
    * @brief Inserts a value into the tree.
    * @param value Value to insert.
-   * @return Pair containing pointer to the inserted/found node and a bool flag
-   * indicating success.
+   * @return Pair containing pointer to the inserted/found node and a bool
+   * flag indicating success.
    */
   Pair<Node*, bool> insert(const T& value);
 
@@ -148,39 +150,39 @@ class RBBase {
    */
   void erase(Node* node) {
     if (!node) return;
-    delete_node(node);
+    deleteNode(node);
   }
 
   /**
    * @brief Returns the root of the tree.
    * @return Pointer to the root node.
    */
-  Node* get_root() const { return root; }
+  Node* getRoot() const { return root; }
 
  protected:
   /**
    * @brief Recursively clears a subtree.
    * @param n Root of the subtree to clear.
    */
-  void clear_tree(Node* n);
+  void clearTree(Node* n);
 
   /**
    * @brief Performs left rotation around a node.
    * @param x Node to rotate around.
    */
-  void rotate_left(Node* x);
+  void rotateLeft(Node* x);
 
   /**
    * @brief Performs right rotation around a node.
    * @param y Node to rotate around.
    */
-  void rotate_right(Node* y);
+  void rotateRight(Node* y);
 
   /**
    * @brief Fixes the red-black properties after insertion.
    * @param z Newly inserted node.
    */
-  void fix_tree(Node* z);
+  void fixTree(Node* z);
 
   /**
    * @brief Deletes a node from the tree (skeleton implementation).
@@ -192,5 +194,5 @@ class RBBase {
    * - Adjusting colors and structure,
    * - Freeing memory.
    */
-  void delete_node(Node* z);
+  void deleteNode(Node* z);
 };
