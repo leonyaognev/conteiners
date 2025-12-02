@@ -4,12 +4,11 @@ template <typename T>
 ListBase<T>::node::node() : next(this), prev(this) {}
 
 template <typename T>
-ListBase<T>::node::node(const T& value)
-    : data(value), next(nullptr), prev(nullptr) {}
+ListBase<T>::node::node(const T& value) : data(value), next(this), prev(this) {}
 
 template <typename T>
 ListBase<T>::node::node(T&& value)
-    : data(std::move(value)), next(nullptr), prev(nullptr) {}
+    : data(std::move(value)), next(this), prev(this) {}
 
 template <typename T>
 ListBase<T>::iterator::iterator() : current(nullptr) {}
@@ -66,6 +65,120 @@ bool ListBase<T>::iterator::operator==(const iterator& other) const {
 template <typename T>
 bool ListBase<T>::iterator::operator!=(const iterator& other) const {
   return current != other.current;
+}
+
+template <typename T>
+ListBase<T>::constIterator::constIterator() : current(nullptr) {}
+
+template <typename T>
+ListBase<T>::constIterator::constIterator(const node* ptr) : current(ptr) {}
+
+template <typename T>
+ListBase<T>::constIterator::constIterator(const constIterator& it)
+    : current(it.current) {}
+
+template <typename T>
+ListBase<T>::constIterator::constIterator(const iterator& it)
+    : current(it.current) {}
+
+template <typename T>
+typename ListBase<T>::constIterator::reference
+ListBase<T>::constIterator::operator*() const {
+  return current->data;
+}
+
+template <typename T>
+typename ListBase<T>::constIterator::pointer
+ListBase<T>::constIterator::operator->() const {
+  return &(current->data);
+}
+
+template <typename T>
+typename ListBase<T>::constIterator& ListBase<T>::constIterator::operator++() {
+  current = current->next;
+  return *this;
+}
+
+template <typename T>
+typename ListBase<T>::constIterator ListBase<T>::constIterator::operator++(
+    int) {
+  constIterator tmp = *this;
+  current = current->next;
+  return tmp;
+}
+
+template <typename T>
+typename ListBase<T>::constIterator& ListBase<T>::constIterator::operator--() {
+  current = current->prev;
+  return *this;
+}
+
+template <typename T>
+typename ListBase<T>::constIterator ListBase<T>::constIterator::operator--(
+    int) {
+  constIterator tmp = *this;
+  current = current->prev;
+  return tmp;
+}
+
+template <typename T>
+bool ListBase<T>::constIterator::operator==(const constIterator& other) const {
+  return current == other.current;
+}
+
+template <typename T>
+bool ListBase<T>::constIterator::operator!=(const constIterator& other) const {
+  return current != other.current;
+}
+
+template <typename T>
+bool ListBase<T>::constIterator::operator==(const iterator& other) const {
+  return current == other.current;
+}
+
+template <typename T>
+bool ListBase<T>::constIterator::operator!=(const iterator& other) const {
+  return current != other.current;
+}
+
+template <typename T>
+typename ListBase<T>::constIterator ListBase<T>::begin() const noexcept {
+  return constIterator(dummy.next);
+}
+
+template <typename T>
+typename ListBase<T>::constIterator ListBase<T>::end() const noexcept {
+  return constIterator(&dummy);
+}
+
+template <typename T>
+typename ListBase<T>::constIterator ListBase<T>::rbegin() const noexcept {
+  return constIterator(dummy.prev);
+}
+
+template <typename T>
+typename ListBase<T>::constIterator ListBase<T>::rend() const noexcept {
+  return constIterator(&dummy);
+}
+
+template <typename T>
+typename ListBase<T>::constIterator ListBase<T>::cbegin() const noexcept {
+  return begin();
+}
+
+template <typename T>
+typename ListBase<T>::constIterator ListBase<T>::cend() const noexcept {
+  return end();
+}
+
+template <typename T>
+typename ListBase<T>::constIterator ListBase<T>::crbegin() const noexcept {
+  return rbegin();
+}
+
+template <typename T>
+typename ListBase<T>::constIterator ListBase<T>::crend() const noexcept {
+  return rend();
 }
 
 template <typename T>

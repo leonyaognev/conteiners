@@ -82,11 +82,40 @@ class ListBase {
     bool operator!=(const iterator& other) const;
   };
 
+  class constIterator {
+   public:
+    using valueType = const T;
+    using pointer = const T*;
+    using reference = const T&;
+
+    const node* current;
+
+    constIterator();
+    constIterator(const node* ptr);
+    constIterator(const constIterator& it);
+    constIterator(const iterator& it);
+
+    reference operator*() const;
+    pointer operator->() const;
+
+    constIterator& operator++();
+    constIterator operator++(int);
+
+    constIterator& operator--();
+    constIterator operator--(int);
+
+    bool operator==(const constIterator& other) const;
+    bool operator!=(const constIterator& other) const;
+    bool operator==(const iterator& other) const;
+    bool operator!=(const iterator& other) const;
+  };
+
   node dummy;             ///< Dummy node (closes the list in a ring)
   std::size_t _size = 0;  ///< Number of elements in the list
 
  public:
   using iterator_type = iterator;
+  using const_iterator_type = constIterator;
 
   /** @brief Default constructor. */
   ListBase();
@@ -267,6 +296,15 @@ class ListBase {
   iterator rbegin() noexcept;
   /** @brief Reverse iterator to dummy node (rend). */
   iterator rend() noexcept;
+
+  constIterator begin() const noexcept;
+  constIterator end() const noexcept;
+  constIterator rbegin() const noexcept;
+  constIterator rend() const noexcept;
+  constIterator cbegin() const noexcept;
+  constIterator cend() const noexcept;
+  constIterator crbegin() const noexcept;
+  constIterator crend() const noexcept;
 
   /** @brief Returns number of elements. */
   std::size_t size() const noexcept;
