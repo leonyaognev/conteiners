@@ -219,3 +219,99 @@ void RBBase<T, Compare>::clearTree(Node* n) {
 
   delete n;
 }
+
+template <typename T, typename Compare>
+void RBBase<T, Compare>::fixDelete(Node* x) {
+  while (x != root && x->color == Black) {
+    Node* parent = x->parent;
+    bool isLeft = (x == parent->left);
+    Node* w = isLeft ? parent->right : parent->left;
+
+    if (w->color == Red) {
+      w->color = Black;
+      parent->color = Red;
+      if (isLeft)
+        leftRotate(parent);
+      else
+        rightRotate(parent);
+      w = isLeft ? parent->right : parent->left;
+    }
+
+    if (w->left->color == Black && w->right->color == Black) {
+      w->color = Red;
+      x = parent;
+    } else {
+      if ((isLeft && w->right->color == Black) ||
+          (!isLeft && w->left->color == Black)) {
+        if (isLeft) {
+          w->left->color = Black;
+          w->color = Red;
+          rightRotate(w);
+          w = parent->right;
+        } else {
+          w->right->color = Black;
+          w->color = Red;
+          leftRotate(w);
+          w = parent->left;
+        }
+      }
+      w->color = parent->color;
+      parent->color = Black;
+      if (isLeft) {
+        w->right->color = Black;
+        leftRotate(parent);
+      } else {
+        w->left->color = Black;
+        rightRotate(parent);
+      }
+      x = root;
+    }
+  }
+  x->color = Black;
+}
+
+template <typename T, typename Compare>
+void RBBase<T, Compare>::deleteNode(Node* z) {
+  auto transplant = [this](Node* z, Node* v) {
+    if (z->parent == nil)
+      root = v;
+    else if (z == z->parent->left)
+      z->parent->left = v;
+    else
+      z->parent->right = v;
+    v->parent = z->parent;
+  };
+  Node* y = z;
+  Node* x;
+  Color orcolor = y->color;
+
+  if (z->left == nil) {
+    x = z->right;
+    transplant(z, z->right);
+  } else if (z->right == nil) {
+    x = z->left;
+    transplant(z, z->left);
+  } else {
+    Node* y = minimum(z->right);
+    Color orcolor = y->color;
+    Node* x = y->right;
+
+    if (y->parent == z) {
+      x->parent = y;
+    } else {
+      transplant(y, y->right);
+      y->right = z->right;
+      y->right->parent = y;
+    }
+
+    transplant(z, y);
+    y->left = z->left;
+    y->left->parent = y;
+    y->color = z->color;
+  }
+
+  delete z;
+  if (orcolor == Black) {
+    fixDelete(x);
+  }
+}

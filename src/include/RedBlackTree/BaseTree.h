@@ -164,6 +164,12 @@ class RBBase {
    */
   Node* getRoot() const { return root; }
 
+  /**
+   * @brief Fixes the red-black properties after delete node.
+   * @param z Newly inserted node.
+   */
+  void fixDelete(Node* x);
+
  protected:
   /**
    * @brief Recursively clears a subtree.
