@@ -209,3 +209,13 @@ Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::insert(
   fixTree(res.first);
   return res;
 }
+
+template <typename T, typename Compare>
+void RBBase<T, Compare>::clearTree(Node* n) {
+  if (n == nil) return;
+
+  clearTree(n->right);
+  clearTree(n->left);
+
+  delete n;
+}
