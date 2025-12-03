@@ -26,6 +26,9 @@ class Pair {
    * @param b Value for the second element.
    */
   Pair(const T1& a, const T2& b) : first(a), second(b) {}
+
+  /** @brief Copy constructor. */
+  Pair(const Pair& other) : first(other.first), second(other.second) {}
 };
 
 /**
@@ -74,6 +77,8 @@ class RBBase {
    * @return New subtree root or @c nil.
    */
   Node* copyTree(Node* n, Node* otherNil);
+
+  Pair<Node*, bool> ins(const T& value);
 
  protected:
   using value_type = T;           ///< Type of the elements
