@@ -1,3 +1,6 @@
+#include <exception>
+#include <stdexcept>
+
 #include "RedBlackTree/BaseTree.h"
 
 template <typename T, typename Compare>
@@ -48,6 +51,9 @@ RBBase<T, Compare>& RBBase<T, Compare>::operator=(const RBBase& other) {
     nil = new Node();
     nil->left = nil->right = nil->parent = nil;
     nil->color = Black;
+
+    // Copy compare
+    comp = other.comp;
 
     // Deep copy of the other tree
     root = copyTree(other.root, other.nil);
@@ -212,35 +218,49 @@ Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::insert(
 
 template <typename T, typename Compare>
 void RBBase<T, Compare>::clearTree(Node* n) {
+  // If we hit NIL, this branch is empty
   if (n == nil) return;
 
+  // Recursively delete the right subtree first
   clearTree(n->right);
+
+  // Then delete the left subtree
   clearTree(n->left);
 
+  // Finally, delete the current node
   delete n;
 }
 
 template <typename T, typename Compare>
 void RBBase<T, Compare>::fixDelete(Node* x) {
+  // Restore red-black properties after deletion
   while (x != root && x->color == Black) {
     Node* parent = x->parent;
     bool isLeft = (x == parent->left);
     Node* w = isLeft ? parent->right : parent->left;
 
+    // If sibling is red, rotate and recolor to convert case
     if (w->color == Red) {
       w->color = Black;
       parent->color = Red;
+
       if (isLeft)
         leftRotate(parent);
       else
         rightRotate(parent);
+
+      // Update sibling pointer after rotation
       w = isLeft ? parent->right : parent->left;
     }
 
+    // If both children of the sibling are black
+    // recolor and move up the tree
     if (w->left->color == Black && w->right->color == Black) {
       w->color = Red;
       x = parent;
+
     } else {
+      // Otherwise, fix the side configuration before the final adjustment
       if ((isLeft && w->right->color == Black) ||
           (!isLeft && w->left->color == Black)) {
         if (isLeft) {
@@ -255,8 +275,11 @@ void RBBase<T, Compare>::fixDelete(Node* x) {
           w = parent->left;
         }
       }
+
+      // Final recoloring and rotation to restore balance
       w->color = parent->color;
       parent->color = Black;
+
       if (isLeft) {
         w->right->color = Black;
         leftRotate(parent);
@@ -264,14 +287,18 @@ void RBBase<T, Compare>::fixDelete(Node* x) {
         w->left->color = Black;
         rightRotate(parent);
       }
-      x = root;
+
+      x = root;  // We are done fixing
     }
   }
+
+  // Ensure the root (or target) is black after fixup
   x->color = Black;
 }
 
 template <typename T, typename Compare>
 void RBBase<T, Compare>::deleteNode(Node* z) {
+  // Helper lambda to replace one subtree with another
   auto transplant = [this](Node* z, Node* v) {
     if (z->parent == nil)
       root = v;
@@ -279,23 +306,31 @@ void RBBase<T, Compare>::deleteNode(Node* z) {
       z->parent->left = v;
     else
       z->parent->right = v;
+
     v->parent = z->parent;
   };
-  Node* y = z;
-  Node* x;
-  Color orcolor = y->color;
 
+  Node* y = z;               // Node to delete or swap with
+  Node* x;                   // Child pointer for fix-up
+  Color orcolor = y->color;  // Save original color of y
+
+  // Case 1: left subtree empty
   if (z->left == nil) {
     x = z->right;
     transplant(z, z->right);
+
+    // Case 2: right subtree empty
   } else if (z->right == nil) {
     x = z->left;
     transplant(z, z->left);
+
+    // Case 3: two children, replace with successor
   } else {
     Node* y = minimum(z->right);
     Color orcolor = y->color;
     Node* x = y->right;
 
+    // Successor is direct child
     if (y->parent == z) {
       x->parent = y;
     } else {
@@ -307,11 +342,82 @@ void RBBase<T, Compare>::deleteNode(Node* z) {
     transplant(z, y);
     y->left = z->left;
     y->left->parent = y;
-    y->color = z->color;
+    y->color = z->color;  // Preserve original color
   }
 
+  // Remove the node
   delete z;
+
+  // If a black node was removed, tree properties might be broken,
+  // so perform fix-up
   if (orcolor == Black) {
     fixDelete(x);
   }
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::Node* RBBase<T, Compare>::find(
+    const T& value) const {
+  Node* cur = root;
+
+  // Standard BST lookup
+  while (cur != nil) {
+    if (comp(cur->value, value) < 0) {
+      cur = cur->left;
+    } else if (comp(cur->value, value) > 0) {
+      cur = cur->right;
+    } else {
+      return cur;  // Value found
+    }
+  }
+
+  return nullptr;  // Value not in tree
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::Node* RBBase<T, Compare>::minimum(Node* n) const {
+  // Move to the leftmost node
+  while (n && n->left) n = n->left;
+  return n;
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::Node* RBBase<T, Compare>::maximum(Node* n) const {
+  // Move to the rightmost node
+  while (n && n->right) n = n->right;
+  return n;
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::Node* RBBase<T, Compare>::successor(
+    Node* n) const {
+  if (n == nil) {
+    throw std::runtime_error("Successor called with NIL node.");
+  }
+
+  // If right subtree exists, successor is its minimum
+  if (n->right != nil) {
+    n = n->right;
+    while (n->left != nil) {
+      n = n->left;
+    }
+    return n;
+  }
+
+  // Otherwise, walk upward until we find ancestor
+  // where we come from its left side
+  while (n->parent != nil && n != n->parent->left) {
+    n = n->parent;
+  }
+
+  return n->parent == nil ? nullptr : n->parent;
+}
+
+template <typename T, typename Compare>
+void RBBase<T, Compare>::erase(Node* node) {
+  // Do nothing if null
+  if (!node) return;
+
+  // Delegate real deletion to deleteNode (with RB fix-up)
+  deleteNode(node);
 }

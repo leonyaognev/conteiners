@@ -127,20 +127,14 @@ class RBBase {
    * @param n Root of the subtree.
    * @return Pointer to the minimum node.
    */
-  Node* minimum(Node* n) const {
-    while (n && n->left) n = n->left;
-    return n;
-  }
+  Node* minimum(Node* n) const;
 
   /**
    * @brief Finds the maximum node in a subtree.
    * @param n Root of the subtree.
    * @return Pointer to the maximum node.
    */
-  Node* maximum(Node* n) const {
-    while (n && n->right) n = n->right;
-    return n;
-  }
+  Node* maximum(Node* n) const;
 
   /**
    * @brief Finds the successor node in in-order traversal.
@@ -153,10 +147,7 @@ class RBBase {
    * @brief Removes a specific node from the tree.
    * @param node Node to remove.
    */
-  void erase(Node* node) {
-    if (!node) return;
-    deleteNode(node);
-  }
+  void erase(Node* node);
 
   /**
    * @brief Returns the root of the tree.
