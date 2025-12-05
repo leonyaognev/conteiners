@@ -10,7 +10,7 @@ class Array {
  using const_iterator = ArrayIterator<const T*>;
 
  public:	
- constexpr Array() noexcept {}
+ //constexpr Array() noexcept {}
 
  T _data[N];
 
@@ -43,7 +43,8 @@ class Array {
   reference operator[](size_type off);
   const_reference operator[](size_type off) const;
 
-  Array& operator=(Array& right);
+//   Array& operator=(Array& right);
+//   Array& operator=(Array&& right) noexcept;
 
   void Print();
 };

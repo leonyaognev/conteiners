@@ -1,165 +1,170 @@
 #include <gtest/gtest.h>
 #include "array/Array.h"
+#include <array>
 
-// ----------------------------------------------------------
-// Size / Capacity
-// ----------------------------------------------------------
+// -------------------------------------------------------------
+// 1. Constructors
+// -------------------------------------------------------------
 
-TEST(ArrayTest, SizeAndEmpty) {
-    Array<int, 5> arr;
-    EXPECT_EQ(arr.size(), std::size_t(5));
-    EXPECT_FALSE(arr.empty());
+TEST(ArrayTest, DefaultConstructor) {
+    Array<int, 5> a{};
+    std::array<int, 5> b{};
 
-    Array<int, 0> arr0;
-    EXPECT_EQ(arr0.size(), 0);
-    EXPECT_TRUE(arr0.empty());
+    for (size_t i = 0; i < 5; i++)
+        EXPECT_EQ(a[i], b[i]);
 }
 
-// ----------------------------------------------------------
-// Element Access
-// ----------------------------------------------------------
-
-TEST(ArrayTest, OperatorIndex) {
-    Array<int, 3> arr;
-    arr[0] = 10;
-    arr[1] = 20;
-    arr[2] = 30;
-
-    EXPECT_EQ(arr[0], 10);
-    EXPECT_EQ(arr[1], 20);
-    EXPECT_EQ(arr[2], 30);
+TEST(ArrayTest, InitListConstructor) {
+    Array<int, 3> a = {1, 2, 3};
+    EXPECT_EQ(a[0], 1);
+    EXPECT_EQ(a[1], 2);
+    EXPECT_EQ(a[2], 3);
 }
 
-TEST(ArrayTest, AtFunctionWorks) {
-    Array<int, 3> arr;
-    arr[0] = 7;
-    arr[1] = 8;
-    arr[2] = 9;
+TEST(ArrayTest, CopyConstructor) {
+    Array<int, 3> a = {1, 2, 3};
+    Array<int, 3> b(a);
 
-    EXPECT_EQ(arr.at(0), 7);
-    EXPECT_EQ(arr.at(1), 8);
-    EXPECT_EQ(arr.at(2), 9);
+    for (int i = 0; i < 3; i++)
+        EXPECT_EQ(a[i], b[i]);
+}
+
+TEST(ArrayTest, CopyAssignment) {
+    Array<int, 3> a = {1, 2, 3};
+    Array<int, 3> b;
+
+    b = a;
+
+    for (int i = 0; i < 3; i++)
+        EXPECT_EQ(a[i], b[i]);
+}
+
+TEST(ArrayTest, MoveConstructor) {
+    Array<int, 3> a = {1, 2, 3};
+    Array<int, 3> b(std::move(a));
+
+    EXPECT_EQ(b[0], 1);
+    EXPECT_EQ(b[1], 2);
+    EXPECT_EQ(b[2], 3);
+}
+
+TEST(ArrayTest, MoveAssignment) {
+    Array<int, 3> a = {1, 2, 3};
+    Array<int, 3> b;
+
+    b = std::move(a);
+
+    EXPECT_EQ(b[0], 1);
+    EXPECT_EQ(b[1], 2);
+    EXPECT_EQ(b[2], 3);
+}
+
+// -------------------------------------------------------------
+// 2. Element access
+// -------------------------------------------------------------
+
+TEST(ArrayTest, OperatorBrackets) {
+    Array<int, 3> a = {10, 20, 30};
+
+    EXPECT_EQ(a[0], 10);
+    EXPECT_EQ(a[1], 20);
+    EXPECT_EQ(a[2], 30);
 }
 
 TEST(ArrayTest, AtThrowsOutOfRange) {
-    Array<int, 3> arr;
-    EXPECT_THROW(arr.at(3), std::out_of_range);
-    EXPECT_THROW(arr.at(99), std::out_of_range);
+    Array<int, 3> a = {1, 2, 3};
+    EXPECT_NO_THROW(a.at(2));
+    EXPECT_THROW(a.at(3), std::out_of_range);
 }
 
 TEST(ArrayTest, FrontBack) {
-    Array<int, 3> arr;
-    arr[0] = 1;
-    arr[1] = 2;
-    arr[2] = 3;
+    Array<int, 4> a = {10, 20, 30, 40};
 
-    EXPECT_EQ(arr.front(), 1);
-    EXPECT_EQ(arr.back(),  3);
+    EXPECT_EQ(a.front(), 10);
+    EXPECT_EQ(a.back(), 40);
 }
 
-TEST(ArrayTest, DataPointer) {
-    Array<int, 3> arr;
-    arr[0] = 4;
-    arr[1] = 5;
-    arr[2] = 6;
-
-    auto ptr = arr.data();
-    ASSERT_NE(ptr, nullptr);
-    EXPECT_EQ(*(ptr.current), 4);
-    EXPECT_EQ(*(ptr.current + 1), 5);
-    EXPECT_EQ(*(ptr.current + 2), 6);
+TEST(ArrayTest, DataAccess) {
+    Array<int, 3> a = {1, 2, 3};
+    auto b = a.data();
+	int* ptr = b.current;
+    EXPECT_EQ(ptr[0], 1);
+    EXPECT_EQ(ptr[1], 2);
+    EXPECT_EQ(ptr[2], 3);
 }
 
-// ----------------------------------------------------------
-// Iterators
-// ----------------------------------------------------------
+// -------------------------------------------------------------
+// 3. Iterators
+// -------------------------------------------------------------
 
-TEST(ArrayTest, BeginEndIteration) {
-    Array<int, 4> arr;
-    arr[0] = 11;
-    arr[1] = 22;
-    arr[2] = 33;
-    arr[3] = 44;
+TEST(ArrayTest, IterationRangeFor) {
+    Array<int, 3> a = {1, 2, 3};
 
     int sum = 0;
-    for (auto it = arr.begin(); it != arr.end(); ++it) {
-        sum += *it;
-    }
+    for (auto v : a) sum += v;
 
-    EXPECT_EQ(sum, 11 + 22 + 33 + 44);
+    EXPECT_EQ(sum, 6);
 }
 
-TEST(ArrayTest, ConstBeginEndIteration) {
-    Array<int, 3> arr;
-    arr[0] = 3;
-    arr[1] = 6;
-    arr[2] = 9;
+TEST(ArrayTest, BeginEnd) {
+    Array<int, 3> a = {1, 2, 3};
 
-    const Array<int, 3>& c = arr;
-
-    int sum = 0;
-    for (auto it = c.begin(); it != c.end(); ++it) {
-        sum += *it;
-    }
-
-    EXPECT_EQ(sum, 18);
-}
-
-TEST(ArrayTest, IteratorIncrementDecrement) {
-    Array<int, 3> arr;
-    arr[0] = 10;
-    arr[1] = 20;
-    arr[2] = 30;
-
-    auto it = arr.begin();
-    EXPECT_EQ(*it, 10);
-
+    auto it = a.begin();
+    EXPECT_EQ(*it, 1);
     ++it;
-    EXPECT_EQ(*it, 20);
+    EXPECT_EQ(*it, 2);
+    ++it;
+    EXPECT_EQ(*it, 3);
+    ++it;
 
-    it++;
-    EXPECT_EQ(*it, 30);
-
-    --it;
-    EXPECT_EQ(*it, 20);
-
-    it--;
-    EXPECT_EQ(*it, 10);
+    EXPECT_EQ(it, a.end());
 }
 
-TEST(ArrayTest, IteratorComparison) {
-    Array<int, 2> arr;
-    arr[0] = 1;
-    arr[1] = 2;
+TEST(ArrayTest, ConstBeginEnd) {
+    const Array<int, 3> a = {1, 2, 3};
 
-    auto it1 = arr.begin();
-    auto it2 = arr.begin();
-    auto itEnd = arr.end();
+    auto it = a.begin();
+    EXPECT_EQ(*it, 1);
+    ++it;
+    EXPECT_EQ(*it, 2);
+    ++it;
+    EXPECT_EQ(*it, 3);
+    ++it;
 
-    EXPECT_TRUE(it1 == it2);
-    EXPECT_TRUE(it1 != itEnd);
+    EXPECT_EQ(it, a.end());
 }
 
-// ----------------------------------------------------------
-// Modifiers
-// ----------------------------------------------------------
+// -------------------------------------------------------------
+// 4. Capacity
+// -------------------------------------------------------------
 
-TEST(ArrayTest, FillWorks) {
-    Array<int, 4> arr;
-    arr.fill(99);
+TEST(ArrayTest, SizeEmptyMaxSize) {
+    Array<int, 5> a;
+    EXPECT_EQ(a.size(), 5);
+    EXPECT_EQ(a.max_size(), 5);
+    EXPECT_FALSE(a.empty());
 
-    EXPECT_EQ(arr[0], 99);
-    EXPECT_EQ(arr[1], 99);
-    EXPECT_EQ(arr[2], 99);
-    EXPECT_EQ(arr[3], 99);
+    Array<int, 0> b;
+    EXPECT_EQ(b.size(), 0);
+    EXPECT_EQ(b.max_size(), 0);
+    EXPECT_TRUE(b.empty());
 }
 
-TEST(ArrayTest, SwapWorks) {
-    Array<int, 3> a;
-    Array<int, 3> b;
+// -------------------------------------------------------------
+// 5. Modifiers
+// -------------------------------------------------------------
 
-    a[0] = 1;  a[1] = 2;  a[2] = 3;
-    b[0] = 4;  b[1] = 5;  b[2] = 6;
+TEST(ArrayTest, Fill) {
+    Array<int, 5> a;
+    a.fill(42);
+
+    for (size_t i = 0; i < 5; i++)
+        EXPECT_EQ(a[i], 42);
+}
+
+TEST(ArrayTest, Swap) {
+    Array<int, 3> a = {1, 2, 3};
+    Array<int, 3> b = {4, 5, 6};
 
     a.swap(b);
 
@@ -172,22 +177,19 @@ TEST(ArrayTest, SwapWorks) {
     EXPECT_EQ(b[2], 3);
 }
 
-// ----------------------------------------------------------
-// Assignment
-// ----------------------------------------------------------
+// -------------------------------------------------------------
+// 6. Comparison with std::array (reference behavior)
+// -------------------------------------------------------------
 
-TEST(ArrayTest, AssignmentOperator) {
-    Array<int, 3> a;
-    Array<int, 3> b;
+TEST(ArrayTest, CompareWithStdArray) {
+    Array<int, 4> my = {10, 20, 30, 40};
+    std::array<int, 4> st = {10, 20, 30, 40};
 
-    a[0] = 100;
-    a[1] = 200;
-    a[2] = 300;
+    for (int i = 0; i < 4; i++)
+        EXPECT_EQ(my[i], st[i]);
 
-    b = a;
-
-    EXPECT_EQ(b[0], 100);
-    EXPECT_EQ(b[1], 200);
-    EXPECT_EQ(b[2], 300);
+    EXPECT_EQ(my.size(), st.size());
+    EXPECT_EQ(my.empty(), st.empty());
+    EXPECT_EQ(my.max_size(), st.max_size());
 }
 

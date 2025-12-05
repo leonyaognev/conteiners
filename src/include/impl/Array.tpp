@@ -75,6 +75,7 @@ typename Array<T,N>::const_iterator Array<T,N>::end() const noexcept {
 
 template <typename T, std::size_t N>
 typename Array<T,N>::reference Array<T,N>::at(typename Array<T,N>::size_type off){
+  if (off >= N) throw std::out_of_range("Index is out of range");
   return _data[off];
 }
 
@@ -115,10 +116,20 @@ typename Array<T,N>::const_reference Array<T,N>::operator[](typename Array<T,N>:
 	return _data[off];
 }
 
-template <typename T, std::size_t N>
-Array<T,N>& Array<T,N>::operator=(Array<T,N>& right){
-	for (std::size_t i = 0; i < N; i++){
-		_data[i] = right._data[i];
-	}
-	return *this;
-}
+// template <typename T, std::size_t N>
+// Array<T,N>& Array<T,N>::operator=(Array<T,N>& right){
+// 	for (std::size_t i = 0; i < N; i++){
+// 		_data[i] = right._data[i];
+// 	}
+// 	return *this;
+// }
+
+// template <typename T, std::size_t N>
+// Array<T,N>& Array<T,N>::operator=(Array<T,N>&& right) noexcept {
+//     if (this != &right) {
+//         for (std::size_t i = 0; i < N; i++) {
+//             _data[i] = std::move(right._data[i]);
+//         }
+//     }
+//     return *this;
+// }

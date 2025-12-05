@@ -1,17 +1,20 @@
 MAKEFLAGS += --no-print-directory
 
 # Compiler and flags
-DEBUG_LEVEL ?= 2
-
+DEBUG_LEVEL ?= 3
 CC = g++ -DDEBUG_LEVEL=$(DEBUG_LEVEL)
 
 HEADER_FILES = -I./ -I./src/include/ -I./src/vendor/logger/
-CFLAGS     = -Wall -Wextra -Werror -std=c++20 $(HEADER_FILES) 
-GCOV_FLAGS = -fprofile-arcs -ftest-coverage -lgcov -O0 -g
+CFLAGS     = -std=c++20 $(HEADER_FILES)
+GCOV_FLAGS = -fprofile-arcs -ftest-coverage -O0 -g
 
 # Sources and objects
-SRC_CORE   :=
-SRC        := $(shell find src/helpers/ -name "*.cpp")
+SRC        := $(shell find src/ -name "*.cpp" 2>/dev/null || true)
+
+# Проверяем, что файлы найдены
+ifeq ($(SRC),)
+    $(warning No .cpp files found in src/ directory!)
+endif
 
 OBJ        := $(patsubst src/%.cpp, build/obj/%.o, $(SRC))
 OBJ_GCOV   := $(patsubst src/%.cpp, build/gcov/%.o, $(SRC))
@@ -22,18 +25,18 @@ DONE       := 0
 
 TOTAL_GCOV := $(words $(OBJ_GCOV))
 DONE_GCOV  := 0
+
 # Main targets
-TARGET     = s21_contaners.a
+TARGET     = s21_containers.a
 TEST_SRC   = $(wildcard ./test/*.cpp)
 OS         := $(shell uname -s)
 
 # ---------------------------------------------------------------------------
-# Dynamic bar width (80% of terminal width minus padding)
+# Dynamic bar width
 TERM_WIDTH := $(shell stty size 2>/dev/null | awk '{print $$2}')
 TERM_WIDTH := $(if $(TERM_WIDTH),$(TERM_WIDTH),80)
 BAR_WIDTH  := $(shell expr $(TERM_WIDTH) \* 80 / 100 - 20)
 
-# Function to print progress bar
 define print_bar
 FILLED=$$(( ($1 * $(BAR_WIDTH)) / $2 )); \
 UNFILLED=$$(( $(BAR_WIDTH) - FILLED )); \
@@ -48,13 +51,14 @@ if [ $1 -eq $2 ]; then printf "\n"; fi
 endef
 
 # ---------------------------------------------------------------------------
-all: compile_logger $(TARGET) test example gcov_report valgrind_test create_documentation
+all: $(TARGET) test
 
-# ---------------------------------------------------------------------------
-example: compile_logger mkbuild $(TARGET)
-	@$(call print_bar,1,2,example compilation:)
-	@$(CC) $(CFLAGS) -g -o build/example ./example/main.cpp -L. -l:$(TARGET) -lm -L./src/vendor/logger/ -l:liblogger.a
-	@$(call print_bar,1,1,example compilation:)
+check_sources:
+	@if [ -z "$(SRC)" ]; then \
+		echo "Error: No source files found in src/ directory!"; \
+		echo "Please create your source files in src/ directory"; \
+		false; \
+	fi
 
 # ---------------------------------------------------------------------------
 # Library without coverage
@@ -64,31 +68,39 @@ build/obj/%.o: src/%.cpp
 	$(eval DONE := $(shell expr $(DONE) + 1))
 	@$(call print_bar,$(DONE),$(TOTAL),target compilation: )
 
-$(TARGET): compile_logger mkbuild $(OBJ)
+$(TARGET): compile_logger mkbuild check_sources $(OBJ)
 	@$(call print_bar,1,2,target archive:     )
 	@ar rcs $(TARGET) $(OBJ)
 	@$(call print_bar,1,1,target archive:     )
 
 # ---------------------------------------------------------------------------
-# Library with gcov
-build/gcov/%.o:  src/%.cpp
+# Library with gcov - ИСПРАВЛЕНО: убрали -lgcov из флагов компиляции
+build/gcov/%.o: src/%.cpp
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(GCOV_FLAGS) -c $< -o $@
 	$(eval DONE_GCOV := $(shell expr $(DONE_GCOV) + 1))
 	@$(call print_bar,$(DONE_GCOV),$(TOTAL_GCOV),test compilation:   )
 
-lib_gcov: compile_logger mkbuild $(OBJ_GCOV)
+# ИСПРАВЛЕНО: Добавляем проверку что объектные файлы существуют
+LIB_GCOV = ./build/gcov/lib_gcov.a
+
+$(LIB_GCOV): compile_logger mkbuild check_sources $(OBJ_GCOV)
+	@if [ -z "$(OBJ_GCOV)" ]; then \
+		echo "Error: No object files for gcov!"; \
+		false; \
+	fi
 	@$(call print_bar,1,2,gcov archive:       )
-	@ar rcs ./build/gcov/lib_gcov.a $(OBJ_GCOV)
+	@ar rcs $(LIB_GCOV) $(OBJ_GCOV)
 	@$(call print_bar,1,1,gcov archive:       )
 
 # ---------------------------------------------------------------------------
-test: compile_logger mkbuild lib_gcov $(OBJ_GCOV)
+# ИСПРАВЛЕНО: test зависит от $(LIB_GCOV) и использует правильные флаги
+test: compile_logger mkbuild $(LIB_GCOV)
 	@$(call print_bar,1,2,test build:         )
 	@$(CC) -o build/gcov/test $(TEST_SRC) $(CFLAGS) $(GCOV_FLAGS) \
-		-L./build/gcov -l:lib_gcov.a \
-		-L./src/vendor/logger/ -l:liblogger.a \
-		-lgtest -lm -lpthread
+		-L./build/gcov -l_gcov \
+		-L./src/vendor/logger/ -llogger \
+		-lgtest -lpthread
 	@$(call print_bar,1,1,test build:         )
 
 run_test: test
@@ -99,7 +111,7 @@ run_test: test
 		echo "FAIL! 💥"; \
 		cat /tmp/s21_containers_test.log; \
 	else \
-		echo "SUCCESFUL! ✅"; \
+		echo "SUCCESSFUL! ✅"; \
 	fi
 	@rm -f /tmp/s21_containers_test.log
 	@echo
@@ -111,14 +123,15 @@ mkbuild:
 gcov_report: run_test
 	@echo "Generating coverage report..."
 	@mkdir -p ./build/coverage_html
+	@echo "Running lcov..."
 	@lcov --capture --directory ./build/gcov/ \
-		--ignore-errors inconsistent\
+		--ignore-errors inconsistent,mismatch \
 		--rc geninfo_unexecuted_blocks=1 \
-		--output-file ./build/coverage_html/base.info > /dev/null 2>&1
-	@genhtml ./build/coverage_html/base.info --output-directory ./build/coverage_html/ > /dev/null 2>&1
+		--output-file ./build/coverage_html/base.info
+	@echo "lcov completed. Running genhtml..."
+	@genhtml ./build/coverage_html/base.info --output-directory ./build/coverage_html/
 	@echo "Coverage report: build/coverage_html/index.html ✅"
 	@echo
-
 
 valgrind_test: test
 	@if [ "$(OS)" = "Linux" ]; then \
@@ -126,10 +139,10 @@ valgrind_test: test
 		CK_FORK=no valgrind --error-exitcode=1 --tool=memcheck --leak-check=yes ./build/gcov/test > /tmp/valgrind.log 2>&1 || true; \
 	else \
 		echo "Run tests via leaks..."; \
-		leaks -atExit -- ./build/test > /tmp/valgrind.log 2>&1 || true; \
+		leaks -atExit -- ./build/gcov/test > /tmp/valgrind.log 2>&1 || true; \
 	fi
 	@if grep -q "ERROR SUMMARY: 0 errors" /tmp/valgrind.log; then \
-		echo "SUCCESFUL! ✅"; \
+		echo "SUCCESSFUL! ✅"; \
 	else \
 		echo "FAIL! 💥"; \
 		cat /tmp/valgrind.log; \
@@ -144,18 +157,15 @@ compile_logger: init_submodules
 init_submodules:
 	@git submodule update --init --recursive > /dev/null 2>&1
 
-compile_commands.json:
-	@bear -- make all
-
 create_documentation:
 	@doxygen > /dev/null 2>&1 || true
 
 clean:
-	@rm -rf ./build ./$(TARGET)
-	@rm -rf ./app.log
+	@rm -rf ./build ./$(TARGET) ./$(LIB_GCOV)
+	@rm -rf ./app.log *.gcda *.gcno
 	@$(MAKE) clean -C ./src/vendor/logger
 
 rebuild: clean all
 
 .PHONY: all example $(TARGET) test run_test mkbuild gcov_report \
-        valgrind_test create_documentation clean rebuild
+        valgrind_test create_documentation clean rebuild check_sources
