@@ -10,7 +10,6 @@ class Array {
  using const_iterator = ArrayIterator<const T*>;
 
  public:	
- //constexpr Array() noexcept {}
 
  T _data[N];
 

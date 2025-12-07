@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include "Iterator.h"
 
 /**
  * @brief Dynamic array similar to std::vector.
@@ -13,53 +14,9 @@ class Vector {
   T* _data;               ///< Pointer to array data
   std::size_t _capacity;  ///< Allocated memory capacity
   std::size_t _size;      ///< Current number of elements
-
-  /**
-   * @brief Iterator for traversing array elements.
-   *
-   * Supports dereference, increment, decrement, and comparison operations.
-   */
-  class iterator {
-   public:
-    using valueType = T;   ///< Value type
-    using pointer = T*;    ///< Pointer type
-    using reference = T&;  ///< Reference type
-
-    pointer current;  ///< Pointer to the current element
-
-    /** @brief Default constructor (nullptr). */
-    iterator();
-    /** @brief Iterator from a pointer. */
-    iterator(pointer ptr);
-    /** @brief Copy constructor. */
-    iterator(const iterator& it);
-
-    /** @brief Dereference operator. */
-    reference operator*() const;
-    /** @brief Member access operator. */
-    pointer operator->() const;
-    /** @brief Increase operator */
-    iterator operator+(size_t n);
-    /** @brief Decrease operator */
-    iterator operator-(size_t n);
-    /** @brief Prefix increment. */
-    iterator& operator++();
-    /** @brief Postfix increment. */
-    iterator operator++(int);
-
-    /** @brief Prefix decrement. */
-    iterator& operator--();
-    /** @brief Postfix decrement. */
-    iterator operator--(int);
-    /** @brief support command for copy*/
-    iterator operator=(const iterator& other);
-    /** @brief Equality comparison. */
-    bool operator==(const iterator& other) const;
-    /** @brief Inequality comparison. */
-    bool operator!=(const iterator& other) const;
-  };
-
-  using Iterator = iterator;  ///< Alias for iterator
+ 
+  using iterator = ArrayIterator<T*>; ///< Alias for iterator
+  using const_iterator = ArrayIterator<const T*>;
 
  public:
   /** @brief Default constructor, creates empty array. */
@@ -176,7 +133,8 @@ class Vector {
   /** @brief Erases a vector and copies the specified elements to the empty
    * vector. */
   void assign(std::size_t count, const T& value);
-  // void assign(initializer_list<T> init_list);
+
+  void assign(std::initializer_list<T> init_list);
 
   void assign(iterator first, iterator last);
 

@@ -8,6 +8,9 @@ HEADER_FILES = -I./ -I./src/include/ -I./src/vendor/logger/
 CFLAGS     = -std=c++20 $(HEADER_FILES)
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage -O0 -g
 
+CFLAGS += -fsanitize=address -fno-omit-frame-pointer -O1
+GCOV_FLAGS += -fsanitize=address -fno-omit-frame-pointer -O1
+
 # Sources and objects
 SRC        := $(shell find src/ -name "*.cpp" 2>/dev/null || true)
 
@@ -106,7 +109,7 @@ test: compile_logger mkbuild $(LIB_GCOV)
 run_test: test
 	@echo
 	@echo "Run tests..."
-	@./build/gcov/test > /tmp/s21_containers_test.log 2>&1 || true
+	@./build/gcov/test > /tmp/s21_containers_test.log
 	@if grep -q "\[  FAILED  \]" /tmp/s21_containers_test.log; then \
 		echo "FAIL! 💥"; \
 		cat /tmp/s21_containers_test.log; \
