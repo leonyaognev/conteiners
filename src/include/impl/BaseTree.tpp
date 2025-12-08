@@ -4,6 +4,74 @@
 #include "RedBlackTree/BaseTree.h"
 
 template <typename T, typename Compare>
+void RBBase<T, Compare>::iterator::leftMost(Node* node) {
+  while (node && node->left) node = node->left;
+  current = node;
+}
+
+template <typename T, typename Compare>
+RBBase<T, Compare>::iterator::iterator() {
+  current = nullptr;
+}
+
+template <typename T, typename Compare>
+RBBase<T, Compare>::iterator::iterator(RBBase<T, Compare>* tree) : tree(tree) {
+  leftMost(tree->root);
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::iterator::reference
+RBBase<T, Compare>::iterator::operator*() const {
+  return current->value;
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::iterator::pointer
+RBBase<T, Compare>::iterator::operator->() const {
+  return &(current->value);
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::iterator&
+RBBase<T, Compare>::iterator::operator++() {
+  current = tree->successor(current);
+  return *this;
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::iterator RBBase<T, Compare>::iterator::operator++(
+    int) {
+  iterator tmp = *this;
+  ++(*this);
+  return tmp;
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::iterator&
+RBBase<T, Compare>::iterator::operator--() {
+  current = tree->predecessor(current);
+  return *this;
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::iterator RBBase<T, Compare>::iterator::operator--(
+    int) {
+  iterator tmp = *this;
+  --(*this);
+  return tmp;
+}
+
+template <typename T, typename Compare>
+bool RBBase<T, Compare>::iterator::operator==(const iterator& other) const {
+  return current == other.current;
+}
+
+template <typename T, typename Compare>
+bool RBBase<T, Compare>::iterator::operator!=(const iterator& other) const {
+  return current != other.current;
+}
+
+template <typename T, typename Compare>
 typename RBBase<T, Compare>::Node* RBBase<T, Compare>::copyTree(
     Node* n, Node* otherNil) {
   // If we reached the sentinel node of the other tree,
@@ -410,7 +478,32 @@ typename RBBase<T, Compare>::Node* RBBase<T, Compare>::successor(
     n = n->parent;
   }
 
-  return n->parent == nil ? nullptr : n->parent;
+  return n->parent == nil ? nil : n->parent;
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::Node* RBBase<T, Compare>::predecessor(
+    Node* n) const {
+  if (n == nil) {
+    throw std::runtime_error("Predecessor called with NIL node.");
+  }
+
+  // If left subtree exists, predecessor is its maximum
+  if (n->left != nil) {
+    n = n->left;
+    while (n->right != nil) {
+      n = n->right;
+    }
+    return n;
+  }
+
+  // Otherwise, walk upward until we find ancestor
+  // where we come from its right side
+  while (n->parent != nil && n != n->parent->right) {
+    n = n->parent;
+  }
+
+  return n->parent == nil ? nil : n->parent;
 }
 
 template <typename T, typename Compare>

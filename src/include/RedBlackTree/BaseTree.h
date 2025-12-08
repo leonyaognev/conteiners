@@ -65,6 +65,33 @@ class RBBase {
     Node(const T& v);
   };
 
+  class iterator {
+    RBBase<T, Compare>* tree;
+    Node* current;
+    void leftMost(Node* node);
+
+   public:
+    using valueType = T;   ///< Value type
+    using pointer = T*;    ///< Pointer type
+    using reference = T&;  ///< Reference type
+
+    iterator();
+    iterator(RBBase<T, Compare>* tree);
+
+    reference operator*() const;
+    pointer operator->() const;
+
+    iterator& operator++();
+    iterator operator++(int);
+
+    iterator& operator--();
+    iterator operator--(int);
+
+    bool operator==(const iterator& other) const;
+
+    bool operator!=(const iterator& other) const;
+  };
+
   Node* root = nullptr;  ///< Root of the tree
   Node* nil = nullptr;   ///< Sentinel node representing the end of the tree
   Compare comp;          ///< Comparator object
@@ -141,6 +168,13 @@ class RBBase {
    * @return Pointer to the successor node.
    */
   Node* successor(Node* n) const;
+
+  /**
+   * @brief Finds the predecessor node in in-order traversal.
+   * @param n Node to find the predecessor of.
+   * @return Pointer to the predecessor node.
+   */
+  Node* predecessor(Node* n) const;
 
   /**
    * @brief Removes a specific node from the tree.
