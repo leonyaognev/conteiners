@@ -42,7 +42,7 @@ class Pair {
  */
 template <typename T, typename Compare>
 class RBBase {
- private:
+ protected:
   /**
    * @brief Node color in red-black tree.
    */
@@ -80,7 +80,6 @@ class RBBase {
 
   Pair<Node*, bool> ins(const T& value);
 
- protected:
   using value_type = T;           ///< Type of the elements
   using size_type = std::size_t;  ///< Type for sizes
 
@@ -150,6 +149,12 @@ class RBBase {
   void erase(Node* node);
 
   /**
+   * @brief Swap tree with other.
+   * @param Other tree.
+   */
+  void swap(const RBBase& other);
+
+  /**
    * @brief Returns the root of the tree.
    * @return Pointer to the root node.
    */
@@ -161,7 +166,6 @@ class RBBase {
    */
   void fixDelete(Node* x);
 
- protected:
   /**
    * @brief Recursively clears a subtree.
    * @param n Root of the subtree to clear.

@@ -421,3 +421,18 @@ void RBBase<T, Compare>::erase(Node* node) {
   // Delegate real deletion to deleteNode (with RB fix-up)
   deleteNode(node);
 }
+
+template <typename T, typename Compare>
+void RBBase<T, Compare>::swap(const RBBase& other) {
+  Node* tmp = other.root;
+  other.root = root;
+  root = tmp;
+
+  tmp = other.nil;
+  other.nil = nil;
+  nil = other.nil;
+
+  Compare ctmp = other.comp;
+  other.comp = comp;
+  comp = ctmp;
+}
