@@ -1,4 +1,5 @@
-#include <exception>
+#pragma once
+
 #include <stdexcept>
 
 #include "RedBlackTree/BaseTree.h"
@@ -10,9 +11,11 @@ void RBBase<T, Compare>::iterator::leftMost(Node* node) {
 }
 
 template <typename T, typename Compare>
-RBBase<T, Compare>::iterator::iterator() {
-  current = nullptr;
-}
+RBBase<T, Compare>::iterator::iterator() : current(nullptr) {}
+
+template <typename T, typename Compare>
+RBBase<T, Compare>::iterator::iterator(RBBase<T, Compare>* tree, Node* cur)
+    : tree(tree), current(cur) {}
 
 template <typename T, typename Compare>
 RBBase<T, Compare>::iterator::iterator(RBBase<T, Compare>* tree) : tree(tree) {

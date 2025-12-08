@@ -1,35 +1,8 @@
+#pragma once
+
 #include <cstddef>
 
-/**
- * @brief Template class for a pair of values.
- *
- * Used for storing two related values, e.g., key-value pairs in a map.
- *
- * @tparam T1 Type of the first element.
- * @tparam T2 Type of the second element.
- */
-template <typename T1, typename T2>
-class Pair {
- public:
-  T1 first;   ///< First element of the pair
-  T2 second;  ///< Second element of the pair
-
-  /**
-   * @brief Default constructor.
-   * Initializes both elements with default values.
-   */
-  Pair() : first(), second() {}
-
-  /**
-   * @brief Constructor with initialization.
-   * @param a Value for the first element.
-   * @param b Value for the second element.
-   */
-  Pair(const T1& a, const T2& b) : first(a), second(b) {}
-
-  /** @brief Copy constructor. */
-  Pair(const Pair& other) : first(other.first), second(other.second) {}
-};
+#include "helpers.h"
 
 /**
  * @brief Base class for a red-black tree.
@@ -77,6 +50,7 @@ class RBBase {
 
     iterator();
     iterator(RBBase<T, Compare>* tree);
+    iterator(RBBase<T, Compare>* tree, Node* cur);
 
     reference operator*() const;
     pointer operator->() const;
@@ -92,6 +66,9 @@ class RBBase {
     bool operator!=(const iterator& other) const;
   };
 
+  using size_type = std::size_t;  ///< Type for sizes
+
+  size_type tree_size = 0;
   Node* root = nullptr;  ///< Root of the tree
   Node* nil = nullptr;   ///< Sentinel node representing the end of the tree
   Compare comp;          ///< Comparator object
@@ -106,9 +83,6 @@ class RBBase {
   Node* copyTree(Node* n, Node* otherNil);
 
   Pair<Node*, bool> ins(const T& value);
-
-  using value_type = T;           ///< Type of the elements
-  using size_type = std::size_t;  ///< Type for sizes
 
   /**
    * @brief Default constructor.
@@ -236,3 +210,5 @@ class RBBase {
    */
   void deleteNode(Node* z);
 };
+
+#include "impl/BaseTree.tpp"
