@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>  // Добавлено для std::swap
 #include <iostream>
 #include <stdexcept>
 #include <utility>
@@ -8,12 +9,13 @@
 
 template <typename T, typename Compare>
 void RBBase<T, Compare>::iterator::leftMost(Node* node) {
-  while (node && node->left) node = node->left;
+  // Добавлена проверка на nil
+  while (node && node->left != tree->nil) node = node->left;
   current = node;
 }
 
 template <typename T, typename Compare>
-RBBase<T, Compare>::iterator::iterator() : current(nullptr) {}
+RBBase<T, Compare>::iterator::iterator() : tree(nullptr), current(nullptr) {}
 
 template <typename T, typename Compare>
 RBBase<T, Compare>::iterator::iterator(const RBBase<T, Compare>* const tree,
@@ -23,7 +25,7 @@ RBBase<T, Compare>::iterator::iterator(const RBBase<T, Compare>* const tree,
 template <typename T, typename Compare>
 RBBase<T, Compare>::iterator::iterator(const RBBase<T, Compare>* const tree)
     : tree(tree) {
-  leftMost(tree->root);
+  current = tree->minimum(tree->root);
 }
 
 template <typename T, typename Compare>
@@ -113,19 +115,20 @@ RBBase<T, Compare>::RBBase(const RBBase<T, Compare>& other) : comp(other.comp) {
 
   // Deep copy the other tree starting from its root
   root = copyTree(other.root, other.nil);
+  tree_size = other.tree_size;
 }
 
 template <typename T, typename Compare>
-RBBase<T, Compare>::RBBase(std::initializer_list<T> ilist) {
-  for (T x : ilist) {
+RBBase<T, Compare>::RBBase(std::initializer_list<T> ilist) : RBBase() {
+  for (const T& x : ilist) {
     insert(x);
   }
 }
 
 template <typename T, typename Compare>
 template <typename InputIt>
-RBBase<T, Compare>::RBBase(InputIt first, InputIt last) {
-  for (InputIt i = first; i <= last; i++) {
+RBBase<T, Compare>::RBBase(InputIt first, InputIt last) : RBBase() {
+  for (InputIt i = first; i != last; ++i) {
     insert(*i);
   }
 }
@@ -136,6 +139,7 @@ RBBase<T, Compare>& RBBase<T, Compare>::operator=(const RBBase& other) {
   if (this != &other) {
     // Clear the current tree
     clearTree(root);
+    delete nil;
 
     // Create a new sentinel node
     nil = new Node();
@@ -147,13 +151,15 @@ RBBase<T, Compare>& RBBase<T, Compare>::operator=(const RBBase& other) {
 
     // Deep copy of the other tree
     root = copyTree(other.root, other.nil);
+    tree_size = other.tree_size;
   }
 
   return *this;
 }
 
 template <typename T, typename Compare>
-RBBase<T, Compare>::RBBase(RBBase<T, Compare>&& other) : comp(other.comp) {
+RBBase<T, Compare>::RBBase(RBBase<T, Compare>&& other)
+    : tree_size(other.tree_size), comp(std::move(other.comp)) {
   // Steal the tree pointers from the other instance
   root = other.root;
   nil = other.nil;
@@ -161,16 +167,19 @@ RBBase<T, Compare>::RBBase(RBBase<T, Compare>&& other) : comp(other.comp) {
   // Leave the other instance in a safe empty state
   other.root = nullptr;
   other.nil = nullptr;
+  other.tree_size = 0;
 }
 
 template <typename T, typename Compare>
 RBBase<T, Compare>::RBBase() : comp(Compare()) {
   // Create the sentinel node that acts as NIL
-  nil = new Node(T{});
+  nil = new Node();
+  nil->left = nil->right = nil->parent = nil;
   nil->color = Black;
 
   // Empty tree: root points to the sentinel
   root = nil;
+  tree_size = 0;
 }
 
 template <typename T, typename Compare>
@@ -179,7 +188,7 @@ RBBase<T, Compare>::~RBBase() {
   clearTree(root);
 
   // Delete the sentinel
-  delete nil;
+  if (nil != nullptr) delete nil;
 }
 
 template <typename T, typename Compare>
@@ -206,16 +215,17 @@ Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::ins(
     forward_t&& value) {
   Node* cur = root;    // Start from the root
   Node* parent = nil;  // Keep track of parent for insertion
-  bool go_left = false;
+
+  // bool go_left = false; // УДАЛЕН: Не нужен
 
   while (cur != nil) {
-    parent = cur;  // Update parent (bug: shadowing variable here)
+    parent = cur;  // Update parent
     if (comp(value, cur->value)) {
       cur = cur->left;  // Go left if value is smaller
-      go_left = true;
+      // go_left = true; // УДАЛЕН
     } else if (comp(cur->value, value)) {
       cur = cur->right;  // Go right if value is larger
-      go_left = false;
+      // go_left = false; // УДАЛЕН
     } else {
       return Pair(cur, false);  // Value already exists
     }
@@ -228,8 +238,8 @@ Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::ins(
 
   if (parent == nil) {
     root = n;
-    n->color = Black;
-  } else if (go_left) {
+    // n->color = Black; // FixTree сделает его черным, если это корень
+  } else if (comp(n->value, parent->value)) {
     parent->left = n;
   } else {
     parent->right = n;
@@ -283,28 +293,31 @@ void RBBase<T, Compare>::rotateRight(Node* x) {
 template <typename T, typename Compare>
 void RBBase<T, Compare>::fixTree(Node* z) {
   // Fix red-black properties after insertion
-  while (z->color == Red && z->parent->color == Red && z->parent != nil) {
-    if (z->parent->parent->left == z->parent) {
-      Node* uncle = z->parent->parent->right;
+  while (z != root && z->parent->color == Red) {
+    Node* g = z->parent->parent;
+    if (g == nil) break;
+
+    if (z->parent == g->left) {
+      Node* uncle = g->right;
       if (uncle->color == Red) {  // Case 1: uncle is red
         z->parent->color = uncle->color = Black;
-        z->parent->parent->color = Red;
-        z = z->parent->parent;  // Move up the tree
+        g->color = Red;
+        z = g;  // Move up the tree
       } else {
-        if (z == z->parent->right) {  // Case 2: triangle
+        if (z == z->parent->right) {  // Case 2: triangle (LR)
           z = z->parent;
           rotateLeft(z);
         }
-        z->parent->color = Black;  // Case 3: line
+        z->parent->color = Black;  // Case 3: line (LL)
         z->parent->parent->color = Red;
         rotateRight(z->parent->parent);
       }
-    } else {  // Mirror cases
-      Node* uncle = z->parent->parent->left;
+    } else {  // Mirror cases (родитель справа)
+      Node* uncle = g->left;
       if (uncle->color == Red) {
         z->parent->color = uncle->color = Black;
-        z->parent->parent->color = Red;
-        z = z->parent->parent;
+        g->color = Red;
+        z = g;
       } else {
         if (z == z->parent->left) {
           z = z->parent;
@@ -316,53 +329,80 @@ void RBBase<T, Compare>::fixTree(Node* z) {
       }
     }
   }
-  root->color = Black;  // Root is always black
+  if (root != nil) {
+    root->color = Black;  // Root is always black
+  }
 }
 
 template <typename T, typename Compare>
-Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::insert(
+Pair<typename RBBase<T, Compare>::iterator, bool> RBBase<T, Compare>::insert(
     const T& value) {
   // Insert node in BST manner
-  Pair res = ins(value);
-  // Fix red-black violations
-  fixTree(res.first);
+  Pair<Node*, bool> ins_res = ins(value);
 
-  ++tree_size;
+  if (ins_res.second) {
+    // Fix red-black violations
+    fixTree(ins_res.first);
+    ++tree_size;
+  }
+  Pair<iterator, bool> res(iterator(this, ins_res.first), ins_res.second);
   return res;
 }
 
 template <typename T, typename Compare>
-Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::insert(
+Pair<typename RBBase<T, Compare>::iterator, bool> RBBase<T, Compare>::insert(
     T&& value) {
   // Insert node in BST manner
-  Pair res = ins(std::move(value));
-  std::cout << "res: " << res.first->value << ", " << res.second << "\n";
-  // Fix red-black violations
-  fixTree(res.first);
+  Pair<Node*, bool> ins_res = ins(std::move(value));
+
+  if (ins_res.second) {
+    // Fix red-black violations
+    fixTree(ins_res.first);
+    ++tree_size;
+  }
+  Pair<iterator, bool> res(iterator(this, ins_res.first), ins_res.second);
   return res;
 }
 
 template <typename T, typename Compare>
 void RBBase<T, Compare>::insert(std::initializer_list<T> ilist) {
-  for (int x : ilist) {
+  for (const T& x : ilist) {
     insert(x);
   }
 }
 
 template <typename T, typename Compare>
+template <typename InputIt>
+void RBBase<T, Compare>::insert(InputIt first, InputIt last) {
+  for (InputIt i = first; i != last; ++i) {
+    insert(*i);
+  }
+}
+
+template <typename T, typename Compare>
 template <typename... Args>
-Vector<Pair<typename RBBase<T, Compare>::iterator, bool>>
+std::vector<Pair<typename RBBase<T, Compare>::iterator, bool>>
 RBBase<T, Compare>::insert_many(Args&&... args) {
-  Vector res =
-      Vector<Pair<typename RBBase<T, Compare>::iterator, bool>>().push_front(
-          insert(std::forward(args)...));
-  return res;
+  std::vector<Pair<iterator, bool>> results;
+
+  (
+      [&] {
+        Pair<Node*, bool> res = ins(std::forward<Args>(args));
+        if (res.second) {
+          fixTree(res.first);
+          ++tree_size;
+        }
+        results.push_back({iterator(this, res.first), res.second});
+      }(),
+      ...);
+
+  return results;
 }
 
 template <typename T, typename Compare>
 void RBBase<T, Compare>::clearTree(Node* n) {
   // If we hit NIL, this branch is empty
-  if (n == nil) return;
+  if (n == nil || n == nullptr) return;
 
   // Recursively delete the right subtree first
   clearTree(n->right);
@@ -436,21 +476,23 @@ void RBBase<T, Compare>::fixDelete(Node* x) {
   }
 
   // Ensure the root (or target) is black after fixup
-  x->color = Black;
+  if (x != nil) {
+    x->color = Black;
+  }
 }
 
 template <typename T, typename Compare>
 void RBBase<T, Compare>::deleteNode(Node* z) {
   // Helper lambda to replace one subtree with another
-  auto transplant = [this](Node* z, Node* v) {
-    if (z->parent == nil)
+  auto transplant = [this](Node* u, Node* v) {
+    if (u->parent == nil)
       root = v;
-    else if (z == z->parent->left)
-      z->parent->left = v;
+    else if (u == u->parent->left)
+      u->parent->left = v;
     else
-      z->parent->right = v;
+      u->parent->right = v;
 
-    v->parent = z->parent;
+    v->parent = u->parent;
   };
 
   Node* y = z;               // Node to delete or swap with
@@ -469,13 +511,13 @@ void RBBase<T, Compare>::deleteNode(Node* z) {
 
     // Case 3: two children, replace with successor
   } else {
-    Node* y = minimum(z->right);
+    y = minimum(z->right);
     orcolor = y->color;
-    Node* x = y->right;
+    x = y->right;
 
     // Successor is direct child
     if (y->parent == z) {
-      x->parent = y;
+      x->parent = y;  // x (может быть nil) должен указывать на y как родителя
     } else {
       transplant(y, y->right);
       y->right = z->right;
@@ -505,9 +547,11 @@ typename RBBase<T, Compare>::Node* RBBase<T, Compare>::find(
 
   // Standard BST lookup
   while (cur != nil) {
-    if (comp(cur->value, value)) {
+    if (comp(value, cur->value)) {
+      // cur->value)
       cur = cur->left;
-    } else if (comp(value, cur->value)) {
+    } else if (comp(cur->value, value)) {
+      // (cur->value < value)
       cur = cur->right;
     } else {
       return cur;  // Value found
@@ -519,15 +563,17 @@ typename RBBase<T, Compare>::Node* RBBase<T, Compare>::find(
 
 template <typename T, typename Compare>
 typename RBBase<T, Compare>::Node* RBBase<T, Compare>::minimum(Node* n) const {
+  if (n == nil) return nil;
   // Move to the leftmost node
-  while (n && n->left) n = n->left;
+  while (n->left != nil) n = n->left;
   return n;
 }
 
 template <typename T, typename Compare>
 typename RBBase<T, Compare>::Node* RBBase<T, Compare>::maximum(Node* n) const {
+  if (n == nil) return nil;
   // Move to the rightmost node
-  while (n && n->right) n = n->right;
+  while (n->right != nil) n = n->right;
   return n;
 }
 
@@ -540,20 +586,18 @@ typename RBBase<T, Compare>::Node* RBBase<T, Compare>::successor(
 
   // If right subtree exists, successor is its minimum
   if (n->right != nil) {
-    n = n->right;
-    while (n->left != nil) {
-      n = n->left;
-    }
-    return n;
+    return minimum(n->right);
   }
 
   // Otherwise, walk upward until we find ancestor
   // where we come from its left side
-  while (n->parent != nil && n != n->parent->left) {
-    n = n->parent;
+  Node* p = n->parent;
+  while (p != nil && n == p->right) {
+    n = p;
+    p = p->parent;
   }
 
-  return n->parent == nil ? nil : n->parent;
+  return p;
 }
 
 template <typename T, typename Compare>
@@ -565,44 +609,37 @@ typename RBBase<T, Compare>::Node* RBBase<T, Compare>::predecessor(
 
   // If left subtree exists, predecessor is its maximum
   if (n->left != nil) {
-    n = n->left;
-    while (n->right != nil) {
-      n = n->right;
-    }
-    return n;
+    return maximum(n->left);
   }
 
   // Otherwise, walk upward until we find ancestor
   // where we come from its right side
-  while (n->parent != nil && n != n->parent->right) {
-    n = n->parent;
+  Node* p = n->parent;
+  while (p != nil && n == p->left) {
+    n = p;
+    p = p->parent;
   }
 
-  return n->parent == nil ? nil : n->parent;
+  return p;
 }
 
 template <typename T, typename Compare>
-void RBBase<T, Compare>::erase(Node* node) {
+typename RBBase<T, Compare>::iterator RBBase<T, Compare>::erase(Node* node) {
   // Do nothing if null
-  if (!node || node == nil) return;
-
+  if (node == nil || node == nullptr) return iterator(this, nil);
   // Delegate real deletion to deleteNode (with RB fix-up)
+  iterator res = ++iterator(this, node);
   deleteNode(node);
+  --tree_size;
+  return res;
 }
 
 template <typename T, typename Compare>
-void RBBase<T, Compare>::swap(const RBBase& other) {
-  Node* tmp = other.root;
-  other.root = root;
-  root = tmp;
-
-  tmp = other.nil;
-  other.nil = nil;
-  nil = other.nil;
-
-  Compare ctmp = other.comp;
-  other.comp = comp;
-  comp = ctmp;
+void RBBase<T, Compare>::swap(RBBase& other) {
+  std::swap(root, other.root);
+  std::swap(nil, other.nil);
+  std::swap(comp, other.comp);
+  std::swap(tree_size, other.tree_size);
 }
 
 template <typename T, typename Compare>
@@ -617,8 +654,60 @@ typename RBBase<T, Compare>::iterator RBBase<T, Compare>::end() const {
 
 template <typename T, typename Compare>
 void RBBase<T, Compare>::merge(RBBase& other) {
-  for (auto i = other.begin(); i != other.end(); i++) {
+  for (auto i = other.begin(); i != other.end(); ++i) {
     insert(*i);
   }
+
   other.clearTree(other.root);
+  other.root = other.nil;
+  other.tree_size = 0;
+}
+
+//============================================================================
+//=================== template debug functions ===============================
+//============================================================================
+
+template <typename T, typename Compare>
+void RBBase<T, Compare>::displayTree() const {
+  if (root == nil || root == nullptr) {
+    std::cout << "Tree is empty (size: 0)." << std::endl;
+    return;
+  }
+
+  std::cout << "--- Red-Black Tree Structure (Total Nodes: " << tree_size
+            << ") ---" << std::endl;
+
+  printNode(root, 0, "");
+
+  std::cout << "-------------------------------------------" << std::endl;
+}
+
+#define INDENT_STEP 5;
+
+template <typename T, typename Compare>
+void RBBase<T, Compare>::printNode(Node* node, int level,
+                                   const std::string& prefix) const {
+  if (node == nil || node == nullptr) {
+    return;
+  }
+
+  std::string rightPrefix = prefix + (node->right != nil ? "│     " : "     ");
+  printNode(node->right, level + 1, rightPrefix);
+
+  for (int i = 0; i < level; ++i) {
+    std::cout << "      ";
+  }
+
+  std::cout << (level > 0 ? (node == node->parent->left ? "└──L " : "┌──R ")
+                          : "ROOT ");
+
+  std::string color_str =
+      (node->color == Red) ? "\e[91mRED\e[0m" : "\e[94mBLACK\e[0m";
+
+  std::cout << "[" << node->value << "] (" << color_str << ")";
+
+  std::cout << std::endl;
+
+  std::string leftPrefix = prefix + (node->left != nil ? "│     " : "     ");
+  printNode(node->left, level + 1, leftPrefix);
 }

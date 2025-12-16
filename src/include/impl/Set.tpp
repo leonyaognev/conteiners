@@ -3,13 +3,15 @@
 #include "RedBlackTree/Set.h"
 
 template <typename T, typename Compare>
-void Set<T, Compare>::erase(const T& val) {
-  Base::erase(Base::find(val));
+typename Set<T, Compare>::iterator Set<T, Compare>::erase(iterator pos) {
+  return Base::erase(Base::find(*pos));
 }
 
 template <typename T, typename Compare>
 void Set<T, Compare>::clear() {
   Base::clearTree(this->root);
+  this->root = this->nil;
+  this->tree_size = 0;
 }
 
 template <typename T, typename Compare>

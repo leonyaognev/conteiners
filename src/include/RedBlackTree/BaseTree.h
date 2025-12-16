@@ -2,6 +2,9 @@
 
 #include <cstddef>
 #include <initializer_list>
+#include <string>
+#include <utility>  // Добавлено для std::forward
+#include <vector>
 
 #include "array/Vector.h"
 #include "helpers.h"
@@ -34,6 +37,11 @@ class RBBase {
     Color color;   ///< Node color (Red or Black)
 
     /**
+     * @brief Node constructor for sentinel (NIL).
+     */
+    Node() = default;
+
+    /**
      * @brief Node constructor.
      * @param v Value to store in the node.
      */
@@ -41,6 +49,7 @@ class RBBase {
     Node(T&& v);
   };
 
+ public:  // Iterator может быть публичным, как в std::map/set
   class iterator {
     const RBBase<T, Compare>* tree;
     Node* current;
@@ -69,6 +78,7 @@ class RBBase {
     bool operator!=(const iterator& other) const;
   };
 
+ protected:
   using size_type = std::size_t;  ///< Type for sizes
 
   size_type tree_size = 0;
@@ -124,7 +134,7 @@ class RBBase {
    * @return Pair containing pointer to the inserted/found node and a bool
    * flag indicating success.
    */
-  Pair<Node*, bool> insert(const T& value);
+  Pair<iterator, bool> insert(const T& value);
 
   /**
    * @brief Move a value into the tree.
@@ -132,7 +142,7 @@ class RBBase {
    * @return Pair containing pointer to the inserted/found node and a bool
    * flag indicating success.
    */
-  Pair<Node*, bool> insert(T&& value);
+  Pair<iterator, bool> insert(T&& value);
 
   /**
    * @brief Inserts a range into the tree.
@@ -149,7 +159,7 @@ class RBBase {
   void insert(std::initializer_list<T> ilist);
 
   template <typename... Args>
-  Vector<Pair<iterator, bool>> insert_many(Args&&... args);
+  std::vector<Pair<iterator, bool>> insert_many(Args&&... args);
 
   /**
    * @brief Finds a node with a given value.
@@ -190,13 +200,13 @@ class RBBase {
    * @brief Removes a specific node from the tree.
    * @param node Node to remove.
    */
-  void erase(Node* node);
+  iterator erase(Node* node);
 
   /**
    * @brief Swap tree with other.
    * @param Other tree.
    */
-  void swap(const RBBase& other);
+  void swap(RBBase& other);  // Исправлено: не const
 
   void merge(RBBase& other);
 
@@ -208,7 +218,7 @@ class RBBase {
 
   /**
    * @brief Fixes the red-black properties after delete node.
-   * @param z Newly inserted node.
+   * @param x Node that replaced the removed node (or nil).
    */
   void fixDelete(Node* x);
 
@@ -247,11 +257,59 @@ class RBBase {
    */
   void deleteNode(Node* z);
 
-  bool empty() { return tree_size == 0; }
-  size_type size() { return tree_size; }
+  /**
+   * @brief Checks if the container is empty.
+   * @return True if the tree contains no elements, false otherwise.
+   */
+  bool empty() const { return tree_size == 0; }
 
+  /**
+   * @brief Returns the number of elements in the tree.
+   * @return The number of elements currently stored in the tree.
+   */
+  size_type size() const { return tree_size; }
+
+  /**
+   * @brief Returns an iterator to the beginning.
+   *
+   * The element pointed to is the one with the smallest key (first element
+   * in in-order traversal).
+   *
+   * @return An iterator to the first element.
+   */
   iterator begin() const;
+
+  /**
+   * @brief Returns an iterator to the end.
+   *
+   * The iterator refers to the theoretical element *after* the last element
+   * (the one with the largest key) in the tree.
+   * This element acts as a placeholder and should not be dereferenced.
+   *
+   * @return An iterator to the element following the last element.
+   */
   iterator end() const;
+
+  //============================================================================
+  //=================== template debug functions ===============================
+  //============================================================================
+
+ public:
+  /**
+   * @brief Displays the tree structure to the console.
+   *
+   * Renders the tree structure horizontally (or vertically, depending on
+   * implementation) to make it readable, showing hierarchy and node color.
+   */
+  void displayTree() const;
+
+  /**
+   * @brief Recursively prints the subtree rooted at 'node'.
+   * @param node Current node to print.
+   * @param level Current depth in the tree (used for indentation).
+   * @param prefix String prefix to visualize the connection from parent.
+   */
+  void printNode(Node* node, int level, const std::string& prefix) const;
 };
 
 #include "impl/BaseTree.tpp"
