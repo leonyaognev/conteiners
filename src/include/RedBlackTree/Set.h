@@ -17,16 +17,14 @@ class Set : public RBBase<T, Compare> {
   using Base::Base;
   using Base::operator=;
   using Base::begin;
+  using Base::empty;
   using Base::end;
   using Base::erase;
   using Base::insert;
   using Base::insert_many;
   using Base::merge;
+  using Base::size;
   using Base::swap;
-
-  bool empty() const;
-  size_t size() const;
-  size_t max_size() const;
 
   void erase(const T& val);
   void clear();

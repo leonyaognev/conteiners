@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <ostream>
+
 #include "RedBlackTree/Set.h"
 
 class SetTest : public ::testing::Test {
@@ -17,6 +19,7 @@ class SetTest : public ::testing::Test {
 TEST_F(SetTest, InsertAndSize) {
   EXPECT_TRUE(s.empty());
   s.insert(5);
+  std::cout << "penis: " << *s.find(5) << "\n";
   EXPECT_EQ(s.size(), 1u);
   s.insert(3);
   s.insert(8);

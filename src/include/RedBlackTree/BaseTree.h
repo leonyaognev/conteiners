@@ -247,6 +247,9 @@ class RBBase {
    */
   void deleteNode(Node* z);
 
+  bool empty() { return tree_size == 0; }
+  size_type size() { return tree_size; }
+
   iterator begin() const;
   iterator end() const;
 };

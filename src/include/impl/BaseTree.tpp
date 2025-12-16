@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <stdexcept>
 #include <utility>
 
@@ -205,14 +206,16 @@ Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::ins(
     forward_t&& value) {
   Node* cur = root;    // Start from the root
   Node* parent = nil;  // Keep track of parent for insertion
+  bool go_left = false;
 
   while (cur != nil) {
-    int c = comp(cur->value, value);  // Compare current node with value
     parent = cur;  // Update parent (bug: shadowing variable here)
-    if (c < 0) {
+    if (comp(value, cur->value)) {
       cur = cur->left;  // Go left if value is smaller
-    } else if (c > 0) {
+      go_left = true;
+    } else if (comp(cur->value, value)) {
       cur = cur->right;  // Go right if value is larger
+      go_left = false;
     } else {
       return Pair(cur, false);  // Value already exists
     }
@@ -222,6 +225,15 @@ Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::ins(
   n->parent = parent;                                  // Set parent
   n->left = n->right = nil;                            // Initialize children
   n->color = Red;  // New nodes are red by default
+
+  if (parent == nil) {
+    root = n;
+    n->color = Black;
+  } else if (go_left) {
+    parent->left = n;
+  } else {
+    parent->right = n;
+  }
 
   return Pair(n, true);  // Return node and success flag
 }
@@ -314,6 +326,8 @@ Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::insert(
   Pair res = ins(value);
   // Fix red-black violations
   fixTree(res.first);
+
+  ++tree_size;
   return res;
 }
 
@@ -322,6 +336,7 @@ Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::insert(
     T&& value) {
   // Insert node in BST manner
   Pair res = ins(std::move(value));
+  std::cout << "res: " << res.first->value << ", " << res.second << "\n";
   // Fix red-black violations
   fixTree(res.first);
   return res;
@@ -494,12 +509,12 @@ typename RBBase<T, Compare>::Node* RBBase<T, Compare>::find(
       cur = cur->left;
     } else if (comp(value, cur->value)) {
       cur = cur->right;
-    } else if (!comp(cur->value, value) && !comp(value, cur->value)) {
+    } else {
       return cur;  // Value found
     }
   }
 
-  return nullptr;  // Value not in tree
+  return nil;  // Value not in tree
 }
 
 template <typename T, typename Compare>
@@ -569,7 +584,7 @@ typename RBBase<T, Compare>::Node* RBBase<T, Compare>::predecessor(
 template <typename T, typename Compare>
 void RBBase<T, Compare>::erase(Node* node) {
   // Do nothing if null
-  if (!node) return;
+  if (!node || node == nil) return;
 
   // Delegate real deletion to deleteNode (with RB fix-up)
   deleteNode(node);
@@ -605,5 +620,5 @@ void RBBase<T, Compare>::merge(RBBase& other) {
   for (auto i = other.begin(); i != other.end(); i++) {
     insert(*i);
   }
-  clearTree(other.root);
+  other.clearTree(other.root);
 }

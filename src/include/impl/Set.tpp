@@ -3,16 +3,6 @@
 #include "RedBlackTree/Set.h"
 
 template <typename T, typename Compare>
-bool Set<T, Compare>::empty() const {
-  return this->tree_size == 0;
-}
-
-template <typename T, typename Compare>
-size_t Set<T, Compare>::size() const {
-  return this->tree_size;
-}
-
-template <typename T, typename Compare>
 void Set<T, Compare>::erase(const T& val) {
   Base::erase(Base::find(val));
 }
