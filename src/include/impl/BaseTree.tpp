@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <utility>
 
 #include "RedBlackTree/BaseTree.h"
 
@@ -14,11 +15,13 @@ template <typename T, typename Compare>
 RBBase<T, Compare>::iterator::iterator() : current(nullptr) {}
 
 template <typename T, typename Compare>
-RBBase<T, Compare>::iterator::iterator(RBBase<T, Compare>* tree, Node* cur)
+RBBase<T, Compare>::iterator::iterator(const RBBase<T, Compare>* const tree,
+                                       Node* cur)
     : tree(tree), current(cur) {}
 
 template <typename T, typename Compare>
-RBBase<T, Compare>::iterator::iterator(RBBase<T, Compare>* tree) : tree(tree) {
+RBBase<T, Compare>::iterator::iterator(const RBBase<T, Compare>* const tree)
+    : tree(tree) {
   leftMost(tree->root);
 }
 
@@ -112,6 +115,21 @@ RBBase<T, Compare>::RBBase(const RBBase<T, Compare>& other) : comp(other.comp) {
 }
 
 template <typename T, typename Compare>
+RBBase<T, Compare>::RBBase(std::initializer_list<T> ilist) {
+  for (T x : ilist) {
+    insert(x);
+  }
+}
+
+template <typename T, typename Compare>
+template <typename InputIt>
+RBBase<T, Compare>::RBBase(InputIt first, InputIt last) {
+  for (InputIt i = first; i <= last; i++) {
+    insert(*i);
+  }
+}
+
+template <typename T, typename Compare>
 RBBase<T, Compare>& RBBase<T, Compare>::operator=(const RBBase& other) {
   // Check for self-assignment
   if (this != &other) {
@@ -171,8 +189,20 @@ RBBase<T, Compare>::Node::Node(const T& v)
 }
 
 template <typename T, typename Compare>
+RBBase<T, Compare>::Node::Node(T&& v)
+    : value(std::move(v)),
+      parent(nullptr),
+      left(nullptr),
+      right(nullptr),
+      color(Red) {
+  // Node constructor:
+  // newly created nodes are red by default, following RB-tree rules.
+}
+
+template <typename T, typename Compare>
+template <typename forward_t>
 Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::ins(
-    const T& value) {
+    forward_t&& value) {
   Node* cur = root;    // Start from the root
   Node* parent = nil;  // Keep track of parent for insertion
 
@@ -188,10 +218,10 @@ Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::ins(
     }
   }
 
-  Node* n = new Node(value);  // Allocate new node
-  n->parent = parent;         // Set parent
-  n->left = n->right = nil;   // Initialize children
-  n->color = Red;             // New nodes are red by default
+  Node* n = new Node(std::forward<forward_t>(value));  // Allocate new node
+  n->parent = parent;                                  // Set parent
+  n->left = n->right = nil;                            // Initialize children
+  n->color = Red;  // New nodes are red by default
 
   return Pair(n, true);  // Return node and success flag
 }
@@ -288,6 +318,33 @@ Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::insert(
 }
 
 template <typename T, typename Compare>
+Pair<typename RBBase<T, Compare>::Node*, bool> RBBase<T, Compare>::insert(
+    T&& value) {
+  // Insert node in BST manner
+  Pair res = ins(std::move(value));
+  // Fix red-black violations
+  fixTree(res.first);
+  return res;
+}
+
+template <typename T, typename Compare>
+void RBBase<T, Compare>::insert(std::initializer_list<T> ilist) {
+  for (int x : ilist) {
+    insert(x);
+  }
+}
+
+template <typename T, typename Compare>
+template <typename... Args>
+Vector<Pair<typename RBBase<T, Compare>::iterator, bool>>
+RBBase<T, Compare>::insert_many(Args&&... args) {
+  Vector res =
+      Vector<Pair<typename RBBase<T, Compare>::iterator, bool>>().push_front(
+          insert(std::forward(args)...));
+  return res;
+}
+
+template <typename T, typename Compare>
 void RBBase<T, Compare>::clearTree(Node* n) {
   // If we hit NIL, this branch is empty
   if (n == nil) return;
@@ -316,9 +373,9 @@ void RBBase<T, Compare>::fixDelete(Node* x) {
       parent->color = Red;
 
       if (isLeft)
-        leftRotate(parent);
+        rotateLeft(parent);
       else
-        rightRotate(parent);
+        rotateRight(parent);
 
       // Update sibling pointer after rotation
       w = isLeft ? parent->right : parent->left;
@@ -337,12 +394,12 @@ void RBBase<T, Compare>::fixDelete(Node* x) {
         if (isLeft) {
           w->left->color = Black;
           w->color = Red;
-          rightRotate(w);
+          rotateRight(w);
           w = parent->right;
         } else {
           w->right->color = Black;
           w->color = Red;
-          leftRotate(w);
+          rotateLeft(w);
           w = parent->left;
         }
       }
@@ -353,10 +410,10 @@ void RBBase<T, Compare>::fixDelete(Node* x) {
 
       if (isLeft) {
         w->right->color = Black;
-        leftRotate(parent);
+        rotateLeft(parent);
       } else {
         w->left->color = Black;
-        rightRotate(parent);
+        rotateRight(parent);
       }
 
       x = root;  // We are done fixing
@@ -398,7 +455,7 @@ void RBBase<T, Compare>::deleteNode(Node* z) {
     // Case 3: two children, replace with successor
   } else {
     Node* y = minimum(z->right);
-    Color orcolor = y->color;
+    orcolor = y->color;
     Node* x = y->right;
 
     // Successor is direct child
@@ -433,11 +490,11 @@ typename RBBase<T, Compare>::Node* RBBase<T, Compare>::find(
 
   // Standard BST lookup
   while (cur != nil) {
-    if (comp(cur->value, value) < 0) {
+    if (comp(cur->value, value)) {
       cur = cur->left;
-    } else if (comp(cur->value, value) > 0) {
+    } else if (comp(value, cur->value)) {
       cur = cur->right;
-    } else {
+    } else if (!comp(cur->value, value) && !comp(value, cur->value)) {
       return cur;  // Value found
     }
   }
@@ -531,4 +588,22 @@ void RBBase<T, Compare>::swap(const RBBase& other) {
   Compare ctmp = other.comp;
   other.comp = comp;
   comp = ctmp;
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::iterator RBBase<T, Compare>::begin() const {
+  return iterator(this, minimum(root));
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::iterator RBBase<T, Compare>::end() const {
+  return iterator(this, nil);
+}
+
+template <typename T, typename Compare>
+void RBBase<T, Compare>::merge(RBBase& other) {
+  for (auto i = other.begin(); i != other.end(); i++) {
+    insert(*i);
+  }
+  clearTree(other.root);
 }

@@ -1,7 +1,9 @@
 #pragma once
 
 #include <cstddef>
+#include <initializer_list>
 
+#include "array/Vector.h"
 #include "helpers.h"
 
 /**
@@ -36,10 +38,11 @@ class RBBase {
      * @param v Value to store in the node.
      */
     Node(const T& v);
+    Node(T&& v);
   };
 
   class iterator {
-    RBBase<T, Compare>* tree;
+    const RBBase<T, Compare>* tree;
     Node* current;
     void leftMost(Node* node);
 
@@ -49,8 +52,8 @@ class RBBase {
     using reference = T&;  ///< Reference type
 
     iterator();
-    iterator(RBBase<T, Compare>* tree);
-    iterator(RBBase<T, Compare>* tree, Node* cur);
+    iterator(const RBBase<T, Compare>* const tree);
+    iterator(const RBBase<T, Compare>* const tree, Node* cur);
 
     reference operator*() const;
     pointer operator->() const;
@@ -82,7 +85,8 @@ class RBBase {
    */
   Node* copyTree(Node* n, Node* otherNil);
 
-  Pair<Node*, bool> ins(const T& value);
+  template <typename forward_t>
+  Pair<Node*, bool> ins(forward_t&& value);
 
   /**
    * @brief Default constructor.
@@ -96,6 +100,13 @@ class RBBase {
 
   /** @brief Move constructor. */
   RBBase(RBBase&& other);
+
+  /** @brief Initializer list constructor. */
+  RBBase(std::initializer_list<T> ilist);
+
+  /** @brief Range constructor. */
+  template <typename InputIt>
+  RBBase(InputIt first, InputIt last);
 
   /** @brief Copy assignment. */
   RBBase& operator=(const RBBase& other);
@@ -114,6 +125,31 @@ class RBBase {
    * flag indicating success.
    */
   Pair<Node*, bool> insert(const T& value);
+
+  /**
+   * @brief Move a value into the tree.
+   * @param value Value to insert.
+   * @return Pair containing pointer to the inserted/found node and a bool
+   * flag indicating success.
+   */
+  Pair<Node*, bool> insert(T&& value);
+
+  /**
+   * @brief Inserts a range into the tree.
+   * @param first start range.
+   * @param last end range.
+   */
+  template <typename InputIt>
+  void insert(InputIt first, InputIt last);
+
+  /**
+   * @brief Inserts a list into the tree.
+   * @param ilist initializer list with values.
+   */
+  void insert(std::initializer_list<T> ilist);
+
+  template <typename... Args>
+  Vector<Pair<iterator, bool>> insert_many(Args&&... args);
 
   /**
    * @brief Finds a node with a given value.
@@ -162,6 +198,8 @@ class RBBase {
    */
   void swap(const RBBase& other);
 
+  void merge(RBBase& other);
+
   /**
    * @brief Returns the root of the tree.
    * @return Pointer to the root node.
@@ -202,13 +240,15 @@ class RBBase {
    * @brief Deletes a node from the tree (skeleton implementation).
    * @param z Node to delete.
    *
-   * Red-black deletion involves:
-   * - Finding the node y to actually remove,
+   * Red-black deletion involves: Finding the node y to actually remove,
    * - Identifying node x that replaces y,
    * - Adjusting colors and structure,
    * - Freeing memory.
    */
   void deleteNode(Node* z);
+
+  iterator begin() const;
+  iterator end() const;
 };
 
 #include "impl/BaseTree.tpp"

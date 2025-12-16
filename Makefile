@@ -11,7 +11,7 @@ GCOV_FLAGS = -fprofile-arcs -ftest-coverage -lgcov -O0 -g
 
 # Sources and objects
 SRC_CORE   :=
-SRC        := $(shell find src/helpers/ -name "*.cpp")
+SRC        := # $(shell find src/helpers/ -name "*.cpp")
 
 OBJ        := $(patsubst src/%.cpp, build/obj/%.o, $(SRC))
 OBJ_GCOV   := $(patsubst src/%.cpp, build/gcov/%.o, $(SRC))
