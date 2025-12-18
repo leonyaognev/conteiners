@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <initializer_list>
 #include <string>
-#include <utility>  // Добавлено для std::forward
 #include <vector>
 
 #include "array/Vector.h"
@@ -200,7 +199,7 @@ class RBBase {
    * @brief Removes a specific node from the tree.
    * @param node Node to remove.
    */
-  iterator erase(Node* node);
+  void erase(Node* node);
 
   /**
    * @brief Swap tree with other.
@@ -289,6 +288,8 @@ class RBBase {
    * @return An iterator to the element following the last element.
    */
   iterator end() const;
+
+  bool contains(const T&);
 
   //============================================================================
   //=================== template debug functions ===============================

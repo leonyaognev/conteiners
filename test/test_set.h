@@ -444,7 +444,11 @@ TEST_F(SetTest, EraseLargeSet) {
   }
 
   auto i = s.begin();
-  while (i != s.end()) i = s.erase(i);
+  while (i != s.end()) {
+    auto cur = i;
+    ++i;
+    s.erase(cur);
+  }
 }
 
 TEST_F(SetTest, ClearNonEmpty) {
@@ -475,7 +479,6 @@ TEST_F(SetTest, ClearLargeSet) {
   for (int i = 0; i < 100; ++i) s.insert(i);
   s.clear();
 
-  s.displayTree();
   ASSERT_TRUE(s.empty());
 }
 
@@ -593,4 +596,38 @@ TEST_F(SetTest, MergeStringSets) {
   ASSERT_EQ(s1.size(), 3);
   ASSERT_TRUE(s1.find("c") != s1.end());
   ASSERT_TRUE(s2.empty());
+}
+
+TEST_F(SetTest, ContainsExistingElement) {
+  Set<int> s = {10, 20, 30};
+  auto it = s.find(20);
+  ASSERT_TRUE(it != s.end());
+  ASSERT_EQ(*it, 20);
+}
+
+TEST_F(SetTest, ContainsNonExistingElement) {
+  Set<int> s = {10, 20, 30};
+  bool it = s.contains(40);
+  ASSERT_FALSE(it);
+}
+
+TEST_F(SetTest, ContainsInEmptySet) {
+  Set<int> s;
+  bool it = s.contains(10);
+  ASSERT_FALSE(it);
+}
+
+TEST_F(SetTest, ContainsEdgeCases) {
+  Set<int> s = {1, 100};
+
+  ASSERT_TRUE(s.contains(1));
+  ASSERT_TRUE(s.contains(100));
+  ASSERT_FALSE(s.contains(50));
+}
+
+TEST_F(SetTest, ContainsStringValue) {
+  Set<std::string> s = {"x", "y", "z"};
+  auto it = s.contains("y");
+  ASSERT_TRUE(it);
+  ASSERT_FALSE(s.contains("a"));
 }

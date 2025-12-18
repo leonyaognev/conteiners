@@ -6,7 +6,7 @@
 #include "RedBlackTree/BaseTree.h"
 
 template <typename T, typename Compare = std::less<T>>
-class Set : public RBBase<T, Compare> {
+class Set : protected RBBase<T, Compare> {
  private:
   using Base = RBBase<T, Compare>;
   using Node = typename Base::Node;
@@ -15,28 +15,34 @@ class Set : public RBBase<T, Compare> {
   using iterator = typename Base::iterator;
 
   using Base::Base;
-  Set() : Base() {}
-  Set(const Set& other) : Base(other) {}
-  Set(Set&& other) noexcept : Base(std::move(other)) {}
-  Set(std::initializer_list<T> ilist) : Base(ilist) {}
+  Set();
+
+  Set(const Set& other);
+
+  Set(Set&& other) noexcept;
+
+  Set(std::initializer_list<T> ilist);
+
   template <typename InputIt>
-  Set(InputIt first, InputIt last) : Base(first, last) {}
-  Set& operator=(const Set& other) {
-    Base::operator=(other);
-    return *this;
-  }
+  Set(InputIt first, InputIt last);
+
+  Set& operator=(const Set& other);
 
   using Base::operator=;
   using Base::begin;
+  using Base::contains;
   using Base::empty;
   using Base::end;
   using Base::insert;
   using Base::insert_many;
   using Base::merge;
   using Base::size;
-  using Base::swap;
 
-  iterator erase(iterator pos);
+  void swap(Set& other);
+
+  void merge(Set& other);
+
+  void erase(iterator pos);
   void clear();
 
   iterator find(const T& val) const;

@@ -9,7 +9,6 @@
 
 template <typename T, typename Compare>
 void RBBase<T, Compare>::iterator::leftMost(Node* node) {
-  // Добавлена проверка на nil
   while (node && node->left != tree->nil) node = node->left;
   current = node;
 }
@@ -624,14 +623,12 @@ typename RBBase<T, Compare>::Node* RBBase<T, Compare>::predecessor(
 }
 
 template <typename T, typename Compare>
-typename RBBase<T, Compare>::iterator RBBase<T, Compare>::erase(Node* node) {
+void RBBase<T, Compare>::erase(Node* node) {
   // Do nothing if null
-  if (node == nil || node == nullptr) return iterator(this, nil);
+  if (node == nil || node == nullptr) return;
   // Delegate real deletion to deleteNode (with RB fix-up)
-  iterator res = ++iterator(this, node);
   deleteNode(node);
   --tree_size;
-  return res;
 }
 
 template <typename T, typename Compare>
@@ -710,4 +707,9 @@ void RBBase<T, Compare>::printNode(Node* node, int level,
 
   std::string leftPrefix = prefix + (node->left != nil ? "│     " : "     ");
   printNode(node->left, level + 1, leftPrefix);
+}
+
+template <typename T, typename Compare>
+bool RBBase<T, Compare>::contains(const T& value) {
+  return find(value) != nil;
 }
