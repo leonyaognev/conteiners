@@ -7,6 +7,7 @@
       "-Wall",
       "-Wextra",
       "-Werror",
+      "-std=c++20",
       "-I./",
       "-I./src/include/",
       "-I./src/vendor/logger/",
@@ -21,5 +22,26 @@
     "directory": "/home/ognev/Documents/school21/s21_containers",
     "file": "/home/ognev/Documents/school21/s21_containers/test/test.cpp",
     "output": "/home/ognev/Documents/school21/s21_containers/build/gcov/test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-DDEBUG_LEVEL=2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c++20",
+      "-I./",
+      "-I./src/include/",
+      "-I./src/vendor/logger/",
+      "-g",
+      "-o",
+      "build/example",
+      "./example/main.cpp"
+    ],
+    "directory": "/home/ognev/Documents/school21/s21_containers",
+    "file": "/home/ognev/Documents/school21/s21_containers/example/main.cpp",
+    "output": "/home/ognev/Documents/school21/s21_containers/build/example"
   }
 ]

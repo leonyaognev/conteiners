@@ -6,7 +6,7 @@ DEBUG_LEVEL ?= 2
 CC = g++ -DDEBUG_LEVEL=$(DEBUG_LEVEL)
 
 HEADER_FILES = -I./ -I./src/include/ -I./src/vendor/logger/
-CFLAGS     = -Wall -Wextra -Werror $(HEADER_FILES)
+CFLAGS     = -Wall -Wextra -Werror -std=c++20 $(HEADER_FILES)
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage -lgcov -O0 -g
 
 # Sources and objects

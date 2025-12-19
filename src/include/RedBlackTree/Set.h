@@ -35,6 +35,7 @@ class Set : protected RBBase<T, Compare> {
   using Base::end;
   using Base::insert;
   using Base::insert_many;
+  using Base::max_size;
   using Base::merge;
   using Base::size;
 

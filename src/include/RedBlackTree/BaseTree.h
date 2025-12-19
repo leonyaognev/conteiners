@@ -289,7 +289,13 @@ class RBBase {
    */
   iterator end() const;
 
-  bool contains(const T&);
+  bool contains(const T&) const;
+
+  /**
+   * @brief Returns the maximum possible number of elements.
+   * @return Maximum number of elements.
+   */
+  size_type max_size() const noexcept;
 
   //============================================================================
   //=================== template debug functions ===============================

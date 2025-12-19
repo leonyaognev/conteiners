@@ -1,7 +1,8 @@
 #pragma once
 
-#include <algorithm>  // Добавлено для std::swap
+#include <algorithm>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <utility>
 
@@ -660,6 +661,17 @@ void RBBase<T, Compare>::merge(RBBase& other) {
   other.tree_size = 0;
 }
 
+template <typename T, typename Compare>
+bool RBBase<T, Compare>::contains(const T& value) const {
+  return find(value) != nil;
+}
+
+template <typename T, typename Compare>
+typename RBBase<T, Compare>::size_type RBBase<T, Compare>::max_size()
+    const noexcept {
+  return std::numeric_limits<size_type>::max() / sizeof(Node);
+}
+
 //============================================================================
 //=================== template debug functions ===============================
 //============================================================================
@@ -707,9 +719,4 @@ void RBBase<T, Compare>::printNode(Node* node, int level,
 
   std::string leftPrefix = prefix + (node->left != nil ? "│     " : "     ");
   printNode(node->left, level + 1, leftPrefix);
-}
-
-template <typename T, typename Compare>
-bool RBBase<T, Compare>::contains(const T& value) {
-  return find(value) != nil;
 }
