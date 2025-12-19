@@ -4,18 +4,10 @@
 #include <utility>
 
 #include "RedBlackTree/BaseTree.h"
-template <typename Key, typename T, typename Compare>
-struct MapKeyCompare {
-  Compare comp;
-  bool operator()(const Pair<const Key, T>& lhs,
-                  const Pair<const Key, T>& rhs) const {
-    return comp(lhs.first, rhs.first);
-  }
-};
+#include "helpers.h"
 
 template <typename Key, typename T, typename Compare = std::less<Key>>
-class Map
-    : protected RBBase<Pair<const Key, T>, MapKeyCompare<Key, T, Compare>> {
+class Map : public RBBase<Pair<const Key, T>, MapKeyCompare<Key, T, Compare>> {
  public:
   using value_type = Pair<const Key, T>;
 

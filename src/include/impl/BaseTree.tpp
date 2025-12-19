@@ -652,13 +652,13 @@ typename RBBase<T, Compare>::iterator RBBase<T, Compare>::end() const {
 
 template <typename T, typename Compare>
 void RBBase<T, Compare>::merge(RBBase& other) {
-  for (auto i = other.begin(); i != other.end(); ++i) {
-    insert(*i);
-  }
+  std::vector<T> elems;
+  for (auto& item : other) elems.push_back(item);
 
-  other.clearTree(other.root);
-  other.root = other.nil;
-  other.tree_size = 0;
+  for (auto& item : elems) {
+    auto res = insert(item);
+    if (res.second) other.erase(other.find(item));
+  }
 }
 
 template <typename T, typename Compare>

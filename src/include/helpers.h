@@ -8,6 +8,7 @@
  * @tparam T1 Type of the first element.
  * @tparam T2 Type of the second element.
  */
+#include <ostream>
 template <typename T1, typename T2>
 class Pair {
  public:
@@ -29,4 +30,19 @@ class Pair {
 
   /** @brief Copy constructor. */
   Pair(const Pair& other) : first(other.first), second(other.second) {}
+};
+
+template <typename K, typename V>
+std::ostream& operator<<(std::ostream& os, const Pair<K, V>& p) {
+  os << p.first << ":" << p.second;
+  return os;
+}
+
+template <typename Key, typename T, typename Compare>
+struct MapKeyCompare {
+  Compare comp;
+  bool operator()(const Pair<const Key, T>& lhs,
+                  const Pair<const Key, T>& rhs) const {
+    return comp(lhs.first, rhs.first);
+  }
 };

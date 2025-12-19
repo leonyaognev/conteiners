@@ -79,7 +79,7 @@ typename Map<Key, T, Compare>::iterator Map<Key, T, Compare>::find(
 
 template <typename Key, typename T, typename Compare>
 bool Map<Key, T, Compare>::contains(const Key& key) const {
-  return Base::find(value_type(key, T())) != nullptr;
+  return Base::find(value_type(key, T())) != this->nil;
 }
 
 template <typename Key, typename T, typename Compare>
