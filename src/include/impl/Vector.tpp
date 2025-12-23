@@ -6,128 +6,128 @@
 #include "logger.h"
 
 template <typename T>
-Vector<T>::iterator::iterator() : current(nullptr) {}
-
-template <typename T>
-Vector<T>::iterator::iterator(pointer ptr) : current(ptr) {}
-
-template <typename T>
-Vector<T>::iterator::iterator(const iterator& it) : current(it.current) {}
-
-template <typename T>
-typename Vector<T>::iterator::reference Vector<T>::iterator::operator*()
-    const {
-  return *current;
-}
-
-template <typename T>
-typename Vector<T>::iterator::pointer Vector<T>::iterator::operator->()
-    const {
-  return current;
-}
-
-template <typename T>
-typename Vector<T>::iterator& Vector<T>::iterator::operator++() {
-  ++current;
-  return *this;
-}
-
-template <typename T>
-typename Vector<T>::iterator Vector<T>::iterator::operator++(int) {
-  iterator tmp = *this;
-  ++current;
-  return tmp;
-}
-
-template <typename T>
-typename Vector<T>::iterator& Vector<T>::iterator::operator--() {
-  --current;
-  return *this;
-}
-
-template <typename T>
-typename Vector<T>::iterator Vector<T>::iterator::operator--(int) {
-  iterator tmp = *this;
-  --current;
-  return tmp;
-}
-
-template <typename T>
-bool Vector<T>::iterator::operator==(const iterator& other) const {
-  return current == other.current;
-}
-
-template <typename T>
-bool Vector<T>::iterator::operator!=(const iterator& other) const {
-  return current != other.current;
-}
-
-template <typename T>
-typename Vector<T>::iterator Vector<T>::iterator::operator=(const iterator& other) {
-  current = other.current;
-  return current;
-}
-
-// ---------------- Vector methods ----------------
-
-template <typename T>
 Vector<T>::Vector() : _data(nullptr), _capacity(0), _size(0) {}
 
 template <typename T>
 Vector<T>::Vector(std::size_t n)
-    : _data(new T[n]()), _capacity(n), _size(n) {}
+    : _data(nullptr), _capacity(n), _size(n) {
+    if (n == 0) return;
+    _data = static_cast<T*>(::operator new(sizeof(T) * n));
+
+    for (std::size_t i = 0; i < n; ++i) {
+        new (_data + i) T();
+    }
+}
 
 template <typename T>
 Vector<T>::Vector(std::size_t n, const T& value)
-    : _data(new T[n]), _capacity(n), _size(n) {
-  for (std::size_t i = 0; i < _size; i++) _data[i] = value;
+    : _data(nullptr), _capacity(n), _size(n) {
+    if (n == 0) return;
+    _data = static_cast<T*>(::operator new(sizeof(T) * n));
+    for (std::size_t i = 0; i < n; ++i) {
+        new (_data + i) T(value);
+    }
 }
 
 template <typename T>
 Vector<T>::Vector(const Vector& other)
-    : _data(new T[other._size]),
-      _capacity(other._size),
-      _size(other._size) {
-  for (std::size_t i = 0; i < _size; i++) _data[i] = other._data[i];
+    : _data(nullptr), _capacity(other._size), _size(other._size) {
+    if (_size == 0) {
+        _data = nullptr;
+        _capacity = 0;
+        return;
+    }
+    _data = static_cast<T*>(::operator new(sizeof(T) * _capacity));
+    for (std::size_t i = 0; i < _size; ++i) {
+        new (_data + i) T(other._data[i]);
+    }
 }
 
 template <typename T>
 Vector<T>::Vector(Vector&& other)
     : _data(other._data), _capacity(other._capacity), _size(other._size) {
-  other._data = nullptr;
-  other._size = 0;
-  other._capacity = 0;
+    other._data = nullptr;
+    other._size = 0;
+    other._capacity = 0;
+}
+
+template <typename T>
+Vector<T>::Vector(std::initializer_list<T> init_list)
+    : _data(nullptr), _capacity(init_list.size()), _size(init_list.size()) {
+    if (_size == 0) return;
+    _data = static_cast<T*>(::operator new(sizeof(T) * _capacity));
+    std::size_t i = 0;
+    for (const T& value : init_list) {
+        new (_data + i) T(value);
+        ++i;
+    }
 }
 
 template <typename T>
 Vector<T>& Vector<T>::operator=(const Vector& other) {
-  if (this != &other) {
-    delete[] _data;
-    _data = new T[other._size];
+    if (this == &other) return *this;
+    
+	if (other._size <= _capacity) {
+        for (std::size_t i = other._size; i < _size; ++i)
+            _data[i].~T();
+
+        std::size_t i = 0;
+        for (; i < std::min(_size, other._size); ++i)
+            _data[i] = other._data[i];
+
+        for (; i < other._size; ++i)
+            new (_data + i) T(other._data[i]);
+
+        _size = other._size;
+        return *this;
+    }
+
+    T* newData = static_cast<T*>(::operator new(sizeof(T) * other._size));
+    std::size_t i = 0;
+    try {
+        for (; i < other._size; ++i)
+            new (newData + i) T(other._data[i]);
+    } catch (...) {
+        for (std::size_t j = 0; j < i; ++j) newData[j].~T();
+        ::operator delete(newData);
+        throw;
+    }
+
+    for (std::size_t j = 0; j < _size; ++j) _data[j].~T();
+    ::operator delete(_data);
+
+    _data = newData;
     _capacity = other._size;
     _size = other._size;
-    for (std::size_t i = 0; i < _size; i++) _data[i] = other._data[i];
-  }
-  return *this;
+    return *this;
 }
 
 template <typename T>
 Vector<T>& Vector<T>::operator=(Vector&& other) {
-  if (this != &other) {
-    delete[] _data;
+    if (this == &other) return *this;
+
+    for (std::size_t i = 0; i < _size; ++i) _data[i].~T();
+    ::operator delete(_data);
+
     _data = other._data;
-    _size = other._size;
     _capacity = other._capacity;
+    _size = other._size;
+
     other._data = nullptr;
-    other._size = 0;
     other._capacity = 0;
-  }
-  return *this;
+    other._size = 0;
+    return *this;
 }
 
 template <typename T>
 Vector<T>::~Vector() {
-  delete[] _data;
+    if (_data) {
+        for (std::size_t i = 0; i < _size; ++i) {
+            _data[i].~T();
+        }
+
+        ::operator delete(_data);
+    }
 }
 
 template <typename T>
@@ -138,16 +138,6 @@ typename Vector<T>::iterator Vector<T>::begin() const {
 template <typename T>
 typename Vector<T>::iterator Vector<T>::end() const {
   return iterator(_data + _size);
-}
-
-template <typename T>
-typename Vector<T>::iterator Vector<T>::iterator::operator+(size_t n){
-  return iterator(current + n);
-}
-
-template <typename T>
-typename Vector<T>::iterator Vector<T>::iterator::operator-(size_t n){
-  return iterator(current - n);
 }
 
 template <typename T>
@@ -256,44 +246,65 @@ void Vector<T>::pop_back(){
 }
 
 template <typename T>
-void Vector<T>::push_back(const T& value){
-	if (_size == _capacity) extend();
-		auto i = end();
-		*i = value;
-		_size++;
+void Vector<T>::push_back(const T& value) {
+    if (_size == _capacity)
+        extend();
+
+    new (_data + _size) T(value); 
+    _size++;
 }
 
 template <typename T>
-void Vector<T>::push_back(T&& value){
-	if (_size == _capacity) extend();
-		auto i = end();
-		*i = value;
-		_size++;
+void Vector<T>::push_back(T&& value) {
+    if (_size == _capacity)
+        extend();
+
+    new (_data + _size) T(std::move(value)); 
+    _size++;
 }
 
-template <typename T>
-void Vector<T>::extend(){
-	std::size_t tempCapacity = _capacity * 2;
-	T* tempData = new T[tempCapacity]();
-	for (std::size_t i = 0; i < _capacity; i++){
-		tempData[i] = _data[i];
-	}
-	delete[] _data;
-	_data = tempData;
-	_capacity = tempCapacity;
-}
 
 template <typename T>
-void Vector<T>::extend(std::size_t newCapacity){
-	T* tempData = new T[newCapacity]();
-	std::size_t minSize = newCapacity < _size ? newCapacity : _size;
-	for (std::size_t i = 0; i < minSize; i++){
-		tempData[i] = _data[i];
-	}
-	delete[] _data;
-	_data = tempData;
-	_capacity = newCapacity;
+void Vector<T>::extend() {
+    std::size_t newCapacity = (_capacity == 0 ? 1 : _capacity * 2);
+
+    T* temp = static_cast<T*>(::operator new(sizeof(T) * newCapacity));
+
+    for (size_t i = 0; i < _size; i++) {      // <-- ИСПРАВЛЕНО
+        new (temp + i) T(std::move(_data[i]));
+        _data[i].~T();
+    }
+
+    ::operator delete(_data);
+
+    _data = temp;
+    _capacity = newCapacity;
 }
+
+
+template <typename T>
+void Vector<T>::extend(std::size_t newCapacity) {
+    T* temp = static_cast<T*>(::operator new(sizeof(T) * newCapacity));
+
+    size_t minSize = (_size < newCapacity ? _size : newCapacity);
+
+    for (size_t i = 0; i < minSize; i++) {
+        new (temp + i) T(std::move(_data[i]));
+        _data[i].~T();
+    }
+
+    // destroy elements we did not copy
+    for (size_t i = minSize; i < _size; i++) {
+        _data[i].~T();
+    }
+
+    ::operator delete(_data);
+
+    _data = temp;
+    _capacity = newCapacity;
+    _size = minSize;     // <-- ИСПРАВЛЕНО
+}
+
 
 template <typename T>
 void Vector<T>::shrink_to_fit(){
@@ -356,22 +367,30 @@ typename Vector<T>::iterator Vector<T>::insert(iterator pos, T&& value){
 }  
 
 template <typename T>
-typename Vector<T>::iterator Vector<T>::insert(iterator pos, std::size_t count, const T& value){
-  std::size_t shift = pos.current - _data; //получаем индекс с которого вставляем
-  if ((count + _size) > (2 * _capacity)){
-    extend(count + _size);
-  }  else if (count + _size > _capacity){
-    extend();
-  }
-  pos = iterator(_data + shift); //указатель на элемент, с которого начинаем вставку
-  for (std::size_t i = _size - 1; i >= shift; i--){
-    _data[i + count] = _data[i];
-  }
-  for (std::size_t i = 0; i != count; i++){
-    _data[shift + i] = value;
-  }
-  _size = _size + count;
-  return pos;
+typename Vector<T>::iterator Vector<T>::insert(iterator pos, size_t count, const T& value) {
+    size_t shift = pos.current - _data;
+
+    if (_size + count > _capacity) {
+        if (_size + count > 2 * _capacity)
+            extend(_size + count);
+        else
+            extend();
+    }
+
+    pos = iterator(_data + shift);
+
+    for (size_t i = _size; i > shift; --i) {
+        new (_data + i + count - 1) T(std::move(_data[i - 1]));
+        _data[i - 1].~T();
+    }
+
+    for (size_t i = 0; i < count; ++i) {
+        new (_data + shift + i) T(value);
+    }
+
+    _size += count;
+
+    return pos;
 }
 
 template <typename T>
@@ -414,16 +433,24 @@ T& Vector<T>::emplace_back(Args&&... args){
 
 template <typename T>
 template <typename... Args>
-typename Vector<T>::iterator Vector<T>::emplace(iterator pos, Args&&... args){
-  std::size_t shift = pos.current - _data;
-  if (_size == _capacity) extend();
-  for (std::size_t i = _size; i != shift; i--){
-    _data[i] = _data[i - 1];
-  }
-  new(begin().current + shift) T(std::forward<Args>(args)...);
-  _size++;
-  return begin() + shift;
+typename Vector<T>::iterator Vector<T>::emplace(iterator pos, Args&&... args) {
+    std::size_t shift = pos.current - _data;
+
+    if (_size == _capacity)
+        extend();
+
+    for (std::size_t i = _size; i > shift; --i) {
+        new (_data + i) T(std::move(_data[i - 1]));
+        _data[i - 1].~T();
+    }
+
+    new (_data + shift) T(std::forward<Args>(args)...);
+
+    ++_size;
+
+    return iterator(_data + shift);
 }
+
 
 template <typename T>
 void Vector<T>::assign(std::size_t count, const T& value){
@@ -444,6 +471,21 @@ void Vector<T>::assign(iterator first, iterator last){
     pos++;
   }
   _size = shift;
+}
+
+template <typename T>
+void Vector<T>::assign(std::initializer_list<T> init_list){
+    std::size_t count = init_list.size();
+
+    if (count > _capacity)
+        extend(count);
+
+    std::size_t i = 0;
+    for (const T& value : init_list) {
+        _data[i++] = value;
+    }
+
+    _size = count;
 }
 
 template <typename T>
