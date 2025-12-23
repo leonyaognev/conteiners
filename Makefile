@@ -131,6 +131,7 @@ gcov_report: run_test
 	@echo "Coverage report: build/coverage_html/index.html ✅"
 	@echo
 
+
 valgrind_test: test
 	@if [ "$(OS)" = "Linux" ]; then \
 		echo "Run tests via valgrind..."; \
