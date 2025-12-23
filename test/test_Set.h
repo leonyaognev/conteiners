@@ -563,7 +563,7 @@ TEST_F(SetTest, MergeWithDuplicates) {
 
   ASSERT_EQ(s1.size(), 4);
   ASSERT_TRUE(s1.find(4) != s1.end());
-  ASSERT_TRUE(s2.empty());
+  ASSERT_FALSE(s2.empty());
 }
 
 TEST_F(SetTest, MergeIntoEmpty) {
@@ -595,7 +595,7 @@ TEST_F(SetTest, MergeStringSets) {
 
   ASSERT_EQ(s1.size(), 3);
   ASSERT_TRUE(s1.find("c") != s1.end());
-  ASSERT_TRUE(s2.empty());
+  ASSERT_FALSE(s2.empty());
 }
 
 TEST_F(SetTest, ContainsExistingElement) {

@@ -6,7 +6,7 @@
 #include "RedBlackTree/BaseTree.h"
 
 template <typename T, typename Compare = std::less<T>>
-class Set : protected RBBase<T, Compare> {
+class Set : public RBBase<T, Compare> {
  private:
   using Base = RBBase<T, Compare>;
   using Node = typename Base::Node;
@@ -28,7 +28,6 @@ class Set : protected RBBase<T, Compare> {
 
   Set& operator=(const Set& other);
 
-  using Base::operator=;
   using Base::begin;
   using Base::contains;
   using Base::empty;
@@ -48,9 +47,6 @@ class Set : protected RBBase<T, Compare> {
 
   iterator find(const T& val) const;
   size_t count(const T& val) const;
-
-  Node* rooter() { return this->root; }
-  Node* niller() { return this->nil; }
 };
 
 #include "impl/Set.tpp"

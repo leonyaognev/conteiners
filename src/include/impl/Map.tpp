@@ -84,16 +84,13 @@ bool Map<Key, T, Compare>::contains(const Key& key) const {
 
 template <typename Key, typename T, typename Compare>
 void Map<Key, T, Compare>::erase(iterator pos) {
-  if (pos == end()) return;
-  Base::erase(Base::find(*pos));
+  Base::erase(pos);
 }
 
 template <typename Key, typename T, typename Compare>
 void Map<Key, T, Compare>::erase(const Key& key) {
-  Node* node = Base::find(value_type(key, T()));
-  if (node) {
-    Base::erase(node);
-  }
+  iterator pos = find(key);
+  Base::erase(pos);
 }
 
 template <typename Key, typename T, typename Compare>

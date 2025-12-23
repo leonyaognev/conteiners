@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "test_map.h"
-// #include "test_set.h"
+#include "test_Map.h"
+#include "test_MultiSet.h"
+#include "test_Set.h"
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

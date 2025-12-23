@@ -624,7 +624,8 @@ typename RBBase<T, Compare>::Node* RBBase<T, Compare>::predecessor(
 }
 
 template <typename T, typename Compare>
-void RBBase<T, Compare>::erase(Node* node) {
+void RBBase<T, Compare>::erase(iterator pos) {
+  Node* node = pos.current;
   // Do nothing if null
   if (node == nil || node == nullptr) return;
   // Delegate real deletion to deleteNode (with RB fix-up)
@@ -657,7 +658,10 @@ void RBBase<T, Compare>::merge(RBBase& other) {
 
   for (auto& item : elems) {
     auto res = insert(item);
-    if (res.second) other.erase(other.find(item));
+    if (res.second) {
+      iterator it(&other, other.find(item));
+      if (it != other.end()) other.erase(it);
+    }
   }
 }
 

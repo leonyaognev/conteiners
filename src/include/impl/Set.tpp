@@ -26,7 +26,7 @@ Set<T, Compare>& Set<T, Compare>::operator=(const Set& other) {
 
 template <typename T, typename Compare>
 void Set<T, Compare>::erase(iterator pos) {
-  Base::erase(Base::find(*pos));
+  Base::erase(pos);
 }
 
 template <typename T, typename Compare>

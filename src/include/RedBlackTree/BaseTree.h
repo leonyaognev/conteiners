@@ -75,6 +75,7 @@ class RBBase {
     bool operator==(const iterator& other) const;
 
     bool operator!=(const iterator& other) const;
+    friend class RBBase<T, Compare>;
   };
 
  protected:
@@ -200,6 +201,12 @@ class RBBase {
    * @param node Node to remove.
    */
   void erase(Node* node);
+
+  /**
+   * @brief Removes a specific node from the tree.
+   * @param position to remove.
+   */
+  void erase(iterator pos);
 
   /**
    * @brief Swap tree with other.
