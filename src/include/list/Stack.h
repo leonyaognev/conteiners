@@ -2,6 +2,7 @@
 
 #include "ListBase.h"
 
+namespace s21 {
 /**
  * @brief LIFO (Last-In First-Out) stack container.
  *
@@ -75,3 +76,5 @@ class Stack : protected ListBase<T> {
   void pop() { Base::popBack(); }
   ///@}
 };
+
+};  // namespace s21

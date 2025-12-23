@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <string>
-#include <vector>
 
-#include "RedBlackTree/Map.h"
+#include "s21_containers.h"
+
+using namespace s21;
 
 // Тестируем map<int, std::string> для большинства случаев
 using test_map = Map<int, std::string>;

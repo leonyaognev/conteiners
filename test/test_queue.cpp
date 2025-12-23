@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "../src/include/list/Queue.h"
+#include "s21_containers.h"
+
+using namespace s21;
 
 TEST(QueueTest, BasicOperations) {
   Queue<int> q;

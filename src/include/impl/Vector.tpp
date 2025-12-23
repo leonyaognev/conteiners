@@ -5,6 +5,8 @@
 #include "array/Vector.h"
 #include "logger.h"
 
+namespace s21 {
+
 template <typename T>
 Vector<T>::Vector() : _data(nullptr), _capacity(0), _size(0) {}
 
@@ -488,3 +490,5 @@ typename Vector<T>::iterator Vector<T>::insert_many(iterator pos,
   ((pos = emplace(pos, std::forward<Args>(args)), ++pos), ...);
   return pos;
 }
+
+};  // namespace s21

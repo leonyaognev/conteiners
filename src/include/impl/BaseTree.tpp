@@ -8,6 +8,8 @@
 
 #include "RedBlackTree/BaseTree.h"
 
+namespace s21 {
+
 template <typename T, typename Compare>
 void RBBase<T, Compare>::iterator::leftMost(Node* node) {
   while (node && node->left != tree->nil) node = node->left;
@@ -381,9 +383,9 @@ void RBBase<T, Compare>::insert(InputIt first, InputIt last) {
 
 template <typename T, typename Compare>
 template <typename... Args>
-std::vector<Pair<typename RBBase<T, Compare>::iterator, bool>>
+Vector<Pair<typename RBBase<T, Compare>::iterator, bool>>
 RBBase<T, Compare>::insert_many(Args&&... args) {
-  std::vector<Pair<iterator, bool>> results;
+  Vector<Pair<iterator, bool>> results;
 
   (
       [&] {
@@ -653,7 +655,7 @@ typename RBBase<T, Compare>::iterator RBBase<T, Compare>::end() const {
 
 template <typename T, typename Compare>
 void RBBase<T, Compare>::merge(RBBase& other) {
-  std::vector<T> elems;
+  Vector<T> elems;
   for (auto& item : other) elems.push_back(item);
 
   for (auto& item : elems) {
@@ -724,3 +726,5 @@ void RBBase<T, Compare>::printNode(Node* node, int level,
   std::string leftPrefix = prefix + (node->left != nil ? "│     " : "     ");
   printNode(node->left, level + 1, leftPrefix);
 }
+
+};  // namespace s21

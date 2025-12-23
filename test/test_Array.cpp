@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "array/Array.h"
+#include "s21_containers.h"
+
+using namespace s21;
 
 // -------------------------------------------------------------
 // 1. Constructors

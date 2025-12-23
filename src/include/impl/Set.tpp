@@ -2,6 +2,8 @@
 
 #include "RedBlackTree/Set.h"
 
+namespace s21 {
+
 template <typename T, typename Compare>
 Set<T, Compare>::Set() : Base() {}
 
@@ -55,3 +57,5 @@ template <typename T, typename Compare>
 void Set<T, Compare>::merge(Set& other) {
   Base::merge(other);
 }
+
+}  // namespace s21

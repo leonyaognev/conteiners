@@ -1,5 +1,11 @@
 #pragma once
+
+#include <new>
+#include <utility>
+
 #include "list/ListBase.h"
+
+namespace s21 {
 
 template <typename T>
 ListBase<T>::node::node() : next(this), prev(this) {}
@@ -789,3 +795,5 @@ ListBase<T>& ListBase<T>::operator=(ListBase&& other) noexcept {
   }
   return *this;
 }
+
+};  // namespace s21

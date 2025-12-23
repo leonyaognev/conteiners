@@ -3,10 +3,11 @@
 #include <cstddef>
 #include <initializer_list>
 #include <string>
-#include <vector>
 
 #include "array/Vector.h"
 #include "helpers.h"
+
+namespace s21 {
 
 /**
  * @brief Base class for a red-black tree.
@@ -159,7 +160,7 @@ class RBBase {
   void insert(std::initializer_list<T> ilist);
 
   template <typename... Args>
-  std::vector<Pair<iterator, bool>> insert_many(Args&&... args);
+  Vector<Pair<iterator, bool>> insert_many(Args&&... args);
 
   /**
    * @brief Finds a node with a given value.
@@ -325,5 +326,7 @@ class RBBase {
    */
   void printNode(Node* node, int level, const std::string& prefix) const;
 };
+
+};  // namespace s21
 
 #include "impl/BaseTree.tpp"

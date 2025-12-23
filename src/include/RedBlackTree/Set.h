@@ -4,6 +4,7 @@
 #include <initializer_list>
 
 #include "RedBlackTree/BaseTree.h"
+namespace s21 {
 
 template <typename T, typename Compare = std::less<T>>
 class Set : protected RBBase<T, Compare> {
@@ -48,5 +49,7 @@ class Set : protected RBBase<T, Compare> {
   iterator find(const T& val) const;
   size_t count(const T& val) const;
 };
+
+};  // namespace s21
 
 #include "impl/Set.tpp"

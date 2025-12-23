@@ -1,6 +1,9 @@
 #pragma once
 
 #include "RedBlackTree/MultiSet.h"
+#include "array/Vector.h"
+
+namespace s21 {
 
 template <typename T, typename Compare>
 MultiSet<T, Compare>::MultiSet() : Base() {}
@@ -111,9 +114,9 @@ void MultiSet<T, Compare>::insert(InputIt first, InputIt last) {
 
 template <typename T, typename Compare>
 template <typename... Args>
-std::vector<Pair<typename MultiSet<T, Compare>::iterator, bool>>
+Vector<Pair<typename MultiSet<T, Compare>::iterator, bool>>
 MultiSet<T, Compare>::insert_many(Args&&... args) {
-  std::vector<Pair<iterator, bool>> results;
+  Vector<Pair<iterator, bool>> results;
   results.reserve(sizeof...(args));
   (results.push_back({insert(std::forward<Args>(args)), true}), ...);
   return results;
@@ -239,3 +242,5 @@ MultiSet<T, Compare>::equal_range(const key_type& key) const {
               typename MultiSet<T, Compare>::iterator>(lower_bound(key),
                                                        upper_bound(key));
 }
+
+};  // namespace s21

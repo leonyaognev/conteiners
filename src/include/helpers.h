@@ -1,5 +1,9 @@
 #pragma once
 
+#include <ostream>
+
+namespace s21 {
+
 /**
  * @brief Template class for a pair of values.
  *
@@ -8,7 +12,6 @@
  * @tparam T1 Type of the first element.
  * @tparam T2 Type of the second element.
  */
-#include <ostream>
 template <typename T1, typename T2>
 class Pair {
  public:
@@ -46,3 +49,5 @@ struct MapKeyCompare {
     return comp(lhs.first, rhs.first);
   }
 };
+
+};  // namespace s21

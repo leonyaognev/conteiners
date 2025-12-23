@@ -1,10 +1,9 @@
 #pragma once
 
-#include <stdexcept>
-#include <utility>
-
 #include "RedBlackTree/BaseTree.h"
 #include "helpers.h"
+
+namespace s21 {
 
 template <typename Key, typename T, typename Compare = std::less<Key>>
 class Map
@@ -65,5 +64,7 @@ class Map
 
   void clear();
 };
+
+}  // namespace s21
 
 #include "impl/Map.tpp"

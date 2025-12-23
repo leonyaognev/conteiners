@@ -5,6 +5,8 @@
 #include "array/Array.h"
 #include "logger.h"
 
+namespace s21 {
+
 template <typename T, std::size_t N>
 void Array<T, N>::Print() {
   std::stringstream out;
@@ -120,20 +122,4 @@ typename Array<T, N>::const_reference Array<T, N>::operator[](
   return _data[off];
 }
 
-// template <typename T, std::size_t N>
-// Array<T,N>& Array<T,N>::operator=(Array<T,N>& right){
-// 	for (std::size_t i = 0; i < N; i++){
-// 		_data[i] = right._data[i];
-// 	}
-// 	return *this;
-// }
-
-// template <typename T, std::size_t N>
-// Array<T,N>& Array<T,N>::operator=(Array<T,N>&& right) noexcept {
-//     if (this != &right) {
-//         for (std::size_t i = 0; i < N; i++) {
-//             _data[i] = std::move(right._data[i]);
-//         }
-//     }
-//     return *this;
-// }
+};  // namespace s21

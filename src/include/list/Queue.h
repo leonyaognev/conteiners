@@ -2,6 +2,8 @@
 
 #include "ListBase.h"
 
+namespace s21 {
+
 /**
  * @brief FIFO (First-In First-Out) queue container.
  *
@@ -77,3 +79,5 @@ class Queue : protected ListBase<T> {
   void pop() { Base::popFront(); }
   ///@}
 };
+
+};  // namespace s21

@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <iterator>
 
+namespace s21 {
+
 template <typename Ptr>
 /**
  * @brief Iterator for traversing array elements.
@@ -58,3 +60,5 @@ class ArrayIterator {
     return current != other.current;
   }
 };
+
+};  // namespace s21

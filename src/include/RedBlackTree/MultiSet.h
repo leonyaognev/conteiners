@@ -2,10 +2,11 @@
 
 #include <cstddef>
 #include <initializer_list>
-#include <utility>
-#include <vector>
 
 #include "RedBlackTree/BaseTree.h"
+#include "array/Vector.h"
+
+namespace s21 {
 
 template <typename T, typename Compare = std::less<T>>
 class MultiSet : protected RBBase<T, Compare> {
@@ -52,7 +53,7 @@ class MultiSet : protected RBBase<T, Compare> {
   void insert(InputIt first, InputIt last);
 
   template <typename... Args>
-  std::vector<Pair<iterator, bool>> insert_many(Args&&... args);
+  Vector<Pair<iterator, bool>> insert_many(Args&&... args);
 
   void erase(iterator pos);
   void erase(iterator first, iterator last);
@@ -77,5 +78,7 @@ class MultiSet : protected RBBase<T, Compare> {
 
   Node* get_node_from_iter(iterator it) const;
 };
+
+}  // namespace s21
 
 #include "impl/MultiSet.tpp"

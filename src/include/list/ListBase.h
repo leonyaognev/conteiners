@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstddef>
-#include <new>
 #include <type_traits>
-#include <utility>
+
+namespace s21 {
 
 /**
  * @brief Basic doubly linked list with a circular "dummy" node.
@@ -323,5 +323,7 @@ class ListBase {
   /** @brief Move assignment operator. */
   ListBase& operator=(ListBase&& other) noexcept;
 };
+
+};  // namespace s21
 
 #include "impl/BaseList.tpp"

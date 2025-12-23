@@ -1,9 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <ostream>
+#include "s21_containers.h"
 
-#include "RedBlackTree/Set.h"
-#include "array/Vector.h"
+using namespace s21;
 
 class SetTest : public ::testing::Test {
  protected:

@@ -1,11 +1,10 @@
 #include <gtest/gtest.h>
 
-#include <ostream>
 #include <string>
-#include <vector>
 
-#include "RedBlackTree/MultiSet.h"
-#include "array/Vector.h"
+#include "s21_containers.h"
+
+using namespace s21;
 
 class MultiSetTest : public ::testing::Test {
  protected:

@@ -2,6 +2,8 @@
 
 #include "ListBase.h"
 
+namespace s21 {
+
 /**
  * @brief Doubly linked list container.
  *
@@ -120,3 +122,5 @@ class List : protected ListBase<T> {
   using Base::unique;
   ///@}
 };
+
+};  // namespace s21

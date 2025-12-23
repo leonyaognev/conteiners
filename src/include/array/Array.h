@@ -4,6 +4,8 @@
 
 #include "Iterator.h"
 
+namespace s21 {
+
 template <typename T, std::size_t N>
 class Array {
  private:
@@ -44,5 +46,7 @@ class Array {
 
   void Print();
 };
+
+};  // namespace s21
 
 #include "impl/Array.tpp"

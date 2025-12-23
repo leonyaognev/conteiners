@@ -5,6 +5,8 @@
 
 #include "Iterator.h"
 
+namespace s21 {
+
 /**
  * @brief Dynamic array similar to std::vector.
  *
@@ -154,5 +156,7 @@ class Vector {
    */
   void Print();
 };
+
+};  // namespace s21
 
 #include "impl/Vector.tpp"

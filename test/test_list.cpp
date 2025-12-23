@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "../src/include/list/List.h"
+#include "s21_containers.h"
+
+using namespace s21;
 
 TEST(ListTest, BasicOperations) {
   List<int> lst;

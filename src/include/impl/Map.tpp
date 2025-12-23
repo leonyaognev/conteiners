@@ -2,6 +2,8 @@
 
 #include "RedBlackTree/Map.h"
 
+namespace s21 {
+
 template <typename Key, typename T, typename Compare>
 Map<Key, T, Compare>::Map() : Base() {}
 
@@ -130,3 +132,5 @@ Map<Key, T, Compare>::insert_or_assign(const Key& key, M&& obj) {
     return {res.first, true};
   }
 }
+
+}  // namespace s21

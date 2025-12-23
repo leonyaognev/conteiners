@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <vector>
+#include "s21_containers.h"
 
-#include "array/Vector.h"
+using namespace s21;
 
 TEST(VectorTest, DefaultConstructor) {
   Vector<int> a;
