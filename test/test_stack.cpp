@@ -2,12 +2,6 @@
 
 #include "../src/include/list/Stack.h"
 
-// Для тестирования emplace со строками, но без включения <string>
-// можно использовать string literals и std::string напрямую:
-// gtest и стандартная библиотека обычно позволяют это без явного include.
-// Если компилятор ругается — раскомментируйте:
-// #include <string>   // только если строго необходимо
-
 TEST(StackTest, BasicOperations) {
   Stack<int> st;
 
@@ -37,7 +31,7 @@ TEST(StackTest, Emplace) {
   Stack<std::string> st;
 
   st.emplace("hello");
-  st.emplace(3, 'a');  // std::string(3, 'a') → "aaa"
+  st.emplace(3, 'a');
 
   EXPECT_EQ(st.size(), 2);
   EXPECT_EQ(st.top(), "aaa");
@@ -52,23 +46,19 @@ TEST(StackTest, CopyAndMoveSemantics) {
   st1.push(2);
   st1.push(3);
 
-  // Copy constructor
   Stack<int> st2(st1);
   EXPECT_EQ(st2.size(), 3);
   EXPECT_EQ(st2.top(), 3);
 
-  // Move constructor
   Stack<int> st3(std::move(st2));
   EXPECT_EQ(st3.size(), 3);
   EXPECT_TRUE(st2.empty());
 
-  // Copy assignment
   Stack<int> st4;
   st4 = st3;
   EXPECT_EQ(st4.size(), 3);
   EXPECT_EQ(st4.top(), 3);
 
-  // Move assignment
   Stack<int> st5;
   st5 = std::move(st4);
   EXPECT_EQ(st5.size(), 3);
@@ -107,7 +97,6 @@ TEST(StackTest, InsertManyBack) {
   EXPECT_EQ(st.size(), 5);
   EXPECT_EQ(st.top(), 5);
 
-  // LIFO order
   EXPECT_EQ(st.top(), 5);
   st.pop();
   EXPECT_EQ(st.top(), 4);

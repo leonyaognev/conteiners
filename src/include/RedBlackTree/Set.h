@@ -6,7 +6,7 @@
 #include "RedBlackTree/BaseTree.h"
 
 template <typename T, typename Compare = std::less<T>>
-class Set : public RBBase<T, Compare> {
+class Set : protected RBBase<T, Compare> {
  private:
   using Base = RBBase<T, Compare>;
   using Node = typename Base::Node;

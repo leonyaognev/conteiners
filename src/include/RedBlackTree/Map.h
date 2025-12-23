@@ -7,7 +7,8 @@
 #include "helpers.h"
 
 template <typename Key, typename T, typename Compare = std::less<Key>>
-class Map : public RBBase<Pair<const Key, T>, MapKeyCompare<Key, T, Compare>> {
+class Map
+    : protected RBBase<Pair<const Key, T>, MapKeyCompare<Key, T, Compare>> {
  public:
   using value_type = Pair<const Key, T>;
 

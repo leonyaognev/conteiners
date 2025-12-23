@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstddef>
+#include <initializer_list>
+
 #include "Iterator.h"
 
 /**
@@ -14,8 +16,8 @@ class Vector {
   T* _data;               ///< Pointer to array data
   std::size_t _capacity;  ///< Allocated memory capacity
   std::size_t _size;      ///< Current number of elements
- 
-  using iterator = ArrayIterator<T*>; ///< Alias for iterator
+
+  using iterator = ArrayIterator<T*>;  ///< Alias for iterator
   using const_iterator = ArrayIterator<const T*>;
 
  public:

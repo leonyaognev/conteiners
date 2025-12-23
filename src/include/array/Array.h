@@ -1,17 +1,17 @@
 #pragma once
 
 #include <cstddef>
+
 #include "Iterator.h"
 
 template <typename T, std::size_t N>
 class Array {
  private:
- using iterator = ArrayIterator<T*>;
- using const_iterator = ArrayIterator<const T*>;
+  using iterator = ArrayIterator<T*>;
+  using const_iterator = ArrayIterator<const T*>;
 
- public:	
-
- T _data[N];
+ public:
+  T _data[N]{};
 
   typedef T value_type;
   typedef T& reference;
@@ -35,15 +35,12 @@ class Array {
   void swap(Array& right);
 
   iterator end() noexcept;
-  const_iterator end() const noexcept; 
-  reference front(); 
+  const_iterator end() const noexcept;
+  reference front();
   constexpr const_reference front() const;
 
   reference operator[](size_type off);
   const_reference operator[](size_type off) const;
-
-//   Array& operator=(Array& right);
-//   Array& operator=(Array&& right) noexcept;
 
   void Print();
 };

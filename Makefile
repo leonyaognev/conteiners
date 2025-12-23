@@ -1,6 +1,6 @@
 MAKEFLAGS += --no-print-directory
 
-# Compiler and flags
+#Compiler and flags
 DEBUG_LEVEL ?= 2
 
 CC = g++ -DDEBUG_LEVEL=$(DEBUG_LEVEL)
@@ -9,20 +9,20 @@ HEADER_FILES = -I./ -I./src/include/ -I./src/vendor/logger/
 CFLAGS     = -Wall -Wextra -Werror -std=c++20 $(HEADER_FILES)
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage -lgcov -O0 -g
 
-# Sources and objects
+#Sources and objects
 SRC_CORE   :=
 SRC        := # $(shell find src/helpers/ -name "*.cpp")
 
 OBJ        := $(patsubst src/%.cpp, build/obj/%.o, $(SRC))
 OBJ_GCOV   := $(patsubst src/%.cpp, build/gcov/%.o, $(SRC))
 
-# Progress counters
+#Progress counters
 TOTAL      := $(words $(OBJ))
 DONE       := 0
 
 TOTAL_GCOV := $(words $(OBJ_GCOV))
 DONE_GCOV  := 0
-# Main targets
+#Main targets
 TARGET     = s21_contaners.a
 TEST_SRC   = $(wildcard ./test/*.cpp)
 OS         := $(shell uname -s)

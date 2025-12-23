@@ -2,12 +2,9 @@
 
 #include "../src/include/list/List.h"
 
-// ==================== TEST SUITES ====================
-
 TEST(ListTest, BasicOperations) {
   List<int> lst;
 
-  // Push back
   lst.pushBack(1);
   lst.pushBack(2);
   lst.pushBack(3);
@@ -15,17 +12,14 @@ TEST(ListTest, BasicOperations) {
   EXPECT_EQ(lst.front(), 1);
   EXPECT_EQ(lst.back(), 3);
 
-  // Push front
   lst.pushFront(0);
   EXPECT_EQ(lst.size(), 4);
   EXPECT_EQ(lst.front(), 0);
 
-  // Pop back
   lst.popBack();
   EXPECT_EQ(lst.size(), 3);
   EXPECT_EQ(lst.back(), 2);
 
-  // Pop front
   lst.popFront();
   EXPECT_EQ(lst.size(), 2);
   EXPECT_EQ(lst.front(), 1);
@@ -49,7 +43,6 @@ TEST(ListTest, Constructors) {
   EXPECT_EQ(lst3.front(), 1);
   EXPECT_EQ(lst3.back(), 3);
 
-  // Copy constructor
   List<int> lst4;
   lst4.pushBack(1);
   lst4.pushBack(2);
@@ -59,7 +52,6 @@ TEST(ListTest, Constructors) {
   EXPECT_EQ(lst5.front(), 1);
   EXPECT_EQ(lst5.back(), 3);
 
-  // Move constructor
   List<int> lst6(std::move(lst5));
   EXPECT_EQ(lst6.size(), 3);
   EXPECT_TRUE(lst5.empty());
@@ -73,7 +65,6 @@ TEST(ListTest, Iterators) {
   lst.pushBack(4);
   lst.pushBack(5);
 
-  // Forward iteration
   int sum = 0;
   int count = 0;
   for (auto it = lst.begin(); it != lst.end(); ++it) {
@@ -83,14 +74,12 @@ TEST(ListTest, Iterators) {
   EXPECT_EQ(sum, 15);
   EXPECT_EQ(count, 5);
 
-  // Range-based for loop
   sum = 0;
   for (const auto& val : lst) {
     sum += val;
   }
   EXPECT_EQ(sum, 15);
 
-  // Iterator arithmetic
   auto it = lst.begin();
   EXPECT_EQ(*it, 1);
   ++it;
@@ -105,7 +94,6 @@ TEST(ListTest, Modifiers) {
   lst.pushBack(2);
   lst.pushBack(3);
 
-  // Insert in middle
   auto it = lst.begin();
   ++it;
   lst.insert(it, 99);
@@ -120,7 +108,6 @@ TEST(ListTest, Modifiers) {
   ++it;
   EXPECT_EQ(*it, 3);
 
-  // Erase from middle
   it = lst.begin();
   ++it;
   lst.erase(it);
@@ -129,14 +116,12 @@ TEST(ListTest, Modifiers) {
   EXPECT_EQ(lst.front(), 1);
   EXPECT_EQ(lst.back(), 3);
 
-  // Clear
   lst.clear();
   EXPECT_TRUE(lst.empty());
   EXPECT_EQ(lst.size(), 0);
 }
 
 TEST(ListTest, Operations) {
-  // Test remove
   List<int> lst1;
   lst1.pushBack(1);
   lst1.pushBack(2);
@@ -150,7 +135,6 @@ TEST(ListTest, Operations) {
   EXPECT_EQ(lst1.front(), 1);
   EXPECT_EQ(lst1.back(), 4);
 
-  // Test unique
   List<int> lst2;
   lst2.pushBack(1);
   lst2.pushBack(1);
@@ -170,7 +154,6 @@ TEST(ListTest, Operations) {
   ++it;
   EXPECT_EQ(*it, 1);
 
-  // Test sort
   List<int> lst3;
   lst3.pushBack(3);
   lst3.pushBack(1);
@@ -189,17 +172,14 @@ TEST(ListTest, Operations) {
 }
 
 TEST(ListTest, EdgeCases) {
-  // Empty list operations
   List<int> empty_list;
   EXPECT_TRUE(empty_list.empty());
   EXPECT_EQ(empty_list.size(), 0);
 
-  // Pop on empty list (should not crash)
   empty_list.popBack();
   empty_list.popFront();
   EXPECT_TRUE(empty_list.empty());
 
-  // Single element list
   List<int> single;
   single.pushBack(42);
   EXPECT_EQ(single.size(), 1);
@@ -209,12 +189,10 @@ TEST(ListTest, EdgeCases) {
   single.popFront();
   EXPECT_TRUE(single.empty());
 
-  // Self-assignment
   List<int> lst;
   lst.pushBack(1);
   lst.pushBack(2);
   lst.pushBack(3);
-  lst = lst;
   EXPECT_EQ(lst.size(), 3);
   EXPECT_EQ(lst.front(), 1);
 }
@@ -282,25 +260,21 @@ TEST(ListTest, Splice) {
   lst2.pushBack(5);
   lst2.pushBack(6);
 
-  // Splice entire list
   lst1.splice(lst1.end(), lst2);
   EXPECT_EQ(lst1.size(), 6);
   EXPECT_TRUE(lst2.empty());
   EXPECT_EQ(lst1.back(), 6);
 
-  // Reset
   lst2.pushBack(7);
   lst2.pushBack(8);
   lst2.pushBack(9);
 
-  // Splice single element
   auto it = lst2.begin();
   lst1.splice(lst1.begin(), lst2, it);
   EXPECT_EQ(lst1.size(), 7);
   EXPECT_EQ(lst2.size(), 2);
   EXPECT_EQ(lst1.front(), 7);
 
-  // Splice range
   auto first = lst2.begin();
   auto last = lst2.end();
   lst1.splice(lst1.end(), lst2, first, last);
@@ -320,7 +294,6 @@ TEST(ListTest, Merge) {
   lst2.pushBack(4);
   lst2.pushBack(6);
 
-  // Merge sorted lists
   lst1.merge(lst2);
   EXPECT_EQ(lst1.size(), 6);
   EXPECT_TRUE(lst2.empty());
@@ -347,7 +320,6 @@ TEST(ListTest, ReverseIterators) {
   lst.pushBack(4);
   lst.pushBack(5);
 
-  // Reverse iteration
   int sum = 0;
   int count = 0;
   for (auto it = lst.rbegin(); it != lst.rend(); --it) {
@@ -357,7 +329,6 @@ TEST(ListTest, ReverseIterators) {
   EXPECT_EQ(sum, 15);
   EXPECT_EQ(count, 5);
 
-  // Check reverse order
   auto rit = lst.rbegin();
   EXPECT_EQ(*rit, 5);
   --rit;
