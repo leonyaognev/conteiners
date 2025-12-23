@@ -61,6 +61,8 @@ class ListBase {
     /** @brief Copy constructor. */
     iterator(const iterator& it);
 
+    iterator& operator=(const iterator& other);
+
     /** @brief Dereference operator. */
     reference operator*() const;
     /** @brief Member access operator. */
