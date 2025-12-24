@@ -23,6 +23,12 @@ class Set : protected RBBase<T, Compare> {
 
  public:
   using iterator = typename Base::iterator;  ///< Bidirectional iterator
+  using key_type = T;
+  using value_type = T;
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  using const_iterator = const iterator;
+  using size_type = size_t;
 
   /** @name Constructors and assignment
    * @brief Inherit and define lifecycle operations.

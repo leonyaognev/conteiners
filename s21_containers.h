@@ -1,3 +1,5 @@
+#pragma once
+
 #include "RedBlackTree/Map.h"
 #include "RedBlackTree/MultiSet.h"
 #include "RedBlackTree/Set.h"

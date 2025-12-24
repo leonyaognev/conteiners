@@ -31,6 +31,11 @@ class Map
  public:
   using iterator = typename Base::iterator;    ///< Bidirectional iterator
   using size_type = typename Base::size_type;  ///< Size type
+  using key_type = Key;
+  using mapped_type = T;
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  using const_iterator = const iterator;
 
   /** @name Constructors and assignment
    * @brief Standard lifecycle operations.
